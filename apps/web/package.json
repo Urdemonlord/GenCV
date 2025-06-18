@@ -1,0 +1,37 @@
+{
+  "name": "@cv-generator/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx next dev",
+    "build": "npx next build",
+    "start": "npx next start",
+    "lint": "npx next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.53.0",
+    "react-pdf": "^7.5.1",
+    "@react-pdf/renderer": "^3.1.14",
+    "next-themes": "^0.3.0",
+    "lucide-react": "^0.446.0",
+    "date-fns": "^3.6.0",
+    "@cv-generator/ui": "workspace:*",
+    "@cv-generator/types": "workspace:*",
+    "@cv-generator/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.2",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "typescript": "^5.2.2",
+    "tailwindcss": "^3.3.3",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.30",
+    "eslint": "^8.49.0",
+    "eslint-config-next": "14.0.0"
+  }
+}
