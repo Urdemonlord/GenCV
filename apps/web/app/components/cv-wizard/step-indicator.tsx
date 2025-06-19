@@ -19,7 +19,7 @@ export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicator
     <div className="w-full">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex flex-col items-center flex-1">
+          <div key={step.id} className="relative flex flex-col items-center flex-1">
             <button
               onClick={() => onStepClick(index)}
               className={cn(
@@ -45,16 +45,15 @@ export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicator
               {step.title}
             </span>
             
-            {index < steps.length - 1 && (
-              <div className={cn(
-                'absolute h-0.5 w-full top-4 left-1/2 transform -translate-y-1/2',
-                index < currentStep ? 'bg-green-500' : 'bg-gray-200'
-              )} style={{ 
-                marginLeft: '50%',
-                width: `${100 / steps.length}%`,
-                zIndex: -1
-              }} />
-            )}
+              {index < steps.length - 1 && (
+                <div
+                  className={cn(
+                    'absolute h-0.5 top-4 left-1/2 -translate-x-1/2',
+                    index < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                  )}
+                  style={{ width: `${100 / steps.length}%`, zIndex: -1 }}
+                />
+              )}
           </div>
         ))}
       </div>
