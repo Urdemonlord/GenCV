@@ -28,13 +28,7 @@ const initialCVData: CVData = {
 };
 
 export default function HomePage() {
-  const [cvData, setCVData] = useState<CVData>(() => {
-    if (typeof window !== 'undefined') {
-      return loadFromLocalStorage('cv-data') || initialCVData;
-    }
-    return initialCVData;
-  });
-  
+  const [cvData, setCVData] = useState<CVData>(initialCVData);
   const [currentStep, setCurrentStep] = useState(0);
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -42,6 +36,11 @@ export default function HomePage() {
   // Prevent hydration mismatch for theme-dependent rendering
   useEffect(() => {
     setMounted(true);
+    // Load data from localStorage only after mounting to prevent hydration mismatch
+    const savedData = loadFromLocalStorage('cv-data');
+    if (savedData) {
+      setCVData(savedData);
+    }
   }, []);
 
   const handleDataChange = (newData: CVData) => {

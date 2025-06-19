@@ -1,8 +1,12 @@
 import { CVData, CVScore } from '@cv-generator/types';
 
 // Shared utilities that work in both browser and Node.js environments
+let idCounter = 0;
 export const generateId = (): string => {
-  return Math.random().toString(36).substr(2, 9);
+  // Use a counter instead of Math.random to ensure deterministic IDs
+  // This prevents hydration mismatches between server and client
+  idCounter += 1;
+  return `id_${Date.now()}_${idCounter}`;
 };
 
 export const formatDate = (date: string): string => {
