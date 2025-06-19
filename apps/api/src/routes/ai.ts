@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import rateLimit from 'express-rate-limit';
 import { GeminiAI } from '@cv-generator/lib-ai';
-import { sanitizeInput } from '@cv-generator/utils';
+import { sanitizeInput } from '@cv-generator/utils/shared';
 
 const router = Router();
 
@@ -41,7 +41,7 @@ const validateSkillsRequest = [
 ];
 
 // Routes
-router.post('/rewrite-experience', aiLimiter, validateRewriteRequest, async (req, res) => {
+router.post('/rewrite-experience', aiLimiter, validateRewriteRequest, async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -72,7 +72,7 @@ router.post('/rewrite-experience', aiLimiter, validateRewriteRequest, async (req
   }
 });
 
-router.post('/summarize-profile', aiLimiter, validateSummaryRequest, async (req, res) => {
+router.post('/summarize-profile', aiLimiter, validateSummaryRequest, async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -98,7 +98,7 @@ router.post('/summarize-profile', aiLimiter, validateSummaryRequest, async (req,
   }
 });
 
-router.post('/suggest-skills', aiLimiter, validateSkillsRequest, async (req, res) => {
+router.post('/suggest-skills', aiLimiter, validateSkillsRequest, async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

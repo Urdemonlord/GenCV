@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Sparkles, Download, Upload, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -36,7 +36,13 @@ export default function HomePage() {
   });
   
   const [currentStep, setCurrentStep] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+
+  // Prevent hydration mismatch for theme-dependent rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDataChange = (newData: CVData) => {
     setCVData(newData);
@@ -110,14 +116,16 @@ export default function HomePage() {
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Export
-            </Button>
-
-            <Button
+            </Button>            <Button
               variant="ghost"
               size="sm"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {mounted ? (
+                theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
+              ) : (
+                <div className="h-4 w-4" /> // Placeholder to prevent layout shift
+              )}
             </Button>
           </div>
         </div>

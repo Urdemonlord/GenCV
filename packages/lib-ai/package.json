@@ -6,10 +6,9 @@
   "types": "./index.ts",
   "scripts": {
     "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
+  },  "dependencies": {
     "@google/generative-ai": "^0.2.1",
-    "@cv-generator/types": "workspace:*"
+    "@cv-generator/types": "file:../types"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

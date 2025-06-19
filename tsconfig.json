@@ -12,10 +12,18 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "incremental": true
+    "resolveJsonModule": true,    "isolatedModules": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@cv-generator/*": ["packages/*/src", "packages/*"]
+    }
   },
-  "include": [],
-  "exclude": ["node_modules", "dist", ".next"]
+  "include": [
+    "apps/*/src/**/*",
+    "packages/*/src/**/*",
+    "packages/*/*.ts",
+    "packages/*/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist", ".next", "**/node_modules", "**/dist"]
 }

@@ -10,13 +10,16 @@
     "clean": "turbo clean"
   },
   "devDependencies": {
-    "turbo": "^1.10.16",
     "@types/node": "^20.6.2",
+    "turbo": "^1.10.16",
     "typescript": "^5.2.2"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "npm@10.0.0"
+  "dependencies": {
+    "framer-motion": "^12.18.1",
+    "tailwindcss-animate": "^1.0.7"
+  }
 }
