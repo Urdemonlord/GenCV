@@ -63,7 +63,7 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">Personal Information</h2>
         <p className="text-muted-foreground">
-          Let's start with your basic contact information.
+          Let&apos;s start with your basic contact information.
         </p>
       </div>
 
