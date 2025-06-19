@@ -16,7 +16,7 @@ export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps)
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">What's your experience level?</h2>
+        <h2 className="text-2xl font-bold mb-2">What&apos;s your experience level?</h2>
         <p className="text-muted-foreground">
           This helps us customize the form and provide better AI suggestions.
         </p>
