@@ -30,6 +30,7 @@ const initialCVData: CVData = {
 export default function HomePage() {
   const [cvData, setCVData] = useState<CVData>(initialCVData);
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -158,15 +159,50 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* CV Preview */}
-          <motion.div
+          {/* CV Preview */}          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="glass-card p-6 rounded-xl">
-              <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
-              <CVPreview cvData={cvData} />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Live Preview</h2>
+                
+                {/* Template Selection */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setSelectedTemplate('modern')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      selectedTemplate === 'modern'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Modern
+                  </button>
+                  <button
+                    onClick={() => setSelectedTemplate('classic')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      selectedTemplate === 'classic'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Classic
+                  </button>
+                  <button
+                    onClick={() => setSelectedTemplate('creative')}
+                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                      selectedTemplate === 'creative'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Creative
+                  </button>
+                </div>
+              </div>
+              <CVPreview cvData={cvData} template={selectedTemplate} />
             </div>
           </motion.div>
         </div>

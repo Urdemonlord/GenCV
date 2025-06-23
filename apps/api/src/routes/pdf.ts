@@ -211,7 +211,20 @@ router.post('/generate-pdf', pdfLimiter, validatePDFRequest, async (req: Request
   }
 });
 
-function generateHTML(cvData: any, template?: string): string {
+function generateHTML(cvData: any, template: string = 'modern'): string {
+  // Template-specific styles and HTML generation
+  switch (template) {
+    case 'classic':
+      return generateClassicHTML(cvData);
+    case 'creative':
+      return generateCreativeHTML(cvData);
+    case 'modern':
+    default:
+      return generateModernHTML(cvData);
+  }
+}
+
+function generateModernHTML(cvData: any): string {
   return `
     <!DOCTYPE html>
     <html>
@@ -224,174 +237,732 @@ function generateHTML(cvData: any, template?: string): string {
           font-family: Arial, sans-serif; 
           margin: 0; 
           padding: 20px; 
-          color: #333; 
+          color: #1f2937; 
           background: white;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        h1 { 
-          color: #2563eb; 
-          margin-bottom: 5px; 
-          font-size: 2.5em;
+        .cv-container {
+          background: white;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          overflow: hidden;
         }
-        h2 { 
-          color: #2563eb; 
-          border-bottom: 2px solid #e2e8f0; 
-          padding-bottom: 5px; 
-          margin-top: 30px; 
-          margin-bottom: 15px;
+        .header {
+          background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+          color: white;
+          padding: 32px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
         }
-        .header { 
-          margin-bottom: 30px; 
-          text-align: center;
-          border-bottom: 3px solid #2563eb;
-          padding-bottom: 20px;
+        .header h1 {
+          font-size: 2.25rem;
+          font-weight: bold;
+          margin: 0 0 4px 0;
+        }
+        .header .subtitle {
+          font-size: 1.25rem;
+          opacity: 0.9;
+          margin: 0;
         }
         .contact-info {
-          margin-top: 10px;
-          font-size: 1.1em;
-          color: #4b5563;
+          text-align: right;
+          font-size: 0.875rem;
         }
-        .section { 
-          margin-bottom: 25px; 
-          page-break-inside: avoid;
+        .contact-info div {
+          margin: 4px 0;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 8px;
         }
-        .job { 
-          margin-bottom: 20px; 
-          border-left: 3px solid #e2e8f0;
-          padding-left: 15px;
+        .content {
+          padding: 32px;
         }
-        .job-title { 
-          font-weight: bold; 
-          margin-bottom: 3px; 
-          font-size: 1.2em;
+        .section {
+          margin-bottom: 32px;
+        }
+        .section h2 {
           color: #1f2937;
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin: 0 0 16px 0;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #e5e7eb;
         }
-        .job-company { 
-          color: #4b5563; 
+        .experience-item, .education-item, .project-item {
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #f3f4f6;
+        }
+        .experience-item:last-child, .education-item:last-child, .project-item:last-child {
+          border-bottom: none;
+        }
+        .item-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 8px;
+        }
+        .item-title {
+          font-weight: 600;
+          color: #1f2937;
+          font-size: 1.125rem;
+        }
+        .item-company {
+          color: #4b5563;
           font-weight: 500;
-          font-size: 1.1em;
+          margin-top: 2px;
         }
-        .job-duration { 
-          color: #6b7280; 
-          font-size: 0.9em; 
-          margin: 5px 0;
+        .item-duration {
+          color: #6b7280;
+          font-size: 0.875rem;
+          white-space: nowrap;
         }
-        .job-description { 
-          margin-top: 8px; 
-          line-height: 1.6;
-        }
-        .skills { 
-          display: flex; 
-          flex-wrap: wrap; 
-          gap: 8px; 
-          margin-top: 10px;
-        }
-        .skill { 
-          background: #e2e8f0; 
-          border-radius: 6px; 
-          padding: 6px 12px; 
-          font-size: 0.9em;
+        .item-description {
           color: #374151;
-          border: 1px solid #cbd5e1;
+          line-height: 1.6;
+          margin-top: 12px;
         }
         .summary {
           background: #f8fafc;
           border-left: 4px solid #2563eb;
-          padding: 15px;
-          margin: 20px 0;
+          padding: 20px;
+          margin: 0;
           border-radius: 0 6px 6px 0;
+          color: #374151;
+          line-height: 1.6;
+        }
+        .skills-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 16px;
+        }
+        .skill-item {
+          background: #e5e7eb;
+          color: #374151;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+        .tech-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 12px;
+        }
+        .tech-tag {
+          background: #dbeafe;
+          color: #1e40af;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 500;
         }
         @media print {
           body { margin: 0; padding: 10mm; }
-          .header { page-break-after: avoid; }
-          .section { page-break-inside: avoid; }
+          .cv-container { box-shadow: none; }
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <h1>${cvData.personalInfo?.fullName || ''}</h1>
-        <div style="font-size: 1.3em; color: #4b5563; margin: 5px 0;">${cvData.personalInfo?.title || ''}</div>
-        <div class="contact-info">
-          ${cvData.personalInfo?.email ? `${cvData.personalInfo.email}` : ''}
-          ${cvData.personalInfo?.phone ? ` | ${cvData.personalInfo.phone}` : ''}
-          ${cvData.personalInfo?.location ? ` | ${cvData.personalInfo.location}` : ''}
+      <div class="cv-container">
+        <header class="header">
+          <div>
+            <h1>${cvData.personalInfo?.fullName || 'Your Name'}</h1>
+            <p class="subtitle">Professional</p>
+          </div>
+          <div class="contact-info">
+            ${cvData.personalInfo?.email ? `<div>📧 ${cvData.personalInfo.email}</div>` : ''}
+            ${cvData.personalInfo?.phone ? `<div>📞 ${cvData.personalInfo.phone}</div>` : ''}
+            ${cvData.personalInfo?.location ? `<div>📍 ${cvData.personalInfo.location}</div>` : ''}
+            ${cvData.personalInfo?.linkedIn ? `<div>💼 ${cvData.personalInfo.linkedIn}</div>` : ''}
+            ${cvData.personalInfo?.website ? `<div>🌐 ${cvData.personalInfo.website}</div>` : ''}
+          </div>
+        </header>
+
+        <div class="content">
+          ${cvData.professionalSummary ? `
+            <div class="section">
+              <h2>Professional Summary</h2>
+              <div class="summary">${cvData.professionalSummary}</div>
+            </div>
+          ` : ''}
+
+          ${cvData.experience && cvData.experience.length > 0 ? `
+            <div class="section">
+              <h2>Work Experience</h2>
+              ${cvData.experience.map((exp: any) => `
+                <div class="experience-item">
+                  <div class="item-header">
+                    <div>
+                      <div class="item-title">${exp.position || ''}</div>
+                      <div class="item-company">${exp.company || ''}</div>
+                    </div>
+                    <div class="item-duration">${exp.startDate || ''} - ${exp.current ? 'Present' : exp.endDate || ''}</div>
+                  </div>
+                  ${exp.description ? `<div class="item-description">${exp.description}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          ${cvData.education && cvData.education.length > 0 ? `
+            <div class="section">
+              <h2>Education</h2>
+              ${cvData.education.map((edu: any) => `
+                <div class="education-item">
+                  <div class="item-header">
+                    <div>
+                      <div class="item-title">${edu.degree || ''} in ${edu.field || ''}</div>
+                      <div class="item-company">${edu.institution || ''}</div>
+                    </div>
+                    <div class="item-duration">${edu.startDate || ''} - ${edu.endDate || ''}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          ${cvData.skills && cvData.skills.length > 0 ? `
+            <div class="section">
+              <h2>Skills</h2>
+              <div class="skills-container">
+                ${cvData.skills.map((skill: any) => `
+                  <span class="skill-item">${skill.name || skill} ${skill.level ? `(${skill.level})` : ''}</span>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${cvData.projects && cvData.projects.length > 0 ? `
+            <div class="section">
+              <h2>Projects</h2>
+              ${cvData.projects.map((project: any) => {
+                const technologies = Array.isArray(project.technologies)
+                  ? project.technologies
+                  : (typeof project.technologies === 'string' ? project.technologies.split(/[,;]/).map((t: string) => t.trim()) : []);
+
+                return `
+                  <div class="project-item">
+                    <div class="item-header">
+                      <div class="item-title">${project.name || ''}</div>
+                      ${project.date ? `<div class="item-duration">${project.date}</div>` : ''}
+                    </div>
+                    ${project.description ? `<div class="item-description">${sanitizeInput(project.description)}</div>` : ''}
+                    ${technologies.length > 0 ? `
+                      <div class="tech-tags">
+                        ${technologies.map((tech: string) => `<span class="tech-tag">${sanitizeInput(tech)}</span>`).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
         </div>
       </div>
+    </body>
+    </html>
+  `;
+}
 
-      ${cvData.professionalSummary ? `
-        <div class="section">
-          <h2>Professional Summary</h2>
-          <div class="summary">
-            <p>${cvData.professionalSummary}</p>
+function generateClassicHTML(cvData: any): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>CV - ${cvData.personalInfo?.fullName || 'Resume'}</title>
+      <style>
+        body { 
+          font-family: 'Times New Roman', serif; 
+          margin: 0; 
+          padding: 20px; 
+          color: #111827; 
+          background: white;
+          line-height: 1.6;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .cv-container {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        .header {
+          border-bottom: 3px solid #111827;
+          padding-bottom: 16px;
+          margin-bottom: 24px;
+        }
+        .header h1 {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #111827;
+          margin: 0 0 8px 0;
+        }
+        .contact-info {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          font-size: 0.875rem;
+          color: #374151;
+        }
+        .contact-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .section {
+          margin-bottom: 32px;
+        }
+        .section h2 {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #111827;
+          margin: 0 0 16px 0;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          border-bottom: 1px solid #d1d5db;
+          padding-bottom: 4px;
+        }
+        .experience-item, .education-item, .project-item {
+          margin-bottom: 20px;
+          padding-left: 16px;
+          border-left: 1px solid #d1d5db;
+        }
+        .item-header {
+          margin-bottom: 8px;
+        }
+        .item-title {
+          font-weight: bold;
+          font-size: 1.1rem;
+          color: #111827;
+        }
+        .item-company {
+          color: #374151;
+          font-style: italic;
+          margin-top: 2px;
+        }
+        .item-duration {
+          color: #6b7280;
+          font-size: 0.875rem;
+          margin-top: 4px;
+        }
+        .item-description {
+          color: #374151;
+          margin-top: 8px;
+        }
+        .summary {
+          font-style: italic;
+          color: #374151;
+          background: #f9fafb;
+          padding: 16px;
+          border-left: 4px solid #6b7280;
+          margin: 0;
+        }
+        .skills-container {
+          margin-top: 8px;
+        }
+        .skill-category {
+          margin-bottom: 12px;
+        }
+        .skill-category-title {
+          font-weight: bold;
+          color: #111827;
+          margin-bottom: 4px;
+        }
+        .skill-items {
+          color: #374151;
+        }
+        @media print {
+          body { padding: 10mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="cv-container">
+        <header class="header">
+          <h1>${cvData.personalInfo?.fullName || 'Your Name'}</h1>
+          <div class="contact-info">
+            ${cvData.personalInfo?.email ? `<div class="contact-item">📧 ${cvData.personalInfo.email}</div>` : ''}
+            ${cvData.personalInfo?.phone ? `<div class="contact-item">📞 ${cvData.personalInfo.phone}</div>` : ''}
+            ${cvData.personalInfo?.location ? `<div class="contact-item">📍 ${cvData.personalInfo.location}</div>` : ''}
+            ${cvData.personalInfo?.linkedIn ? `<div class="contact-item">💼 ${cvData.personalInfo.linkedIn}</div>` : ''}
+            ${cvData.personalInfo?.website ? `<div class="contact-item">🌐 ${cvData.personalInfo.website}</div>` : ''}
           </div>
-        </div>
-      ` : ''}
+        </header>
 
-      ${cvData.experience && cvData.experience.length > 0 ? `
-        <div class="section">
-          <h2>Experience</h2>
-          ${cvData.experience.map((exp: any) => `
-            <div class="job">
-              <div class="job-title">${exp.position || ''}</div>
-              <div class="job-company">${exp.company || ''}</div>
-              <div class="job-duration">${exp.startDate || ''} - ${exp.endDate || 'Present'}</div>
-              ${exp.location ? `<div style="color: #6b7280; font-size: 0.9em;">${exp.location}</div>` : ''}
-              ${exp.description ? `<div class="job-description">${exp.description}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
-
-      ${cvData.education && cvData.education.length > 0 ? `
-        <div class="section">
-          <h2>Education</h2>
-          ${cvData.education.map((edu: any) => `
-            <div class="job">
-              <div class="job-title">${edu.degree || ''}</div>
-              <div class="job-company">${edu.institution || ''}</div>
-              <div class="job-duration">${edu.startDate || ''} - ${edu.endDate || 'Present'}</div>
-              ${edu.location ? `<div style="color: #6b7280; font-size: 0.9em;">${edu.location}</div>` : ''}
-              ${edu.description ? `<div class="job-description">${edu.description}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
-
-      ${cvData.skills && cvData.skills.length > 0 ? `
-        <div class="section">
-          <h2>Skills</h2>
-          <div class="skills">
-            ${cvData.skills.map((skill: any) => `<span class="skill">${skill.name || skill}</span>`).join('')}
+        ${cvData.professionalSummary ? `
+          <div class="section">
+            <h2>Professional Summary</h2>
+            <div class="summary">${cvData.professionalSummary}</div>
           </div>
-        </div>
-      ` : ''}
+        ` : ''}
 
-      ${cvData.projects && cvData.projects.length > 0 ? `
-        <div class="section">
-          <h2 class="section-title">Projects</h2>
-          ${cvData.projects.map((project: any) => {
-            // Robustly handle technologies whether it's an array or a comma-separated string
-            const technologies = Array.isArray(project.technologies)
-              ? project.technologies
-              : (typeof project.technologies === 'string' ? project.technologies.split(/[,;]/).map((t: string) => t.trim()) : []);
-
-            return `
-              <div class="project-item">
-                <div class="project-header">
-                  <div class="project-title">${project.name || ''}</div>
-                  ${project.date ? `<div class="project-date">${project.date}</div>` : ''}
+        ${cvData.experience && cvData.experience.length > 0 ? `
+          <div class="section">
+            <h2>Work Experience</h2>
+            ${cvData.experience.map((exp: any) => `
+              <div class="experience-item">
+                <div class="item-header">
+                  <div class="item-title">${exp.position || ''}</div>
+                  <div class="item-company">${exp.company || ''}</div>
+                  <div class="item-duration">${exp.startDate || ''} - ${exp.current ? 'Present' : exp.endDate || ''}</div>
                 </div>
-                <p class="project-description">${sanitizeInput(project.description)}</p>
-                <div class="technologies">
-                  ${technologies.map((tech: string) => `<span class="tech-tag">${sanitizeInput(tech)}</span>`).join('')}
+                ${exp.description ? `<div class="item-description">${exp.description}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${cvData.education && cvData.education.length > 0 ? `
+          <div class="section">
+            <h2>Education</h2>
+            ${cvData.education.map((edu: any) => `
+              <div class="education-item">
+                <div class="item-header">
+                  <div class="item-title">${edu.degree || ''} in ${edu.field || ''}</div>
+                  <div class="item-company">${edu.institution || ''}</div>
+                  <div class="item-duration">${edu.startDate || ''} - ${edu.endDate || ''}</div>
                 </div>
               </div>
-            `;
-          }).join('')}
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${cvData.skills && cvData.skills.length > 0 ? `
+          <div class="section">
+            <h2>Skills</h2>
+            <div class="skills-container">
+              ${['Technical', 'Soft', 'Language'].map(category => {
+                const categorySkills = cvData.skills.filter((skill: any) => skill.category === category);
+                if (categorySkills.length === 0) return '';
+                return `
+                  <div class="skill-category">
+                    <div class="skill-category-title">${category}:</div>
+                    <div class="skill-items">${categorySkills.map((skill: any) => `${skill.name || skill}${skill.level ? ` (${skill.level})` : ''}`).join(', ')}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${cvData.projects && cvData.projects.length > 0 ? `
+          <div class="section">
+            <h2>Projects</h2>
+            ${cvData.projects.map((project: any) => {
+              const technologies = Array.isArray(project.technologies)
+                ? project.technologies
+                : (typeof project.technologies === 'string' ? project.technologies.split(/[,;]/).map((t: string) => t.trim()) : []);
+
+              return `
+                <div class="project-item">
+                  <div class="item-header">
+                    <div class="item-title">${project.name || ''}</div>
+                    ${project.date ? `<div class="item-duration">${project.date}</div>` : ''}
+                  </div>
+                  ${project.description ? `<div class="item-description">${sanitizeInput(project.description)}</div>` : ''}
+                  ${technologies.length > 0 ? `<div class="item-description"><strong>Technologies:</strong> ${technologies.map((tech: string) => sanitizeInput(tech)).join(', ')}</div>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateCreativeHTML(cvData: any): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>CV - ${cvData.personalInfo?.fullName || 'Resume'}</title>
+      <style>
+        body { 
+          font-family: 'Arial', sans-serif; 
+          margin: 0; 
+          padding: 20px; 
+          color: #2d3748; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .cv-container {
+          background: white;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
+        }
+        .cv-container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 6px;
+          background: linear-gradient(90deg, #f093fb 0%, #f5576c 25%, #4facfe 50%, #00f2fe 75%, #43e97b 100%);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 40px;
+          text-align: center;
+          position: relative;
+        }
+        .header::after {
+          content: '';
+          position: absolute;
+          bottom: -20px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 20px solid transparent;
+          border-right: 20px solid transparent;
+          border-top: 20px solid #764ba2;
+        }
+        .header h1 {
+          font-size: 2.5rem;
+          font-weight: bold;
+          margin: 0 0 8px 0;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+          font-size: 1.25rem;
+          opacity: 0.9;
+          margin-bottom: 16px;
+        }
+        .contact-info {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 16px;
+          font-size: 0.875rem;
+        }
+        .contact-item {
+          background: rgba(255,255,255,0.2);
+          padding: 4px 12px;
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
+        }
+        .content {
+          padding: 40px;
+          padding-top: 30px;
+        }
+        .section {
+          margin-bottom: 40px;
+        }
+        .section h2 {
+          color: #667eea;
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin: 0 0 20px 0;
+          position: relative;
+          padding-bottom: 8px;
+        }
+        .section h2::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 50px;
+          height: 3px;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          border-radius: 2px;
+        }
+        .experience-item, .education-item, .project-item {
+          background: #f7fafc;
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border-left: 4px solid #667eea;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .item-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 12px;
+        }
+        .item-title {
+          font-weight: 600;
+          color: #2d3748;
+          font-size: 1.125rem;
+        }
+        .item-company {
+          color: #4a5568;
+          font-weight: 500;
+          margin-top: 4px;
+        }
+        .item-duration {
+          background: #667eea;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          white-space: nowrap;
+        }
+        .item-description {
+          color: #4a5568;
+          line-height: 1.6;
+        }
+        .summary {
+          background: linear-gradient(135deg, #667eea10, #764ba210);
+          border-radius: 12px;
+          padding: 24px;
+          color: #2d3748;
+          line-height: 1.6;
+          border-left: 4px solid #667eea;
+          font-style: italic;
+        }
+        .skills-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 16px;
+        }
+        .skill-item {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .tech-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 12px;
+        }
+        .tech-tag {
+          background: #e2e8f0;
+          color: #2d3748;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          border: 1px solid #cbd5e0;
+        }
+        @media print {
+          body { 
+            background: white;
+            padding: 10mm; 
+          }
+          .cv-container { 
+            box-shadow: none; 
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="cv-container">
+        <header class="header">
+          <h1>${cvData.personalInfo?.fullName || 'Your Name'}</h1>
+          <p class="subtitle">Creative Professional</p>
+          <div class="contact-info">
+            ${cvData.personalInfo?.email ? `<div class="contact-item">📧 ${cvData.personalInfo.email}</div>` : ''}
+            ${cvData.personalInfo?.phone ? `<div class="contact-item">📞 ${cvData.personalInfo.phone}</div>` : ''}
+            ${cvData.personalInfo?.location ? `<div class="contact-item">📍 ${cvData.personalInfo.location}</div>` : ''}
+            ${cvData.personalInfo?.linkedIn ? `<div class="contact-item">💼 ${cvData.personalInfo.linkedIn}</div>` : ''}
+            ${cvData.personalInfo?.website ? `<div class="contact-item">🌐 ${cvData.personalInfo.website}</div>` : ''}
+          </div>
+        </header>
+
+        <div class="content">
+          ${cvData.professionalSummary ? `
+            <div class="section">
+              <h2>Professional Summary</h2>
+              <div class="summary">${cvData.professionalSummary}</div>
+            </div>
+          ` : ''}
+
+          ${cvData.experience && cvData.experience.length > 0 ? `
+            <div class="section">
+              <h2>Work Experience</h2>
+              ${cvData.experience.map((exp: any) => `
+                <div class="experience-item">
+                  <div class="item-header">
+                    <div>
+                      <div class="item-title">${exp.position || ''}</div>
+                      <div class="item-company">${exp.company || ''}</div>
+                    </div>
+                    <div class="item-duration">${exp.startDate || ''} - ${exp.current ? 'Present' : exp.endDate || ''}</div>
+                  </div>
+                  ${exp.description ? `<div class="item-description">${exp.description}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          ${cvData.education && cvData.education.length > 0 ? `
+            <div class="section">
+              <h2>Education</h2>
+              ${cvData.education.map((edu: any) => `
+                <div class="education-item">
+                  <div class="item-header">
+                    <div>
+                      <div class="item-title">${edu.degree || ''} in ${edu.field || ''}</div>
+                      <div class="item-company">${edu.institution || ''}</div>
+                    </div>
+                    <div class="item-duration">${edu.startDate || ''} - ${edu.endDate || ''}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          ${cvData.skills && cvData.skills.length > 0 ? `
+            <div class="section">
+              <h2>Skills</h2>
+              <div class="skills-container">
+                ${cvData.skills.map((skill: any) => `
+                  <span class="skill-item">${skill.name || skill} ${skill.level ? `(${skill.level})` : ''}</span>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${cvData.projects && cvData.projects.length > 0 ? `
+            <div class="section">
+              <h2>Projects</h2>
+              ${cvData.projects.map((project: any) => {
+                const technologies = Array.isArray(project.technologies)
+                  ? project.technologies
+                  : (typeof project.technologies === 'string' ? project.technologies.split(/[,;]/).map((t: string) => t.trim()) : []);
+
+                return `
+                  <div class="project-item">
+                    <div class="item-header">
+                      <div class="item-title">${project.name || ''}</div>
+                      ${project.date ? `<div class="item-duration">${project.date}</div>` : ''}
+                    </div>
+                    ${project.description ? `<div class="item-description">${sanitizeInput(project.description)}</div>` : ''}
+                    ${technologies.length > 0 ? `
+                      <div class="tech-tags">
+                        ${technologies.map((tech: string) => `<span class="tech-tag">${sanitizeInput(tech)}</span>`).join('')}
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
         </div>
-      ` : ''}
+      </div>
     </body>
     </html>
   `;

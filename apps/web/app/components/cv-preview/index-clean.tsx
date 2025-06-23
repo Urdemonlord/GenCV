@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Download, Eye, FileText } from 'lucide-react';
 import { CVData } from '@cv-generator/types';
-import { Button, Card, CardContent, Progress, Badge } from '@cv-generator/ui';
-import { calculateCVScore, formatDate } from '@cv-generator/utils';
+import { Button, Card, CardContent, Progress } from '@cv-generator/ui';
+import { calculateCVScore } from '@cv-generator/utils';
 import { ModernTemplate } from './templates/modern-template';
 import { ClassicTemplate } from './templates/classic-template';
 import { CreativeTemplate } from './templates/creative-template';
@@ -17,20 +17,21 @@ interface CVPreviewProps {
 export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
   const [showScore, setShowScore] = useState(false);
   const cvScore = calculateCVScore(cvData);
+  
   const handleDownload = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
       
       console.log('Starting PDF download from CV Preview...');
-        // Fetch PDF using proper blob handling
+      
       const response = await fetch(`${apiUrl}/api/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/pdf', // Explicitly request PDF format
-          'Cache-Control': 'no-cache', // Prevent caching
+          'Accept': 'application/pdf',
+          'Cache-Control': 'no-cache',
         },
-        credentials: 'include', // Include credentials if using sessions/cookies
+        credentials: 'include',
         body: JSON.stringify({ 
           cvData, 
           template: template === 'preview' ? 'modern' : template 
@@ -44,11 +45,10 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
         const errorText = await response.text();
         throw new Error(`Server error ${response.status}: ${errorText}`);
       }
-        // Get Content-Disposition header if present
+      
       const contentDisposition = response.headers.get('Content-Disposition');
       console.log('Content-Disposition header:', contentDisposition);
       
-      // Extract filename from Content-Disposition if present
       let serverFilename = '';
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
@@ -57,17 +57,16 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
         }
       }
       
-      // Convert response to blob - this preserves binary data
       const blob = await response.blob();
       console.log('PDF blob received:', {
         size: blob.size,
         type: blob.type,
         sizeInKB: Math.round(blob.size / 1024)
       });
-        // Check for PDF signature (first few bytes should be %PDF-)
+      
+      // Check for PDF signature
       const firstBytes = await blob.slice(0, 5).arrayBuffer();
       const signature = new Uint8Array(firstBytes);
-      // Convert Uint8Array to string without using spread operator
       let signatureText = '';
       for (let i = 0; i < signature.length; i++) {
         signatureText += String.fromCharCode(signature[i]);
@@ -78,18 +77,17 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
         throw new Error(`Invalid PDF format (signature: ${signatureText}, type: ${blob.type})`);
       }
       
-      // Validate blob size
       if (blob.size < 5000) {
         throw new Error(`PDF file too small (${blob.size} bytes), likely corrupted`);
       }
-        // Create download link
+      
       const url = URL.createObjectURL(blob);
       const fallbackName = `${cvData.personalInfo?.fullName || 'cv'}.pdf`.replace(/[^a-zA-Z0-9.-]/g, '_');
       const filename = serverFilename || fallbackName;
-        
+      
       // Debug option: Uncomment to open PDF in new tab for verification
       // window.open(url, '_blank');
-        // Use a clean approach to trigger download
+      
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
@@ -110,13 +108,13 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
       alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
-  // Select the appropriate template component
-  const TemplateComponent = template === 'classic' ? ClassicTemplate : 
-                           template === 'creative' ? CreativeTemplate : 
-                           ModernTemplate;
 
   // If we're just rendering a template (for PDF), render the template directly
   if (template && template !== 'preview') {
+    const TemplateComponent = template === 'classic' ? ClassicTemplate : 
+                             template === 'creative' ? CreativeTemplate : 
+                             ModernTemplate;
+    
     return <TemplateComponent data={cvData} />;
   }
 
@@ -179,7 +177,7 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Eye className="w-5 h-5" />
-              Live Preview ({template || 'modern'} template)
+              Live Preview
             </h3>
             <Button onClick={handleDownload} size="sm">
               <Download className="w-4 h-4 mr-2" />
@@ -187,16 +185,15 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
             </Button>
           </div>
 
-          {/* CV Content - Now using template component for WYSIWYG consistency */}
-          <div className="bg-white text-black p-8 rounded border min-h-[500px]">
-            <TemplateComponent data={cvData} />
-            
-            {/* Empty State */}
-            {!cvData.personalInfo?.fullName && (
-              <div className="text-center text-gray-500 py-12">
+          {/* CV Content - Using Template Component for consistency */}
+          <div className="rounded border">
+            {!cvData.personalInfo.fullName ? (
+              <div className="text-center text-gray-500 py-12 bg-white rounded">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Start filling out your information to see the preview</p>
               </div>
+            ) : (
+              <ModernTemplate data={cvData} />
             )}
           </div>
         </CardContent>
