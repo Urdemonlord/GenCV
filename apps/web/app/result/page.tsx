@@ -17,7 +17,9 @@ export default function ResultPage() {
     if (loadedData) {
       setCvData(loadedData);
     }
-  }, []);  const handleDownloadPDF = async () => {
+  }, []);
+
+  const handleDownloadPDF = async () => {
     if (!cvData) return;
     
     try {
@@ -30,6 +32,7 @@ export default function ResultPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/pdf',
         },
         body: JSON.stringify({ cvData, template: selectedTemplate }),
       });
@@ -41,6 +44,17 @@ export default function ResultPage() {
         const errorText = await response.text();
         throw new Error(`Server error ${response.status}: ${errorText}`);
       }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      console.log('Content-Disposition header:', contentDisposition);
+
+      let serverFilename = '';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          serverFilename = filenameMatch[1];
+        }
+      }
       
       // Get response as blob to preserve binary integrity
       const blob = await response.blob();
@@ -49,6 +63,18 @@ export default function ResultPage() {
         type: blob.type,
         sizeInKB: Math.round(blob.size / 1024)
       });
+
+      const firstBytes = await blob.slice(0, 5).arrayBuffer();
+      const signature = new Uint8Array(firstBytes);
+      let signatureText = '';
+      for (let i = 0; i < signature.length; i++) {
+        signatureText += String.fromCharCode(signature[i]);
+      }
+      console.log('PDF signature check:', signatureText);
+
+      if (signatureText !== '%PDF-' || blob.type !== 'application/pdf') {
+        throw new Error(`Invalid PDF format (signature: ${signatureText}, type: ${blob.type})`);
+      }
       
       // Validate blob size - should be substantial for a PDF
       if (blob.size < 5000) {
@@ -57,7 +83,8 @@ export default function ResultPage() {
       
       // Create download link and trigger download
       const url = URL.createObjectURL(blob);
-      const filename = `${cvData.personalInfo?.fullName || 'cv'}.pdf`.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fallbackName = `${cvData.personalInfo?.fullName || 'cv'}.pdf`.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = serverFilename || fallbackName;
       
       const link = document.createElement('a');
       link.href = url;
