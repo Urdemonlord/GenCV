@@ -3,7 +3,6 @@ import { body, validationResult } from 'express-validator';
 import rateLimit from 'express-rate-limit';
 import puppeteer from 'puppeteer';
 import { sanitizeInput } from '@cv-generator/utils/shared';
-import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
@@ -23,7 +22,8 @@ async function ensureTmpDir() {
   }
 }
 
-ensureTmpDir();
+// Ensure the temporary directory is created before handling requests
+ensureTmpDir().catch(err => console.error('ensureTmpDir error:', err));
 
 // PDF generation rate limiting
 const pdfLimiter = rateLimit({
@@ -173,7 +173,10 @@ router.post('/generate-pdf', pdfLimiter, validatePDFRequest, async (req: Request
     console.log('PDF buffer size sent:', pdfBuffer.length);
     
     // Send PDF buffer directly
-    res.send(pdfBuffer);
+    // Ensure the response is sent as a Buffer to avoid JSON serialization
+    const bufferToSend = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
+    res.setHeader('Content-Length', bufferToSend.length);
+    res.send(bufferToSend);
     
     console.log('PDF response sent successfully');
     
