@@ -1,7 +1,8 @@
 {
   "name": "@cv-generator/api",
   "version": "0.0.0",
-  "private": true,  "scripts": {
+  "private": true,
+  "scripts": {
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/index.js",
@@ -9,24 +10,28 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "helmet": "^7.0.0",
-    "express-rate-limit": "^6.10.0",
-    "express-validator": "^7.0.1",    "dotenv": "^16.3.1",
     "@cv-generator/lib-ai": "file:../../packages/lib-ai",
     "@cv-generator/types": "file:../../packages/types",
-    "@cv-generator/utils": "file:../../packages/utils"
+    "@cv-generator/utils": "file:../../packages/utils",
+    "@types/compression": "^1.8.1",
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
+    "puppeteer": "^24.10.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.17",
     "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
     "@types/node": "^20.6.2",
-    "typescript": "^5.2.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.49.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
-    "eslint": "^8.49.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0"
+    "typescript": "^5.2.2"
   }
 }

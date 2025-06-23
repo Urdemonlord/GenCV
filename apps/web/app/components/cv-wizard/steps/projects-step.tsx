@@ -1,14 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, ExternalLink, Code } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Code, Sparkles, RefreshCw } from 'lucide-react';
 import { CVData, Project } from '@cv-generator/types';
 import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle, Badge } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
+import { useRouter } from 'next/navigation';
 
 export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [generatingDescriptions, setGeneratingDescriptions] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter();
 
   const addProject = () => {
     const newProject: Project = {
@@ -33,6 +37,10 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
         project.id === id ? { ...project, [field]: value } : project
       ),
     });
+    // Clear error when user updates the field
+    if (errors[id]) {
+      setErrors(prev => ({...prev, [id]: ''}));
+    }
   };
 
   const deleteProject = (id: string) => {
@@ -43,11 +51,64 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
     if (editingId === id) {
       setEditingId(null);
     }
+    // Clear any errors for this project
+    if (errors[id]) {
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleTechnologiesChange = (id: string, value: string) => {
     const technologies = value.split(',').map(tech => tech.trim()).filter(Boolean);
     updateProject(id, 'technologies', technologies);
+  };
+
+  const generateDescription = async (projectId: string) => {
+    const project = cvData.projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    if (!project.name.trim()) {
+      setErrors(prev => ({...prev, [projectId]: 'Please enter a project name first'}));
+      return;
+    }
+
+    if (project.technologies.length === 0) {
+      setErrors(prev => ({...prev, [projectId]: 'Please add some technologies first'}));
+      return;
+    }
+
+    setGeneratingDescriptions(prev => ({...prev, [projectId]: true}));
+    setErrors(prev => ({...prev, [projectId]: ''}));
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiUrl}/api/generate-project-description`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectName: project.name,
+          technologies: project.technologies,
+          projectType: 'Web/Software Project'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        updateProject(projectId, 'description', result.data);
+      } else {
+        setErrors(prev => ({...prev, [projectId]: result.error || 'Failed to generate description. Please try again.'}));
+      }
+    } catch (error) {
+      setErrors(prev => ({...prev, [projectId]: 'Network error. Please check your connection and try again.'}));
+    } finally {
+      setGeneratingDescriptions(prev => ({...prev, [projectId]: false}));
+    }
   };
 
   return (
@@ -131,9 +192,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                       placeholder="https://github.com/username/project"
                     />
                   </div>
-                </div>
-
-                <div>
+                </div>                <div>
                   <label className="block text-sm font-medium mb-1">
                     Technologies Used
                   </label>
@@ -148,15 +207,43 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Project Description *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium">
+                      Project Description *
+                    </label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => generateDescription(project.id)}
+                      disabled={generatingDescriptions[project.id] || !project.name.trim() || project.technologies.length === 0}
+                      className="flex items-center gap-2"
+                      title={
+                        !project.name.trim() 
+                          ? "Enter project name first" 
+                          : project.technologies.length === 0 
+                          ? "Add technologies first" 
+                          : "Generate AI description"
+                      }
+                    >
+                      {generatingDescriptions[project.id] ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4" />
+                      )}
+                      {generatingDescriptions[project.id] ? 'Generating...' : 'AI Generate'}
+                    </Button>
+                  </div>
                   <Textarea
                     value={project.description}
                     onChange={(e) => updateProject(project.id, 'description', e.target.value)}
                     placeholder="Describe what the project does, your role, key features, and impact..."
                     className="min-h-[100px]"
                   />
+                  {errors[project.id] && (
+                    <div className="text-red-500 text-sm bg-red-50 dark:bg-red-950 p-2 rounded mt-2">
+                      {errors[project.id]}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             )}
@@ -171,26 +258,26 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
           <Plus className="w-5 h-5 mr-2" />
           Add Project
         </Button>
-      </div>
-
-      <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+      </div>      <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
         <h4 className="font-medium mb-2">💡 Project Tips:</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Include personal projects, open source contributions, or freelance work</li>
+          <li>• Add project name and technologies first, then use AI to generate descriptions</li>
           <li>• Mention the technologies and tools you used</li>
           <li>• Describe the problem solved and your approach</li>
           <li>• Include live demos or GitHub links when possible</li>
         </ul>
-      </div>
-
-      <div className="flex justify-between">
+      </div>      <div className="flex justify-between">
         {!isFirst && (
           <Button variant="outline" onClick={onPrevious}>
             Previous
           </Button>
         )}
-        <Button onClick={onNext} className="ml-auto">
-          Finish
+        <Button 
+          onClick={() => router.push('/result')} 
+          className="ml-auto bg-green-600 hover:bg-green-700"
+        >
+          Finish & View CV
         </Button>
       </div>
     </div>
