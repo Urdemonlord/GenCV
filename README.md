@@ -239,6 +239,105 @@ NEXT_PUBLIC_API_URL=https://your-api-domain.com
 NEXT_PUBLIC_APP_URL=https://your-frontend-domain.com
 ```
 
+### Cara Deploy ke Vercel (Frontend + Backend Satu Project)
+
+#### 1. Migrasi API Express ke Next.js API Route
+- Pindahkan semua logic dari `apps/api/src/routes` ke `apps/web/app/api` (App Router) atau `apps/web/pages/api` (Pages Router).
+- Contoh migrasi PDF generator:
+
+```typescript
+// apps/web/app/api/generate-pdf/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import puppeteer from 'puppeteer-core';
+import chrome from '@sparticuz/chromium';
+import { generateHTML } from '@cv-generator/utils/pdf';
+
+export const maxDuration = 300;
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
+  // ...lihat instruksi sebelumnya...
+}
+```
+
+#### 2. Update Semua Fetch API
+- Ganti semua `fetch(`${apiUrl}/api/...` menjadi `fetch('/api/...')` agar request tetap satu domain.
+
+#### 3. Install Dependency Puppeteer Serverless
+```bash
+npm install puppeteer-core @sparticuz/chromium
+```
+
+#### 4. Next.js Config untuk Keamanan
+Tambahkan di `next.config.js`:
+```js
+headers: async () => [
+  {
+    source: '/:path*',
+    headers: [
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" },
+    ],
+  },
+],
+```
+
+#### 5. Middleware Keamanan Next.js
+Buat file `middleware.ts` di root `apps/web`:
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit } from './lib/rate-limit';
+
+const limiter = rateLimit({ uniqueTokenPerInterval: 500, interval: 60000 });
+
+export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    try {
+      await limiter.check(request, 20, 'CACHE_TOKEN');
+    } catch {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+    // API key check (optional)
+    if (process.env.NODE_ENV === 'production') {
+      const apiKey = request.headers.get('x-api-key');
+      if (!apiKey || apiKey !== process.env.API_SECRET_KEY) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
+  }
+  const response = NextResponse.next();
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
+  return response;
+}
+export const config = { matcher: ['/api/:path*'] };
+```
+
+#### 6. Environment Variables di Vercel
+- `API_SECRET_KEY=your_random_key`
+- `GEMINI_API_KEY=your_gemini_key`
+
+#### 7. Deploy
+- Connect repo ke Vercel
+- Set root ke `apps/web`
+- Set env vars
+- Deploy
+
+## Troubleshooting
+- Jika PDF gagal, pastikan puppeteer dan chromium sudah terinstall dan path benar.
+- Jika API error, cek env vars dan rate limit.
+- Jika security error, cek header dan middleware.
+
+## Keamanan
+- Semua API dilindungi rate limit dan API key
+- Semua response dilengkapi security headers
+- Tidak ada CORS karena satu domain
+- Input divalidasi di API route
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -247,7 +346,13 @@ NEXT_PUBLIC_APP_URL=https://your-frontend-domain.com
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## �️ Troubleshooting
+
+### Schema Validation Errors
+
+If you encounter schema validation errors in configuration files, see the [schema validation fix documentation](docs/schema-validation-fix.md).
+
+## �📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -263,9 +368,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you have any questions or need help, please:
 
-1. Check the [documentation](README.md)
-2. Search [existing issues](../../issues)
-3. Create a [new issue](../../issues/new)
+1. Check the [documentation](README.md) and [technical guides](docs/)
+2. Review the [schema validation fix](docs/schema-validation-fix.md) if you encounter config errors
+3. Search [existing issues](../../issues)
+4. Create a [new issue](../../issues/new)
 
 ---
 

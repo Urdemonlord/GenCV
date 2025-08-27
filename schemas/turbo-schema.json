@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Turborepo configuration schema",
+  "description": "Simplified Turborepo configuration schema",
+  "type": "object",
+  "properties": {
+    "globalDependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of global dependencies."
+    },
+    "tasks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "dependsOn": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "outputs": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "cache": { "type": "boolean" },
+          "persistent": { "type": "boolean" }
+        }
+      },
+      "description": "Task configurations."
+    }
+  }
+}

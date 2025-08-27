@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Package.json schema",
+  "description": "Simplified NPM package.json schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the package."
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the package."
+    },
+    "private": {
+      "type": "boolean",
+      "description": "If true, the package is private and cannot be published to npm."
+    },
+    "main": {
+      "type": "string",
+      "description": "The entry point of the package."
+    },
+    "types": {
+      "type": "string",
+      "description": "The entry point for TypeScript type definitions."
+    },
+    "scripts": {
+      "type": "object",
+      "description": "Scripts that can be run with npm run."
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Runtime dependencies of the package."
+    },
+    "devDependencies": {
+      "type": "object",
+      "description": "Development dependencies of the package."
+    },
+    "packageManager": {
+      "type": "string",
+      "description": "The package manager used for this project."
+    },
+    "workspaces": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        { "type": "object" }
+      ],
+      "description": "Workspaces for monorepo projects."
+    }
+  }
+}

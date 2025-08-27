@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TypeScript configuration schema",
+  "description": "Simplified TypeScript configuration schema",
+  "type": "object",
+  "properties": {
+    "compilerOptions": {
+      "type": "object",
+      "description": "Compiler options for the TypeScript compiler.",
+      "properties": {
+        "target": { "type": "string" },
+        "lib": { "type": "array", "items": { "type": "string" } },
+        "module": { "type": "string" },
+        "moduleResolution": { "type": "string" },
+        "allowSyntheticDefaultImports": { "type": "boolean" },
+        "strict": { "type": "boolean" },
+        "jsx": { "type": "string" },
+        "declaration": { "type": "boolean" },
+        "declarationMap": { "type": "boolean" },
+        "esModuleInterop": { "type": "boolean" },
+        "skipLibCheck": { "type": "boolean" },
+        "forceConsistentCasingInFileNames": { "type": "boolean" },
+        "resolveJsonModule": { "type": "boolean" },
+        "isolatedModules": { "type": "boolean" },
+        "incremental": { "type": "boolean" },
+        "baseUrl": { "type": "string" },
+        "paths": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "include": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files or patterns to include in the compilation."
+    },
+    "exclude": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files or patterns to exclude from the compilation."
+    }
+  }
+}
