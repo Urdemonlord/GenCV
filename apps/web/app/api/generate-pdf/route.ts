@@ -109,8 +109,23 @@ async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promi
     try {
       // Create page and set content
       const page = await browser.newPage();
+      
+      // Set viewport size for better rendering
+      await page.setViewport({ 
+        width: 1200, 
+        height: 1600,
+        deviceScaleFactor: 2 // Higher DPI for better quality
+      });
+      
+      // Wait for fonts to load
       console.log('Setting page content...');
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { 
+        waitUntil: ['networkidle0', 'load', 'domcontentloaded'] 
+      });
+      
+      // Give extra time for fonts and resources to fully load
+      console.log('Waiting for resources to load completely...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Generate PDF
       console.log('Generating PDF...');
@@ -119,6 +134,9 @@ async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promi
         printBackground: true,
         margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' },
         timeout: 30000, // 30 second timeout for PDF generation
+        preferCSSPageSize: true, // Use CSS @page size if defined
+        displayHeaderFooter: false,
+        scale: 1.0, // 1:1 scale
       });
       
       // Convert Uint8Array to Buffer

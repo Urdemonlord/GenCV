@@ -46,8 +46,23 @@ function findLocalChrome(): string | null {
 
 // Initialize font directories for Chrome
 export function initChromeFonts(): void {
-  console.log('Chrome fonts initialized');
-  // No need to actually initialize fonts with regular puppeteer
+  try {
+    // Check if public/fonts directory exists
+    const fontsPath = path.join(process.cwd(), 'public', 'fonts');
+    
+    if (fs.existsSync(fontsPath)) {
+      console.log(`Found fonts directory at: ${fontsPath}`);
+      // Fonts will be loaded automatically when using standard fonts
+    } else {
+      // Create the directory if it doesn't exist
+      fs.mkdirSync(fontsPath, { recursive: true });
+      console.log(`Created fonts directory at: ${fontsPath}`);
+    }
+    
+    console.log('Chrome fonts initialized successfully');
+  } catch (error) {
+    console.warn('Warning: Font initialization issue:', error);
+  }
 }
 
 // Get Puppeteer configuration
@@ -63,7 +78,14 @@ export async function getPuppeteerConfig() {
       '--no-first-run',
       '--no-zygote',
       '--disable-gpu',
+      '--font-render-hinting=none', // Improves font consistency
     ],
+    ignoreHTTPSErrors: true,
+    defaultViewport: {
+      width: 1200,
+      height: 1600,
+      deviceScaleFactor: 2, // Higher DPI for better quality
+    }
   };
 
   try {

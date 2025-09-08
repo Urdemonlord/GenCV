@@ -16,17 +16,24 @@ export function generateHTML(cvData: CVData, template: string): string {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${personalInfo?.fullName || 'CV'}</title>
       <style>
+        /* Google Fonts - Roboto */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
         body {
-          font-family: Arial, sans-serif;
+          font-family: 'Roboto', Arial, sans-serif;
           line-height: 1.6;
           color: #333;
           margin: 0;
           padding: 0;
+          font-size: 12pt;
         }
         .container {
           max-width: 21cm;
           margin: 0 auto;
           padding: 2cm;
+        }
+        .cv-content {
+          clear: both;
         }
         .header {
           text-align: ${template === 'creative' ? 'center' : 'left'};
@@ -68,6 +75,30 @@ export function generateHTML(cvData: CVData, template: string): string {
           margin-bottom: 10px;
           border-radius: 3px;
         }
+        
+        /* Styles khusus untuk PDF */
+        @media print {
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-size: 12pt;
+          }
+          .container {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 1cm;
+          }
+          .header {
+            page-break-after: avoid;
+          }
+          .section {
+            page-break-inside: avoid;
+          }
+          .section-title {
+            page-break-after: avoid;
+          }
+        }
       </style>
     </head>
     <body>
@@ -81,7 +112,7 @@ export function generateHTML(cvData: CVData, template: string): string {
           ${personalInfo?.website ? `<p>Website: ${personalInfo.website}</p>` : ''}
         </div>
         </div>
-
+        <div class="cv-content">
         ${cvData.professionalSummary ? `
         <div class="section">
           <div class="section-title">Professional Summary</div>
@@ -138,6 +169,7 @@ export function generateHTML(cvData: CVData, template: string): string {
           `).join('')}
         </div>
         ` : ''}
+      </div>
       </div>
     </body>
     </html>
