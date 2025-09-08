@@ -1,0 +1,17 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["package.json"],
+      "url": "./schemas/package-schema.json"
+    },
+    {
+      "fileMatch": ["tsconfig.json", "tsconfig.*.json"],
+      "url": "./schemas/tsconfig-schema.json"
+    },
+    {
+      "fileMatch": ["turbo.json"],
+      "url": "./schemas/turbo-schema.json"
+    }
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

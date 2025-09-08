@@ -1,20 +1,44 @@
 {
   "name": "@cv-generator/utils",
   "version": "0.0.0",
-  "private": true,  "main": "./index.ts",
-  "types": "./index.ts",  "exports": {
-    ".": "./index.ts",
-    "./shared": "./shared.ts",
-    "./server": "./server.ts",
-    "./browser": "./browser.ts"
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./shared": {
+      "import": "./dist/shared.mjs",
+      "require": "./dist/shared.js",
+      "types": "./dist/shared.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server.mjs",
+      "require": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser.mjs",
+      "require": "./dist/browser.js",
+      "types": "./dist/browser.d.ts"
+    }
   },
   "scripts": {
+    "build": "tsup index.ts shared.ts server.ts browser.ts --format cjs,esm --dts",
+    "dev": "tsup index.ts shared.ts server.ts browser.ts --format cjs,esm --dts --watch",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@cv-generator/types": "file:../types"
   },
   "devDependencies": {
+    "tsup": "^8.5.0",
     "typescript": "^5.2.2"
   }
 }

@@ -2,14 +2,21 @@
   "name": "@cv-generator/lib-ai",
   "version": "0.0.0",
   "private": true,
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "dev": "tsup index.ts --format cjs,esm --dts --watch",
     "type-check": "tsc --noEmit"
-  },  "dependencies": {
+  },
+  "dependencies": {
     "@cv-generator/types": "file:../types"
   },
   "devDependencies": {
+    "tsup": "^8.5.0",
     "typescript": "^5.2.2"
   }
 }
