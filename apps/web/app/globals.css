@@ -55,6 +55,14 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* Improve touch targets on mobile */
+  button, 
+  a, 
+  input[type="checkbox"], 
+  input[type="radio"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
 }
 
 @layer components {
@@ -68,6 +76,27 @@
   
   .hover-lift {
     @apply transition-transform duration-200 hover:translate-y-[-2px];
+  }
+  
+  /* Mobile optimized styles */
+  .mobile-container {
+    @apply px-3 sm:px-4 py-3 sm:py-6;
+  }
+  
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .mobile-spacing {
+    @apply space-y-3 sm:space-y-6;
+  }
+  
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-heading {
+    @apply text-lg sm:text-xl md:text-2xl;
   }
 }
 

@@ -11,6 +11,13 @@ export const metadata = {
   keywords: 'CV generator, resume builder, AI resume, professional CV, job application',
 };
 
+// Viewport export must be separate from metadata in Next.js 14+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {

@@ -2,7 +2,6 @@
   "name": "cv-generator-monorepo",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "npm@10.0.0",
   "scripts": {
     "build": "turbo build",
     "prebuild": "npm run clean",
@@ -10,7 +9,7 @@
     "dev:turbo": "turbo dev",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "cd apps/web && npm run dev",
-    "dev:api": "cd apps/api && npm run dev",
+    "dev:api": "cd apps/web && npm run dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
@@ -27,9 +26,13 @@
     "packages/*"
   ],
   "dependencies": {
+    "@google/genai": "^1.17.0",
+    "@sparticuz/chromium": "^109.0.6",
     "axios": "^1.10.0",
     "framer-motion": "^12.18.1",
+    "pdfkit": "^0.17.2",
+    "puppeteer": "^24.19.0",
+    "puppeteer-core": "^19.11.1",
     "tailwindcss-animate": "^1.0.7"
   }
 }
-

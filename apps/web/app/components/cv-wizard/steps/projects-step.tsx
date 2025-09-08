@@ -84,13 +84,13 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
     setErrors(prev => ({...prev, [projectId]: ''}));
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${apiUrl}/api/generate-project-description`, {
+      const response = await fetch(`/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'project',
           projectName: project.name,
           technologies: project.technologies,
           projectType: 'Web/Software Project'

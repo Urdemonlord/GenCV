@@ -83,20 +83,20 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 glass-card border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
           <motion.div 
             className="flex items-center space-x-2"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-              <FileText className="h-6 w-6 text-white" />
+            <div className="p-1.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-2xl font-bold gradient-text">AI CV Generator</h1>
+            <h1 className="text-lg sm:text-2xl font-bold gradient-text">AI CV Generator</h1>
           </motion.div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <input
               type="file"
               accept=".json"
@@ -107,16 +107,24 @@ export default function HomePage() {
             <Button
               variant="outline"
               size="sm"
+              className="text-xs sm:text-sm px-1.5 sm:px-3"
               onClick={() => document.getElementById('import-cv')?.click()}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Import
+              <Upload className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Import</span>
             </Button>
             
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>            <Button
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-xs sm:text-sm px-1.5 sm:px-3"
+              onClick={handleExport}
+            >
+              <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -132,21 +140,21 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-8 max-w-7xl mx-auto">
           {/* CV Wizard */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
-            <div className="glass-card p-6 rounded-xl">
-              <div className="flex items-center space-x-2 mb-4">
-                <Sparkles className="h-5 w-5 text-blue-600" />
-                <h2 className="text-xl font-semibold">Create Your Professional CV</h2>
+            <div className="glass-card p-4 sm:p-6 rounded-xl">
+              <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                <h2 className="text-lg sm:text-xl font-semibold">Create Your Professional CV</h2>
               </div>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                 Build a stunning resume with AI-powered content enhancement. Our intelligent system helps you craft compelling descriptions and optimize your CV for success.
               </p>
               
@@ -159,20 +167,21 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* CV Preview */}          <motion.div
+          {/* CV Preview */}          
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="glass-card p-6 rounded-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Live Preview</h2>
+            <div className="glass-card p-4 sm:p-6 rounded-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 sm:mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Live Preview</h2>
                 
                 {/* Template Selection */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0">
                   <button
                     onClick={() => setSelectedTemplate('modern')}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                    className={`px-2 sm:px-3 py-1 text-xs rounded-md transition-colors whitespace-nowrap ${
                       selectedTemplate === 'modern'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -182,7 +191,7 @@ export default function HomePage() {
                   </button>
                   <button
                     onClick={() => setSelectedTemplate('classic')}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                    className={`px-2 sm:px-3 py-1 text-xs rounded-md transition-colors whitespace-nowrap ${
                       selectedTemplate === 'classic'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -192,7 +201,7 @@ export default function HomePage() {
                   </button>
                   <button
                     onClick={() => setSelectedTemplate('creative')}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                    className={`px-2 sm:px-3 py-1 text-xs rounded-md transition-colors whitespace-nowrap ${
                       selectedTemplate === 'creative'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

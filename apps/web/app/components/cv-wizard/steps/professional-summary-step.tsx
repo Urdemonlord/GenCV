@@ -39,24 +39,34 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
         ? cvData.experience[0].position 
         : 'Software Developer';
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${apiUrl}/api/summarize-profile`, {
+      console.log('Generating professional summary for:', {
+        experienceLevel: cvData.experienceLevel,
+        role: targetRole,
+        skillsCount: skillsList.length
+      });
+      
+      const response = await fetch(`/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },        body: JSON.stringify({
-          experienceLevel: cvData.experienceLevel,
-          role: targetRole,
-          skills: skillsList,
+        },
+        body: JSON.stringify({
+          type: 'summary',
+          text: `I am a ${cvData.experienceLevel} ${targetRole} with skills in ${skillsList.join(', ')}.`
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`API error: ${errorData.error || response.statusText}`);
+      }
 
       const result = await response.json();
 
       if (result.success && result.data) {
         handleChange(result.data);
       } else {
-        setError(result.error || 'Failed to generate summary. Please try again.');
+        setError('Failed to generate summary. Please try again.');
       }
     } catch (error) {
       setError('Network error. Please check your connection and try again.');

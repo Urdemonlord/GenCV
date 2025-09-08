@@ -19,11 +19,9 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
   const cvScore = calculateCVScore(cvData);
   const handleDownload = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      
       console.log('Starting PDF download from CV Preview...');
-        // Fetch PDF using proper blob handling
-      const response = await fetch(`${apiUrl}/api/generate-pdf`, {
+      // Fetch PDF using proper blob handling
+      const response = await fetch(`/api/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

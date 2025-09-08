@@ -53,13 +53,13 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
     if (!experience || !experience.description.trim()) return;
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${apiUrl}/api/rewrite-experience`, {
+      const response = await fetch(`/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'experience',
           text: experience.description,
           role: experience.position,
           company: experience.company,
