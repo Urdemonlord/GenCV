@@ -1,0 +1,2 @@
+# Ignore API since we're using Next.js API Routes
+apps/api

@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@cv-generator/lib-ai": "file:../../packages/lib-ai",
     "@cv-generator/types": "file:../../packages/types",
     "@cv-generator/ui": "file:../../packages/ui",
     "@cv-generator/utils": "file:../../packages/utils",

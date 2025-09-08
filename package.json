@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "prebuild": "npm run clean",
+    "build:web": "turbo run build --filter=@cv-generator/web...",
     "dev": "npm run dev:all",
     "dev:turbo": "turbo dev",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
