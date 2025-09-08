@@ -2,6 +2,7 @@
   "name": "cv-generator-monorepo",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "npm@11.4.2",
   "scripts": {
     "build": "turbo build",
     "prebuild": "npm run clean",
@@ -9,7 +10,7 @@
     "dev:turbo": "turbo dev",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "cd apps/web && npm run dev",
-    "dev:api": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
