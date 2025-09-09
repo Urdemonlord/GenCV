@@ -2,7 +2,7 @@
 'use server';
 
 import { CVData } from '@cv-generator/types';
-import { generateHTML } from '../lib/html-generator';
+import { generateHTML } from '@/lib/html-generator';
 
 // Main function to generate a PDF
 export async function generatePDF(cvData: CVData, template: string): Promise<{ 
@@ -42,10 +42,10 @@ export async function generatePDF(cvData: CVData, template: string): Promise<{
         console.log('Using puppeteer-core for PDF generation in production');
       }
       
-      const { getPuppeteerConfig, initChromeFonts } = await import('../lib/puppeteer-config');
+      const { getPuppeteerConfig, initChromeFonts } = await import('@/lib/puppeteer-config');
       
       console.log('Generating PDF with', usedPuppeteerType);
-      const html = generateHTML(cvData, template);
+      const html = await generateHTML(cvData, template);
       
       // Initialize Chromium
       await initChromeFonts();
