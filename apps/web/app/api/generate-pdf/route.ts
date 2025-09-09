@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CVData } from '@cv-generator/types';
-import { generateHTML } from '../../lib/html-generator';
-import { generatePDFWithFallback } from '../../lib/pdf-fallback';
+import { generatePDF } from '../../actions/pdf-generator';
 
 // Konfigurasi khusus untuk endpoint PDF
 export const runtime = 'nodejs'; // Memastikan kompatibilitas dengan Puppeteer
@@ -17,64 +16,41 @@ export async function POST(request: NextRequest) {
     const { cvData, template } = await request.json();
     console.log('Processing PDF request with template:', template);
     
-    // Generate PDF - try with Puppeteer first, fall back to simple text if it fails
-    let pdfBuffer: Buffer;
-    let isTextFallback = false;
+    // Generate PDF or text fallback using server action
+    const { buffer, isText, filename } = await generatePDF(cvData, template || 'modern');
+    console.log(`Generated ${isText ? 'text fallback' : 'PDF'}, size:`, buffer.length);
     
-    try {
-      // Try primary method first
-      console.log('Attempting PDF generation with Puppeteer...');
-      pdfBuffer = await generatePDFWithPuppeteer(cvData, template || 'modern');
-      console.log('Generated PDF using Puppeteer, size:', pdfBuffer.length);
-    } 
-    catch (puppeteerError) {
-      // Log the error but continue with fallback
-      console.error('Puppeteer PDF generation failed:', puppeteerError);
-      console.log('Trying fallback PDF generation...');
-      
-      // Use fallback method
-      pdfBuffer = await generatePDFWithFallback(cvData, template || 'modern');
-      console.log('Generated PDF using fallback method, size:', pdfBuffer.length);
-      isTextFallback = true;
-    }
-    
-    // Return the PDF response
-    const fullName = cvData.personalInfo?.fullName || 'cv';
-    // Ensure the file extension matches the actual content type
-    const fileName = `${fullName.replace(/[^a-zA-Z0-9.-]/g, '_')}.${isTextFallback ? 'txt' : 'pdf'}`;
+    // Get PDF signature for debugging
+    const signature = buffer.slice(0, 5).toString('utf-8');
+    console.log('File signature:', signature);
     
     // Convert the buffer to a ReadableStream
     const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(pdfBuffer);
+        controller.enqueue(buffer);
         controller.close();
       }
     });
     
-    // Set appropriate content type based on whether we're returning a text fallback or PDF
-    const contentType = isTextFallback ? 'text/plain' : 'application/pdf';
-    
-    // Get PDF signature for debugging
-    const pdfSignature = pdfBuffer.slice(0, 5).toString('utf-8');
-    console.log('PDF signature:', pdfSignature);
+    // Set appropriate content type
+    const contentType = isText ? 'text/plain' : 'application/pdf';
     
     return new NextResponse(stream, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Content-Length': pdfBuffer.length.toString(),
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': buffer.length.toString(),
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
         // Debug headers
-        'X-PDF-Method': isTextFallback ? 'fallback-text' : 'puppeteer-pdf',
-        'X-PDF-Size': pdfBuffer.length.toString(),
-        'X-PDF-Signature': pdfSignature
+        'X-PDF-Method': isText ? 'fallback-text' : 'puppeteer-pdf',
+        'X-PDF-Size': buffer.length.toString(),
+        'X-PDF-Signature': signature
       },
     });
-  } 
-  catch (error) {
+  } catch (error) {
     console.error('PDF Generation Error:', error);
     
     // Get more detailed error information
@@ -94,88 +70,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  }
-}
-
-// Helper function to generate PDF using Puppeteer
-async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promise<Buffer> {
-  try {
-    // Dynamic import untuk menghindari webpack bundling
-    const puppeteer = (await import('puppeteer-core')).default;
-    const { getPuppeteerConfig, initChromeFonts } = await import('../../lib/puppeteer-config');
-    
-    // Generate HTML content
-    const html = generateHTML(cvData, template);
-    
-    // Setup Chromium
-    console.log('Initializing Puppeteer...');
-    await initChromeFonts();
-    
-    // Get Puppeteer configuration with working Chrome path
-    const puppeteerConfig = await getPuppeteerConfig();
-    console.log('Puppeteer config:', JSON.stringify(puppeteerConfig, null, 2));
-    
-    // Launch browser
-    console.log('Launching browser...');
-    const browser = await puppeteer.launch(puppeteerConfig);
-    console.log('Browser launched successfully');
-    
-    try {
-      // Create page and set content
-      console.log('Creating new page...');
-      const page = await browser.newPage();
-      
-      // Set viewport size for better rendering
-      await page.setViewport({ 
-        width: 1200, 
-        height: 1600,
-        deviceScaleFactor: 2 // Higher DPI for better quality
-      });
-      
-      // Wait for fonts to load
-      console.log('Setting page content...');
-      await page.setContent(html, { 
-        waitUntil: ['networkidle0', 'load', 'domcontentloaded'] 
-      });
-      
-      // Give extra time for fonts and resources to fully load
-      console.log('Waiting for resources to load completely...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate PDF
-      console.log('Generating PDF...');
-      const pdfData = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' },
-        timeout: 30000, // 30 second timeout for PDF generation
-        preferCSSPageSize: true, // Use CSS @page size if defined
-        displayHeaderFooter: false,
-        scale: 1.0, // 1:1 scale
-      });
-      
-      // Convert Uint8Array to Buffer
-      const pdfBuffer = Buffer.from(pdfData);
-      
-      // Verify PDF header (should start with %PDF-)
-      const pdfSignature = pdfBuffer.slice(0, 5).toString('utf-8');
-      console.log('PDF signature:', pdfSignature);
-      
-      if (!pdfSignature.startsWith('%PDF')) {
-        console.error('Generated PDF has invalid signature:', pdfSignature);
-        throw new Error('Invalid PDF format generated');
-      }
-      
-      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
-      return pdfBuffer;
-    } 
-    finally {
-      // Always close the browser to prevent memory leaks
-      await browser.close();
-      console.log('Browser closed');
-    }
-  } catch (error) {
-    console.error('Error in PDF generation:', error);
-    throw error; // Let the caller handle the fallback
   }
 }
