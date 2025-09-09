@@ -6,6 +6,7 @@ const nextConfig = {
     '@cv-generator/utils', 
     '@cv-generator/lib-ai',
     'puppeteer-core',
+    '@sparticuz/chromium',
   ],
   eslint: {
     ignoreDuringBuilds: true,
