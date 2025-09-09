@@ -15,10 +15,7 @@ const nextConfig = {
   experimental: {
     esmExternals: 'loose',
     webpackBuildWorker: true,
-    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium'],
-    serverActions: {
-      allowedOrigins: ['vercel.app', 'localhost:3000']
-    }
+    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium']
   },
   webpack: (config, { isServer }) => {
     // Resolve puppeteer issue by ignoring problematic files

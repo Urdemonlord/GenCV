@@ -1,9 +1,7 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import './globals.css';
-import { Inter } from 'next/font/google';
 import { ThemeProvider } from './providers/theme-provider';
 import { Toaster } from './components/ui/toaster';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'AI CV Generator - Create Professional Resumes',
@@ -25,7 +23,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
