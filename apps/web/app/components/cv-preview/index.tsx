@@ -186,16 +186,18 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
           </div>
 
           {/* CV Content - Now using template component for WYSIWYG consistency */}
-          <div className="bg-white text-black p-8 rounded border min-h-[500px]">
-            <TemplateComponent data={cvData} />
-            
-            {/* Empty State */}
-            {!cvData.personalInfo?.fullName && (
-              <div className="text-center text-gray-500 py-12">
-                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Start filling out your information to see the preview</p>
-              </div>
-            )}
+          <div className="bg-white text-black p-8 rounded border min-h-[500px] overflow-auto">
+            <div className="max-w-[21cm] mx-auto">
+              <TemplateComponent data={cvData} />
+
+              {/* Empty State */}
+              {!cvData.personalInfo?.fullName && (
+                <div className="text-center text-gray-500 py-12">
+                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Start filling out your information to see the preview</p>
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

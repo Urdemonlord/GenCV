@@ -166,7 +166,7 @@ export default function ResultPage() {
           <CardContent className="py-16 text-center">
             <h2 className="text-2xl font-bold mb-4">No CV data found</h2>
             <p className="mb-8">You haven&apos;t created a CV yet or your data was lost.</p>
-            <Link href="/" passHref>
+            <Link href="/builder" passHref>
               <Button>Create New CV</Button>
             </Link>
           </CardContent>
@@ -233,7 +233,7 @@ export default function ResultPage() {
       </Card>
       
       <div className="flex justify-between">
-        <Link href="/" passHref>
+        <Link href="/builder" passHref>
           <Button variant="outline" className="flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />
             Create New CV
