@@ -16,19 +16,48 @@ export async function generatePDF(cvData: CVData, template: string): Promise<{
   try {
     // Try to generate PDF with Puppeteer first
     try {
-      // Dynamic import puppeteer only when needed to avoid bundling issues
-      const puppeteer = (await import('puppeteer-core')).default;
+      console.log('Starting PDF generation process...');
+      
+      // Determine which puppeteer to use - for development environment, try regular puppeteer first
+      let puppeteer;
+      let usedPuppeteerType = 'puppeteer-core';
+      
+      if (process.env.NODE_ENV === 'development') {
+        try {
+          // Try to use regular puppeteer first in development
+          const puppeteerModule = await import('puppeteer');
+          puppeteer = puppeteerModule.default;
+          usedPuppeteerType = 'puppeteer';
+          console.log('Using regular puppeteer for PDF generation in development');
+        } catch (err) {
+          console.log('Regular puppeteer not available, falling back to puppeteer-core');
+          const puppeteerCoreModule = await import('puppeteer-core');
+          puppeteer = puppeteerCoreModule.default;
+          usedPuppeteerType = 'puppeteer-core';
+        }
+      } else {
+        // In production always use puppeteer-core
+        const puppeteerCoreModule = await import('puppeteer-core');
+        puppeteer = puppeteerCoreModule.default;
+        console.log('Using puppeteer-core for PDF generation in production');
+      }
+      
       const { getPuppeteerConfig, initChromeFonts } = await import('../lib/puppeteer-config');
       
-      console.log('Generating PDF with Puppeteer...');
+      console.log('Generating PDF with', usedPuppeteerType);
       const html = generateHTML(cvData, template);
       
       // Initialize Chromium
       await initChromeFonts();
       const puppeteerConfig = await getPuppeteerConfig();
       
-      // Launch browser with proper config for Vercel
-      console.log('Launching browser...');
+      // Launch browser with proper config
+      console.log('Launching browser with config:', JSON.stringify({
+        executablePath: puppeteerConfig.executablePath ? 'Set' : 'Not set',
+        headless: puppeteerConfig.headless || 'unknown',
+        args: puppeteerConfig.args?.length || 0
+      }));
+      
       const browser = await puppeteer.launch(puppeteerConfig);
       
       try {
