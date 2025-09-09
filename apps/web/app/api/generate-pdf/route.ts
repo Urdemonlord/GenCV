@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer-core'; // Menggunakan puppeteer-core untuk Vercel
 import { CVData } from '@cv-generator/types';
-import { getPuppeteerConfig, initChromeFonts } from '../../lib/puppeteer-config';
 import { generateHTML } from '../../lib/html-generator';
 import { generatePDFWithFallback } from '../../lib/pdf-fallback';
 
@@ -101,10 +99,14 @@ export async function POST(request: NextRequest) {
 
 // Helper function to generate PDF using Puppeteer
 async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promise<Buffer> {
-  // Generate HTML content
-  const html = generateHTML(cvData, template);
-  
   try {
+    // Dynamic import untuk menghindari webpack bundling
+    const puppeteer = (await import('puppeteer-core')).default;
+    const { getPuppeteerConfig, initChromeFonts } = await import('../../lib/puppeteer-config');
+    
+    // Generate HTML content
+    const html = generateHTML(cvData, template);
+    
     // Setup Chromium
     console.log('Initializing Puppeteer...');
     await initChromeFonts();

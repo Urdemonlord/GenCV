@@ -45,8 +45,18 @@ function findLocalChrome(): string | null {
 }
 
 // Initialize font directories for Chrome
-export function initChromeFonts(): void {
+export async function initChromeFonts(): Promise<void> {
+  // Skip font initialization in Vercel environment
+  if (process.env.VERCEL) {
+    console.log('Skipping font initialization in Vercel environment');
+    return;
+  }
+
   try {
+    // Dynamically import fs and path to avoid bundling issues
+    const fs = await import('fs');
+    const path = await import('path');
+
     // Check if public/fonts directory exists
     const fontsPath = path.join(process.cwd(), 'public', 'fonts');
     
@@ -70,7 +80,7 @@ export async function getPuppeteerConfig() {
   // Vercel serverless environment configuration
   if (process.env.VERCEL) {
     try {
-      // Import dynamically to avoid issues in development environment
+      // Import dynamically to avoid webpack bundling issues
       const chromium = await import('@sparticuz/chromium');
       console.log('Using @sparticuz/chromium for Vercel environment');
       

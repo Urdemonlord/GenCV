@@ -1,14 +1,13 @@
 // Simple fallback for PDF generation when Puppeteer fails
 import { CVData } from '@cv-generator/types';
-import { Readable } from 'stream';
 
-// Use a simple text-based PDF as fallback
+// Use a simple text-based fallback as text, not PDF
 export async function generatePDFWithFallback(cvData: CVData, template: string): Promise<Buffer> {
   try {
-    console.log('Using fallback PDF generation...');
+    console.log('Using fallback text generation (not PDF)...');
     
     // Since we're in a Next.js environment and can't use node modules directly in API routes,
-    // we'll use a very simple approach to create a PDF-like buffer
+    // we'll use a very simple approach to create a text fallback
     
     // Convert HTML to a simplified text format
     const { personalInfo, education, experience, skills, projects, professionalSummary } = cvData;
@@ -62,16 +61,16 @@ ${projects.map(project => `• ${project.name || ''}
 
 ` : ''}
 
-This PDF was generated as a fallback due to issues with the primary PDF generation method.
+This is a text-based CV generated because PDF generation failed.
 Please try again later or contact support if this problem persists.
 `;
 
-    // Convert text to buffer (this is not a real PDF, just text with a .pdf extension)
-    // In a real implementation, you would use a PDF generation library
-    console.log('Created fallback text-based PDF');
+    // Convert text to buffer (this is explicitly text, not PDF)
+    console.log('Created fallback text-based CV');
     return Buffer.from(pdfText, 'utf-8');
   } catch (error) {
-    console.error('Fallback PDF generation failed:', error);
-    throw new Error('All PDF generation methods failed');
+    console.error('Fallback text generation failed:', error);
+    // Return a minimal error message as text if everything else fails
+    return Buffer.from('CV generation failed. Please try again later.', 'utf-8');
   }
 }

@@ -21,11 +21,30 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     // Resolve puppeteer issue by ignoring problematic files
     if (!isServer) {
-      config.resolve.alias['puppeteer-core'] = 'puppeteer-core/lib/cjs/puppeteer/api'
+      config.resolve.alias['puppeteer-core'] = false
+      config.resolve.alias['@sparticuz/chromium'] = false
       
       // Prevent Google AI SDKs from being included in client bundles
       config.resolve.alias['@google/genai'] = false
       config.resolve.alias['@google/generative-ai'] = false
+    }
+    
+    // Membuat puppeteer-core dan @sparticuz/chromium sebagai external module di server
+    if (isServer) {
+      const nodeExternals = ['puppeteer-core', '@sparticuz/chromium']
+      
+      // Menambahkan ke externals yang sudah ada
+      const externals = [...(config.externals || [])];
+      externals.push((context, request, callback) => {
+        if (nodeExternals.includes(request)) {
+          // Externalize ke commonjs module
+          return callback(null, `commonjs ${request}`);
+        }
+        // Lanjutkan untuk modul lain
+        callback();
+      });
+      
+      config.externals = externals;
     }
     
     return config
