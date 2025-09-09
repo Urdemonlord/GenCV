@@ -7,6 +7,7 @@
     "build": "turbo build",
     "prebuild": "npm run clean",
     "build:web": "turbo run build --filter=@cv-generator/web...",
+    "vercel-build": "npm install -w apps/web tailwindcss-animate framer-motion @google/genai puppeteer && turbo run build",
     "dev": "npm run dev:all",
     "dev:turbo": "turbo dev",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",

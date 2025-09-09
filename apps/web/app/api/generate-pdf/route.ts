@@ -6,6 +6,7 @@ import { generateHTML } from '../../lib/html-generator';
 import { generatePDFWithFallback } from '../../lib/pdf-fallback';
 
 // Konfigurasi khusus untuk endpoint PDF
+export const runtime = 'nodejs'; // Memastikan kompatibilitas dengan Puppeteer
 export const maxDuration = 60; // 60 seconds timeout
 export const dynamic = 'force-dynamic'; // Memastikan bahwa route ini tidak di-cache
 
