@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
+// Gunakan runtime nodejs untuk memastikan SDK Google bekerja dengan benar
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   console.log('AI API request received:', request.method, request.url);
   

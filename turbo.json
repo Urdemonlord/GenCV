@@ -1,5 +1,6 @@
 {
   "globalDependencies": ["**/.env"],
+  "globalEnv": ["GEMINI_API_KEY", "TURBO_TELEMETRY_DISABLED"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

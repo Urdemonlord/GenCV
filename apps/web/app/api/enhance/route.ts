@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const maxDuration = 60; // 60 seconds timeout
+export const runtime = 'nodejs'; // Gunakan runtime nodejs untuk memastikan SDK Google berfungsi dengan benar
 
 export async function POST(request: NextRequest) {
   try {
