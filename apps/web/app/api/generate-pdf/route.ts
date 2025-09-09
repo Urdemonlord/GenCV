@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core'; // Menggunakan puppeteer-core untuk Vercel
 import { CVData } from '@cv-generator/types';
 import { getPuppeteerConfig, initChromeFonts } from '../../lib/puppeteer-config';
 import { generateHTML } from '../../lib/html-generator';
@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     
     // Return the PDF response
     const fullName = cvData.personalInfo?.fullName || 'cv';
+    // Ensure the file extension matches the actual content type
     const fileName = `${fullName.replace(/[^a-zA-Z0-9.-]/g, '_')}.${isTextFallback ? 'txt' : 'pdf'}`;
     
     // Convert the buffer to a ReadableStream
@@ -55,6 +56,10 @@ export async function POST(request: NextRequest) {
     // Set appropriate content type based on whether we're returning a text fallback or PDF
     const contentType = isTextFallback ? 'text/plain' : 'application/pdf';
     
+    // Get PDF signature for debugging
+    const pdfSignature = pdfBuffer.slice(0, 5).toString('utf-8');
+    console.log('PDF signature:', pdfSignature);
+    
     return new NextResponse(stream, {
       status: 200,
       headers: {
@@ -63,7 +68,11 @@ export async function POST(request: NextRequest) {
         'Content-Length': pdfBuffer.length.toString(),
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        // Debug headers
+        'X-PDF-Method': isTextFallback ? 'fallback-text' : 'puppeteer-pdf',
+        'X-PDF-Size': pdfBuffer.length.toString(),
+        'X-PDF-Signature': pdfSignature
       },
     });
   } 
@@ -102,13 +111,16 @@ async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promi
     
     // Get Puppeteer configuration with working Chrome path
     const puppeteerConfig = await getPuppeteerConfig();
-    console.log('Using Chromium executable path:', puppeteerConfig.executablePath);
+    console.log('Puppeteer config:', JSON.stringify(puppeteerConfig, null, 2));
     
     // Launch browser
+    console.log('Launching browser...');
     const browser = await puppeteer.launch(puppeteerConfig);
+    console.log('Browser launched successfully');
     
     try {
       // Create page and set content
+      console.log('Creating new page...');
       const page = await browser.newPage();
       
       // Set viewport size for better rendering
@@ -142,6 +154,16 @@ async function generatePDFWithPuppeteer(cvData: CVData, template: string): Promi
       
       // Convert Uint8Array to Buffer
       const pdfBuffer = Buffer.from(pdfData);
+      
+      // Verify PDF header (should start with %PDF-)
+      const pdfSignature = pdfBuffer.slice(0, 5).toString('utf-8');
+      console.log('PDF signature:', pdfSignature);
+      
+      if (!pdfSignature.startsWith('%PDF')) {
+        console.error('Generated PDF has invalid signature:', pdfSignature);
+        throw new Error('Invalid PDF format generated');
+      }
+      
       console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
       return pdfBuffer;
     } 

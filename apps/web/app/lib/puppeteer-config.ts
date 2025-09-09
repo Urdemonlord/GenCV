@@ -67,7 +67,27 @@ export function initChromeFonts(): void {
 
 // Get Puppeteer configuration
 export async function getPuppeteerConfig() {
-  // Default configuration
+  // Vercel serverless environment configuration
+  if (process.env.VERCEL) {
+    try {
+      // Import dynamically to avoid issues in development environment
+      const chromium = await import('@sparticuz/chromium');
+      console.log('Using @sparticuz/chromium for Vercel environment');
+      
+      return {
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+        defaultViewport: { width: 1200, height: 1600, deviceScaleFactor: 2 },
+        executablePath: await chromium.default.executablePath(),
+        headless: true,
+        ignoreHTTPSErrors: true,
+      };
+    } catch (error) {
+      console.error('Error configuring Puppeteer for Vercel:', error);
+      throw new Error(`Failed to configure Puppeteer for Vercel: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  // Default configuration for local environment
   const config: any = {
     headless: 'new',
     args: [
