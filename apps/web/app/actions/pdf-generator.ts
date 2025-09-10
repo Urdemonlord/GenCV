@@ -98,10 +98,9 @@ export async function generatePDF(cvData: CVData, template: string): Promise<{
       throw puppeteerError; // Re-throw to trigger fallback
     }
   } catch (error) {
-    // Fall back to text-based output
-    console.log('Using text fallback due to error:', error);
-    
-    // Simple text-based fallback
+    // Fall back to PDFKit-based text PDF
+    console.log('Using PDFKit fallback due to error:', error);
+
     const textContent = `
 CV - ${cvData.personalInfo?.fullName || 'Unnamed'}
 ===============================
@@ -119,14 +118,14 @@ ${cvData.professionalSummary || ''}
 
 EXPERIENCE
 ---------
-${cvData.experience?.map(exp => 
+${cvData.experience?.map(exp =>
   `• ${exp.position} at ${exp.company} (${exp.startDate} - ${exp.endDate})
    ${exp.description}`
 ).join('\n\n') || ''}
 
 EDUCATION
 --------
-${cvData.education?.map(edu => 
+${cvData.education?.map(edu =>
   `• ${edu.degree} from ${edu.institution} (${edu.startDate} - ${edu.endDate})
    ${edu.field}`
 ).join('\n\n') || ''}
@@ -137,19 +136,32 @@ ${cvData.skills?.join(', ') || ''}
 
 PROJECTS
 --------
-${cvData.projects?.map(project => 
+${cvData.projects?.map(project =>
   `• ${project.name || ''}
    ${project.description || ''}`
 ).join('\n\n') || ''}
 
-This CV was generated in text format because PDF generation failed.
-Please try again later or contact support if this problem persists.
+This CV was generated using a basic PDF fallback because the primary
+PDF generation failed. For full fidelity, please try again later.
 `;
 
-    return { 
-      buffer: Buffer.from(textContent, 'utf-8'), 
-      isText: true,
-      filename: `${safeFilename}.txt`
+    const { default: PDFDocument } = await import('pdfkit');
+    const doc = new PDFDocument();
+    const buffers: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => buffers.push(chunk));
+    const pdfBufferPromise = new Promise<Buffer>((resolve) => {
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+    });
+
+    doc.fontSize(12).text(textContent);
+    doc.end();
+
+    const pdfBuffer = await pdfBufferPromise;
+
+    return {
+      buffer: pdfBuffer,
+      isText: false,
+      filename: `${safeFilename}.pdf`
     };
   }
 }

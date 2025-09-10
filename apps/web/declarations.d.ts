@@ -31,5 +31,7 @@ declare module '@cv-generator/utils/server' {
 }
 
 declare module '@cv-generator/utils/shared' {
-  // Shared utilities 
+  // Shared utilities
 }
+
+declare module 'pdfkit';
