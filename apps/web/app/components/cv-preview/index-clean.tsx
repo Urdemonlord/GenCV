@@ -77,7 +77,7 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
         throw new Error(`Invalid PDF format (signature: ${signatureText}, type: ${blob.type})`);
       }
       
-      if (blob.size < 5000) {
+      if (blob.size < 1000) {
         throw new Error(`PDF file too small (${blob.size} bytes), likely corrupted`);
       }
       
