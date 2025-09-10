@@ -15,7 +15,7 @@ const nextConfig = {
   experimental: {
     esmExternals: 'loose',
     webpackBuildWorker: true,
-    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium']
+    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium', 'pdfkit', 'pdfjs-dist']
   },
   webpack: (config, { isServer }) => {
     // Resolve puppeteer issue by ignoring problematic files
