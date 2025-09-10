@@ -35,3 +35,4 @@ declare module '@cv-generator/utils/shared' {
 }
 
 declare module 'pdfkit';
+declare module 'pdfkit/js/pdfkit.standalone.js';

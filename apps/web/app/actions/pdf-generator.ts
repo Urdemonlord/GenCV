@@ -145,7 +145,8 @@ This CV was generated using a basic PDF fallback because the primary
 PDF generation failed. For full fidelity, please try again later.
 `;
 
-    const { default: PDFDocument } = await import('pdfkit');
+    // Use standalone build to ensure standard fonts are bundled
+    const { default: PDFDocument } = await import('pdfkit/js/pdfkit.standalone.js');
     const doc = new PDFDocument();
     const buffers: Buffer[] = [];
     doc.on('data', (chunk: Buffer) => buffers.push(chunk));
