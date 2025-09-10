@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
 import { CVData } from '@cv-generator/types';
 import { loadFromLocalStorage } from '@cv-generator/utils/browser';
-import { Download, ArrowLeft, Share2, FileJson, Upload } from 'lucide-react';
+import { Download, ArrowLeft, Share2, FileJson, Upload, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { CVPreview } from '../components/cv-preview';
 
@@ -100,6 +100,53 @@ export default function ResultPage() {
     } catch (error) {
       console.error('PDF download failed:', error);
       alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleDownloadDOCX = async () => {
+    if (!cvData) return;
+
+    try {
+      const response = await fetch(`/api/generate-docx`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        },
+        body: JSON.stringify({ cvData, template: selectedTemplate }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let serverFilename = '';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          serverFilename = filenameMatch[1];
+        }
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const fallbackName = `${cvData.personalInfo?.fullName || 'cv'}.docx`.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = serverFilename || fallbackName;
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      console.log('DOCX download completed successfully');
+    } catch (error) {
+      console.error('DOCX download failed:', error);
+      alert(`Failed to download DOCX: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -213,6 +260,10 @@ export default function ResultPage() {
             <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
               <Download className="w-4 h-4" />
               Download PDF
+            </Button>
+            <Button onClick={handleDownloadDOCX} className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Download DOCX
             </Button>
             <Button onClick={handleExport} variant="outline" className="flex items-center gap-2">
               <FileJson className="w-4 h-4" />
