@@ -75,8 +75,8 @@ export default function ResultPage() {
         throw new Error(`Invalid PDF format (signature: ${signatureText}, type: ${blob.type})`);
       }
       
-      // Validate blob size - should be substantial for a PDF
-      if (blob.size < 5000) {
+      // Validate blob size - should be at least 1KB to avoid empty responses
+      if (blob.size < 1000) {
         throw new Error(`PDF file too small (${blob.size} bytes), likely corrupted or error response`);
       }
       
