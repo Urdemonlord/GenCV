@@ -20,7 +20,7 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
   const handleDownload = async () => {
     try {
       console.log('Starting PDF download from CV Preview...');
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://gencvbackend-web.vercel.app').replace(/\/$/, '');
       // Fetch PDF using proper blob handling
       const response = await fetch(`${apiUrl}/api/generate-pdf`, {
         method: 'POST',
@@ -29,10 +29,9 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
           'Accept': 'application/pdf', // Explicitly request PDF format
           'Cache-Control': 'no-cache', // Prevent caching
         },
-        credentials: 'include', // Include credentials if using sessions/cookies
-        body: JSON.stringify({ 
-          cvData, 
-          template: template === 'preview' ? 'modern' : template 
+        body: JSON.stringify({
+          cvData,
+          template: template === 'preview' ? 'modern' : template
         }),
       });
       

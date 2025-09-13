@@ -25,7 +25,7 @@ export default function ResultPage() {
     try {
       // Gunakan API endpoint dari backend terpisah
       console.log('Starting PDF download...');
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://gencvbackend-web.vercel.app').replace(/\/$/, '');
 
       // Use fetch with explicit blob response type to preserve binary data
       const response = await fetch(`${apiUrl}/api/generate-pdf`, {
