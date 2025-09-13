@@ -8,6 +8,7 @@ import { calculateCVScore, formatDate } from '@cv-generator/utils';
 import { ModernTemplate } from './templates/modern-template';
 import { ClassicTemplate } from './templates/classic-template';
 import { CreativeTemplate } from './templates/creative-template';
+import { getApiUrl } from '@/lib/api-url';
 
 interface CVPreviewProps {
   cvData: CVData;
@@ -20,7 +21,7 @@ export function CVPreview({ cvData, template = 'modern' }: CVPreviewProps) {
   const handleDownload = async () => {
     try {
       console.log('Starting PDF download from CV Preview...');
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://gencvbackend-web.vercel.app').replace(/\/$/, '');
+      const apiUrl = getApiUrl();
       // Fetch PDF using proper blob handling
       const response = await fetch(`${apiUrl}/api/generate-pdf`, {
         method: 'POST',

@@ -7,6 +7,7 @@ import { loadFromLocalStorage } from '@cv-generator/utils/browser';
 import { Download, ArrowLeft, Share2, FileJson, Upload, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { CVPreview } from '../components/cv-preview';
+import { getApiUrl } from '@/lib/api-url';
 
 export default function ResultPage() {
   const [cvData, setCvData] = useState<CVData | null>(null);
@@ -25,7 +26,7 @@ export default function ResultPage() {
     try {
       // Gunakan API endpoint dari backend terpisah
       console.log('Starting PDF download...');
-      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://gencvbackend-web.vercel.app').replace(/\/$/, '');
+      const apiUrl = getApiUrl();
 
       // Use fetch with explicit blob response type to preserve binary data
       const response = await fetch(`${apiUrl}/api/generate-pdf`, {
@@ -108,7 +109,8 @@ export default function ResultPage() {
     if (!cvData) return;
 
     try {
-      const response = await fetch(`/api/generate-docx`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/generate-docx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

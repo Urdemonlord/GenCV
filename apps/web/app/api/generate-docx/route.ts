@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('DOCX Generation Error:', error);
     return NextResponse.json(
       { error: 'DOCX generation failed', details: message },
       { status: 500 }

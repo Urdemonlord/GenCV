@@ -5,6 +5,7 @@ import { Sparkles, RefreshCw } from 'lucide-react';
 import { CVData } from '@cv-generator/types';
 import { Button, Textarea, Card, CardContent, Badge } from '@cv-generator/ui';
 import { StepProps } from '../types';
+import { getApiUrl } from '@/lib/api-url';
 
 export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -45,7 +46,8 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
         skillsCount: skillsList.length
       });
       
-      const response = await fetch(`/api/ai`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +71,8 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
         setError('Failed to generate summary. Please try again.');
       }
     } catch (error) {
-      setError('Network error. Please check your connection and try again.');
+      console.error('Failed to generate summary:', error);
+      setError(`Failed to generate summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
