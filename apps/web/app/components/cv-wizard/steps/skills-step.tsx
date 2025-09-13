@@ -6,6 +6,7 @@ import { CVData, Skill } from '@cv-generator/types';
 import { Button, Input, Card, CardContent, Badge } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
+import { getApiUrl } from '@/lib/api-url';
 
 const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
 const skillCategories = ['Technical', 'Soft', 'Language'] as const;
@@ -45,7 +46,8 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
     try {
       const targetRole = 'Software Developer'; // This could be extracted from experience or made configurable
       
-      const response = await fetch(`/api/ai`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,6 +84,7 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
       }
     } catch (error) {
       console.error('Failed to generate skills:', error);
+      alert(`Failed to generate skills: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }

@@ -7,6 +7,7 @@ import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle, Badg
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
 import { useRouter } from 'next/navigation';
+import { getApiUrl } from '@/lib/api-url';
 
 export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -84,7 +85,8 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
     setErrors(prev => ({...prev, [projectId]: ''}));
 
     try {
-      const response = await fetch(`/api/ai`, {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,7 +107,11 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
         setErrors(prev => ({...prev, [projectId]: result.error || 'Failed to generate description. Please try again.'}));
       }
     } catch (error) {
-      setErrors(prev => ({...prev, [projectId]: 'Network error. Please check your connection and try again.'}));
+      console.error('Failed to generate project description:', error);
+      setErrors(prev => ({
+        ...prev,
+        [projectId]: error instanceof Error ? error.message : 'Network error. Please check your connection and try again.'
+      }));
     } finally {
       setGeneratingDescriptions(prev => ({...prev, [projectId]: false}));
     }
