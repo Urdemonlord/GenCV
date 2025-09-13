@@ -42,23 +42,12 @@ export async function generatePDF(cvData: CVData, template: string): Promise<{
         console.log('Using puppeteer-core for PDF generation in production');
       }
       
-      const { getPuppeteerConfig, initChromeFonts } = await import('@/lib/puppeteer-config');
-      
       console.log('Generating PDF with', usedPuppeteerType);
       const html = await generateHTML(cvData, template);
-      
-      // Initialize Chromium
-      await initChromeFonts();
-      const puppeteerConfig = await getPuppeteerConfig();
-      
-      // Launch browser with proper config
-      console.log('Launching browser with config:', JSON.stringify({
-        executablePath: puppeteerConfig.executablePath ? 'Set' : 'Not set',
-        headless: puppeteerConfig.headless || 'unknown',
-        args: puppeteerConfig.args?.length || 0
-      }));
-      
-      const browser = await puppeteer.launch(puppeteerConfig);
+
+      // Launch browser with default configuration
+      console.log('Launching browser with default settings');
+      const browser = await puppeteer.launch();
       
       try {
         // Create page and set HTML content
