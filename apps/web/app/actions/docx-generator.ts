@@ -1,7 +1,10 @@
 'use server';
 
 import { CVData } from '@cv-generator/types';
-import { Document, Packer, Paragraph, HeadingLevel } from 'docx';
+import * as docx from 'docx';
+import type { Paragraph as DocxParagraph } from 'docx';
+
+const { Document, Packer, Paragraph, HeadingLevel } = docx;
 
 export async function generateDOCX(cvData: CVData, _template: string): Promise<{
   buffer: Buffer;
@@ -10,7 +13,7 @@ export async function generateDOCX(cvData: CVData, _template: string): Promise<{
   const fullName = cvData.personalInfo?.fullName || 'cv';
   const safeFilename = fullName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
-  const paragraphs: Paragraph[] = [];
+  const paragraphs: DocxParagraph[] = [];
 
   paragraphs.push(new Paragraph({ text: `CV - ${fullName}`, heading: HeadingLevel.TITLE }));
   paragraphs.push(new Paragraph({ text: '' }));
