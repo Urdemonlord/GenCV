@@ -23,11 +23,12 @@ export default function ResultPage() {
     if (!cvData) return;
     
     try {
-      // Gunakan API endpoint yang baru di Next.js API routes
+      // Gunakan API endpoint dari backend terpisah
       console.log('Starting PDF download...');
-      
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+
       // Use fetch with explicit blob response type to preserve binary data
-      const response = await fetch(`/api/generate-pdf`, {
+      const response = await fetch(`${apiUrl}/api/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
