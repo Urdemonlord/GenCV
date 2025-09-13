@@ -38,7 +38,8 @@ export default function ResultPage() {
     if (!cvData) return;
 
     try {
-      const response = await fetch(`/api/generate-docx`, {
+      const apiUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const response = await fetch(`${apiUrl}/api/generate-docx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
