@@ -43,22 +43,27 @@ export async function generatePDF(cvData: CVData, template: string): Promise<{
       }
       
       const { getPuppeteerConfig, initChromeFonts } = await import('@/lib/puppeteer-config');
-      
+
       console.log('Generating PDF with', usedPuppeteerType);
       const html = await generateHTML(cvData, template);
-      
-      // Initialize Chromium
-      await initChromeFonts();
-      const puppeteerConfig = await getPuppeteerConfig();
-      
-      // Launch browser with proper config
-      console.log('Launching browser with config:', JSON.stringify({
-        executablePath: puppeteerConfig.executablePath ? 'Set' : 'Not set',
-        headless: puppeteerConfig.headless || 'unknown',
-        args: puppeteerConfig.args?.length || 0
-      }));
-      
-      const browser = await puppeteer.launch(puppeteerConfig);
+
+      // Prepare browser config based on puppeteer type
+      let browser;
+      if (usedPuppeteerType === 'puppeteer') {
+        // Regular puppeteer includes Chromium, so simple launch options are enough
+        console.log('Launching browser with default puppeteer settings');
+        browser = await puppeteer.launch({ headless: true });
+      } else {
+        // puppeteer-core requires explicit Chromium configuration
+        await initChromeFonts();
+        const puppeteerConfig = await getPuppeteerConfig();
+        console.log('Launching browser with config:', JSON.stringify({
+          executablePath: puppeteerConfig.executablePath ? 'Set' : 'Not set',
+          headless: puppeteerConfig.headless || 'unknown',
+          args: puppeteerConfig.args?.length || 0
+        }));
+        browser = await puppeteer.launch(puppeteerConfig);
+      }
       
       try {
         // Create page and set HTML content
