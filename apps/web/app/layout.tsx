@@ -1,12 +1,33 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import './globals.css';
+import type { Metadata } from 'next';
 import { ThemeProvider } from './providers/theme-provider';
 import { Toaster } from './components/ui/toaster';
 
-export const metadata = {
-  title: 'AI CV Generator - Create Professional Resumes',
-  description: 'Create professional resumes with AI-powered content enhancement. Modern, beautiful, and ATS-friendly CV templates.',
-  keywords: 'CV generator, resume builder, AI resume, professional CV, job application',
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+  'http://localhost:3000';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: 'Create Professional CVs in Minutes',
+  description:
+    'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
+  keywords:
+    'CV generator, resume builder, AI resume, professional CV, job application',
+  openGraph: {
+    title: 'Create Professional CVs in Minutes',
+    description:
+      'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
+    type: 'website',
+    url: '/',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Create Professional CVs in Minutes',
+    description:
+      'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
+  },
 };
 
 // Viewport export must be separate from metadata in Next.js 14+
