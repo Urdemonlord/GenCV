@@ -2,6 +2,7 @@ import Header from './components/header';
 import Hero from './components/hero';
 import SocialProof from './components/social-proof';
 import Features from './components/features';
+import TemplatePreview from './components/template-preview';
 import Process from './components/process';
 import FAQ from './components/faq';
 import CTA from './components/cta';
@@ -15,6 +16,7 @@ export default function LandingPage() {
         <Hero />
         <SocialProof />
         <Features />
+        <TemplatePreview />
         <Process />
         <FAQ />
         <CTA />
