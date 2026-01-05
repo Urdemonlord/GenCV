@@ -30,7 +30,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-20 bg-muted/50">
+    <section id="features" className="py-20 bg-muted/50">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-3xl sm:text-4xl font-bold text-center">Features</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -48,4 +48,3 @@ export default function Features() {
     </section>
   );
 }
-

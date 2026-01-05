@@ -3,7 +3,10 @@ import { Button } from '@cv-generator/ui';
 
 export default function Hero() {
   return (
-    <section className="flex flex-col items-center justify-center text-center px-4 py-20">
+    <section
+      id="hero"
+      className="flex flex-col items-center justify-center text-center px-4 py-20"
+    >
       <h2 className="text-3xl sm:text-5xl font-bold max-w-2xl mx-auto">
         Create Professional CVs in <span className="text-purple-500">Minutes</span>
       </h2>
@@ -21,4 +24,3 @@ export default function Hero() {
     </section>
   );
 }
-
