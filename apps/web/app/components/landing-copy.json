@@ -1,0 +1,110 @@
+{
+  "hero": [
+    {
+      "headline": "CV profesional yang lolos ATS, dibuat dalam hitungan menit.",
+      "subheadline": "GenCV membantu fresh graduate dan profesional menulis CV yang relevan dengan lowongan—dengan template siap pakai, bantuan AI, dan ekspor instan.",
+      "primaryCta": "Mulai Buat CV",
+      "secondaryCta": "Lihat Template"
+    },
+    {
+      "headline": "Tampil menonjol di mata rekruter dengan CV yang rapi dan tepat sasaran.",
+      "subheadline": "Gunakan AI untuk merapikan konten, pilih template sesuai industri, lalu unduh CV siap kirim.",
+      "primaryCta": "Coba Gratis",
+      "secondaryCta": "Lihat Contoh CV"
+    }
+  ],
+  "features": [
+    {
+      "title": "Fitur Utama",
+      "items": [
+        {
+          "title": "Penulisan Dibantu AI",
+          "description": "Ubah deskripsi menjadi lebih kuat dan relevan dengan posisi yang kamu incar."
+        },
+        {
+          "title": "Template Profesional",
+          "description": "Pilih desain modern yang mudah disesuaikan tanpa mengorbankan keterbacaan."
+        },
+        {
+          "title": "ATS-Friendly",
+          "description": "Struktur rapi agar CV mudah dibaca sistem rekrutmen dan rekruter."
+        },
+        {
+          "title": "Ekspor Sekali Klik",
+          "description": "Unduh CV siap kirim dalam format yang dibutuhkan untuk melamar."
+        }
+      ]
+    },
+    {
+      "title": "Kenapa GenCV",
+      "items": [
+        {
+          "title": "Konten Lebih Meyakinkan",
+          "description": "AI membantu menonjolkan dampak kerja dan pencapaianmu."
+        },
+        {
+          "title": "Template Teruji",
+          "description": "Layout profesional yang terlihat bersih dan fokus pada isi penting."
+        },
+        {
+          "title": "Siap Lolos Screening",
+          "description": "Format ramah ATS agar peluang dipanggil interview meningkat."
+        },
+        {
+          "title": "Siap Kirim",
+          "description": "Ekspor cepat agar kamu bisa melamar lebih banyak posisi tanpa repot."
+        }
+      ]
+    }
+  ],
+  "process": [
+    {
+      "title": "Cara Kerja",
+      "steps": [
+        {
+          "title": "Pilih Template",
+          "description": "Temukan desain yang sesuai dengan bidang dan level kariermu."
+        },
+        {
+          "title": "Isi & Perbaiki",
+          "description": "Masukkan data, lalu biarkan AI merapikan bahasa dan struktur."
+        },
+        {
+          "title": "Unduh & Lamar",
+          "description": "Dapatkan CV siap kirim dan mulai melamar hari ini."
+        }
+      ]
+    },
+    {
+      "title": "Langkah Cepat",
+      "steps": [
+        {
+          "title": "Mulai dari Template",
+          "description": "Pilih tampilan yang paling cocok dengan industri target."
+        },
+        {
+          "title": "Optimalkan Konten",
+          "description": "AI membantu membuat ringkasan dan poin pengalaman lebih tajam."
+        },
+        {
+          "title": "Ekspor Instan",
+          "description": "Simpan CV dalam format lamaran dan kirim ke rekruter."
+        }
+      ]
+    }
+  ],
+  "cta": [
+    {
+      "headline": "Siap naik level di proses rekrutmen?",
+      "subheadline": "Buat CV yang lebih rapi, relevan, dan mudah diproses ATS dalam beberapa menit.",
+      "primaryCta": "Buat CV Sekarang",
+      "secondaryCta": "Lihat Template"
+    },
+    {
+      "headline": "CV yang bagus dimulai dari konten yang tepat.",
+      "subheadline": "Gunakan GenCV untuk menyiapkan CV profesional yang siap dikirim hari ini.",
+      "primaryCta": "Mulai Gratis",
+      "secondaryCta": "Pelajari Cara Kerja"
+    }
+  ]
+}
