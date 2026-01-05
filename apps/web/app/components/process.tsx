@@ -20,7 +20,7 @@ const steps = [
 
 export default function Process() {
   return (
-    <section className="py-20">
+    <section id="how-it-works" className="py-20">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-3xl sm:text-4xl font-bold text-center">How It Works</h2>
         <div className="mt-10 grid gap-8 sm:grid-cols-3">
@@ -38,4 +38,3 @@ export default function Process() {
     </section>
   );
 }
-
