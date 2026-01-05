@@ -3,18 +3,18 @@ import { FileText, Edit3, Send } from 'lucide-react';
 const steps = [
   {
     icon: FileText,
-    title: 'Choose Template',
-    description: 'Select a professional design that suits your industry and style.',
+    title: 'Pilih Template',
+    description: 'Temukan desain yang sesuai dengan bidang dan level kariermu.',
   },
   {
     icon: Edit3,
-    title: 'Customize Content',
-    description: 'Fill in your details and let AI polish your language and format.',
+    title: 'Isi & Perbaiki',
+    description: 'Masukkan data, lalu biarkan AI merapikan bahasa dan struktur.',
   },
   {
     icon: Send,
-    title: 'Download & Apply',
-    description: 'Export your CV and start applying to your dream jobs right away.',
+    title: 'Unduh & Lamar',
+    description: 'Dapatkan CV siap kirim dan mulai melamar hari ini.',
   },
 ];
 
@@ -22,7 +22,7 @@ export default function Process() {
   return (
     <section className="py-20">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center">How It Works</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-center">Cara Kerja</h2>
         <div className="mt-10 grid gap-8 sm:grid-cols-3">
           {steps.map((step, index) => (
             <div key={index} className="text-center">
@@ -38,4 +38,3 @@ export default function Process() {
     </section>
   );
 }
-

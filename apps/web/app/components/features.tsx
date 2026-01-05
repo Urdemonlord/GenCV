@@ -4,27 +4,27 @@ import { Sparkles, LayoutTemplate, FileCheck2, Download } from 'lucide-react';
 const features = [
   {
     icon: Sparkles,
-    title: 'AI-Assisted Writing',
+    title: 'Penulisan Dibantu AI',
     description:
-      'Generate and improve your CV content with smart suggestions powered by AI.',
+      'Ubah deskripsi menjadi lebih kuat dan relevan dengan posisi yang kamu incar.',
   },
   {
     icon: LayoutTemplate,
-    title: 'Customizable Templates',
+    title: 'Template Profesional',
     description:
-      'Choose from professionally designed templates and tailor them to your style.',
+      'Pilih desain modern yang mudah disesuaikan tanpa mengorbankan keterbacaan.',
   },
   {
     icon: FileCheck2,
-    title: 'ATS Friendly',
+    title: 'ATS-Friendly',
     description:
-      'Ensure your CV passes applicant tracking systems with optimized formatting.',
+      'Struktur rapi agar CV mudah dibaca sistem rekrutmen dan rekruter.',
   },
   {
     icon: Download,
-    title: 'Easy Export',
+    title: 'Ekspor Sekali Klik',
     description:
-      'Download your CV in multiple formats ready for job applications.',
+      'Unduh CV siap kirim dalam format yang dibutuhkan untuk melamar.',
   },
 ];
 
@@ -32,7 +32,7 @@ export default function Features() {
   return (
     <section className="py-20 bg-muted/50">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center">Features</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-center">Fitur Utama</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
             <Card key={index} className="text-center">
@@ -48,4 +48,3 @@ export default function Features() {
     </section>
   );
 }
-
