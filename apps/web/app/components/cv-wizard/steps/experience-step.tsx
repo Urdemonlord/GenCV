@@ -6,6 +6,7 @@ import { CVData, Experience } from '@cv-generator/types';
 import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
+import { MonthYearInput } from '../month-year-input';
 import { getApiUrl } from '@/lib/api-url';
 
 export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
@@ -23,27 +24,25 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
       description: '',
     };
 
-    onDataChange({
-      ...cvData,
-      experience: [...cvData.experience, newExperience],
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      experience: [...previous.experience, newExperience],
+    }));
     setEditingId(newExperience.id);
   };
 
-  const updateExperience = (id: string, field: keyof Experience, value: string | boolean) => {
-    onDataChange({
-      ...cvData,
-      experience: cvData.experience.map(exp =>
-        exp.id === id ? { ...exp, [field]: value } : exp
-      ),
-    });
+  const updateExperience = (id: string, patch: Partial<Experience>) => {
+    onDataChange((previous) => ({
+      ...previous,
+      experience: previous.experience.map((exp) => (exp.id === id ? { ...exp, ...patch } : exp)),
+    }));
   };
 
   const deleteExperience = (id: string) => {
-    onDataChange({
-      ...cvData,
-      experience: cvData.experience.filter(exp => exp.id !== id),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      experience: previous.experience.filter((exp) => exp.id !== id),
+    }));
     if (editingId === id) {
       setEditingId(null);
     }
@@ -70,7 +69,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
 
       const result = await response.json();
       if (result.success && result.data) {
-        updateExperience(id, 'description', result.data);
+        updateExperience(id, { description: result.data });
       }
     } catch (error) {
       console.error('Failed to enhance description:', error);
@@ -125,7 +124,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
                     </label>
                     <Input
                       value={exp.company}
-                      onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                      onChange={(e) => updateExperience(exp.id, { company: e.target.value })}
                       placeholder="Company Name"
                     />
                   </div>
@@ -136,46 +135,47 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
                     </label>
                     <Input
                       value={exp.position}
-                      onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
+                      onChange={(e) => updateExperience(exp.id, { position: e.target.value })}
                       placeholder="Job Title"
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-full">
                     <label className="block text-sm font-medium mb-1">
                       <MapPin className="inline w-4 h-4 mr-1" />
                       Location
                     </label>
                     <Input
                       value={exp.location}
-                      onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
-                      placeholder="City, State"
+                      onChange={(e) => updateExperience(exp.id, { location: e.target.value })}
+                      placeholder="City, Country (or Remote)"
                     />
                   </div>
 
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium mb-1">
-                        <Calendar className="inline w-4 h-4 mr-1" />
-                        Start Date
-                      </label>
-                      <Input
-                        type="date"
-                        value={exp.startDate}
-                        onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium mb-1">
-                        End Date
-                      </label>
-                      <Input
-                        type="date"
+                  <div>
+                    <span className="block text-sm font-medium mb-1">
+                      <Calendar className="inline w-4 h-4 mr-1" />
+                      Start Date
+                    </span>
+                    <MonthYearInput
+                      label="Start date"
+                      value={exp.startDate}
+                      onChange={(value) => updateExperience(exp.id, { startDate: value })}
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-sm font-medium mb-1">End Date</span>
+                    {exp.current ? (
+                      <div className="h-10 flex items-center px-3 rounded-md border border-input bg-muted text-sm text-muted-foreground">
+                        Present
+                      </div>
+                    ) : (
+                      <MonthYearInput
+                        label="End date"
                         value={exp.endDate}
-                        onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
-                        disabled={exp.current}
+                        onChange={(value) => updateExperience(exp.id, { endDate: value })}
                       />
-                    </div>
+                    )}
                   </div>
 
                   <div className="col-span-full">
@@ -183,12 +183,13 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
                       <input
                         type="checkbox"
                         checked={exp.current}
-                        onChange={(e) => {
-                          updateExperience(exp.id, 'current', e.target.checked);
-                          if (e.target.checked) {
-                            updateExperience(exp.id, 'endDate', '');
-                          }
-                        }}
+                        onChange={(e) =>
+                          // One update for both fields; two separate updates would overwrite each other.
+                          updateExperience(exp.id, {
+                            current: e.target.checked,
+                            endDate: e.target.checked ? '' : exp.endDate,
+                          })
+                        }
                         className="rounded"
                       />
                       <span className="text-sm">I currently work here</span>
@@ -213,8 +214,8 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
                   </div>
                   <Textarea
                     value={exp.description}
-                    onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                    placeholder="Describe your responsibilities, achievements, and impact in this role..."
+                    onChange={(e) => updateExperience(exp.id, { description: e.target.value })}
+                    placeholder={'One achievement per line, e.g.\n- Cut report preparation time by 30% by automating it with Python'}
                     className="min-h-[100px]"
                   />
                 </div>

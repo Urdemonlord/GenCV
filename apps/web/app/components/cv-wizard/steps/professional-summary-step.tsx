@@ -12,20 +12,13 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
   const [error, setError] = useState('');
 
   const handleChange = (value: string) => {
-    onDataChange({
-      ...cvData,
+    onDataChange((previous) => ({
+      ...previous,
       professionalSummary: value,
-    });
+    }));
     setError('');
   };
   const generateSummary = async () => {
-    // Debug: Log skills data
-    console.log('🐛 Debug Skills Data:', {
-      skillsLength: cvData.skills?.length || 0,
-      skills: cvData.skills,
-      fullCvData: cvData
-    });
-
     // Allow generation even without skills, use fallback defaults
     const skillsList = cvData.skills?.length > 0 
       ? cvData.skills.map(skill => skill.name) 

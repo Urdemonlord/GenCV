@@ -1,5 +1,6 @@
 interface PersonalInfo {
     fullName: string;
+    headline?: string;
     email: string;
     phone: string;
     location: string;

@@ -1,83 +1,66 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Sparkles, Download, Upload, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@cv-generator/ui';
 import { CVWizard } from '../components/cv-wizard';
+import type { CVDataUpdate } from '../components/cv-wizard/types';
 import { CVPreview } from '../components/cv-preview';
 import { CVData } from '@cv-generator/types';
-import { loadFromLocalStorage, saveToLocalStorage, exportToJSON, importFromJSON } from '@cv-generator/utils';
+import { loadFromLocalStorage, saveToLocalStorage } from '@cv-generator/utils';
+import { useToast } from '@/hooks/use-toast';
+import { downloadCvJson } from '@/lib/cv/download';
+import { emptyCVData, isCVDataLike, normalizeCVData } from '@/lib/cv/normalize';
 import Link from 'next/link';
 
-const initialCVData: CVData = {
-  personalInfo: {
-    fullName: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedIn: '',
-    website: '',
-  },
-  professionalSummary: '',
-  experience: [],
-  education: [],
-  skills: [],
-  projects: [],
-  experienceLevel: 'professional',
-};
-
 export default function BuilderPage() {
-  const [cvData, setCVData] = useState<CVData>(initialCVData);
+  const [cvData, setCVData] = useState<CVData>(emptyCVData);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
 
   // Prevent hydration mismatch for theme-dependent rendering
   useEffect(() => {
-    setMounted(true);
     // Load data from localStorage only after mounting to prevent hydration mismatch
     const savedData = loadFromLocalStorage('cv-data');
     if (savedData) {
-      setCVData(savedData);
+      setCVData(normalizeCVData(savedData));
     }
+    setMounted(true);
   }, []);
 
-  const handleDataChange = (newData: CVData) => {
-    setCVData(newData);
-    saveToLocalStorage('cv-data', newData);
-  };
+  // Persist only after the saved draft has been loaded, so it is never overwritten by the empty form.
+  useEffect(() => {
+    if (mounted) saveToLocalStorage('cv-data', cvData);
+  }, [cvData, mounted]);
 
-  const handleExport = () => {
-    const jsonString = exportToJSON(cvData);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${cvData.personalInfo.fullName || 'CV'}-data.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const handleDataChange = useCallback((update: CVDataUpdate) => {
+    setCVData((previous) => (typeof update === 'function' ? update(previous) : update));
+  }, []);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        const importedData = importFromJSON(content);
-        if (importedData) {
-          handleDataChange(importedData);
-        } else {
-          alert('Invalid JSON file format');
-        }
-      };
-      reader.readAsText(file);
-    }
+    event.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed: unknown = JSON.parse(String(e.target?.result ?? ''));
+        if (!isCVDataLike(parsed)) throw new Error('missing personalInfo');
+        handleDataChange(normalizeCVData(parsed));
+      } catch {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid file',
+          description: 'Please select a CV data JSON file exported from GenCV.',
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -121,7 +104,7 @@ export default function BuilderPage() {
               variant="outline" 
               size="sm"
               className="text-xs sm:text-sm px-1.5 sm:px-3"
-              onClick={handleExport}
+              onClick={() => downloadCvJson(cvData)}
             >
               <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
               <span className="hidden sm:inline">Export</span>

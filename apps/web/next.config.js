@@ -1,51 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
-    '@cv-generator/ui', 
-    '@cv-generator/types', 
-    '@cv-generator/utils', 
+    '@cv-generator/ui',
+    '@cv-generator/types',
+    '@cv-generator/utils',
     '@cv-generator/lib-ai',
   ],
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { 
-    unoptimized: true 
+  images: {
+    unoptimized: true
   },
   experimental: {
     esmExternals: 'loose',
     webpackBuildWorker: true,
-    serverComponentsExternalPackages: ['puppeteer-core', '@sparticuz/chromium']
   },
   webpack: (config, { isServer }) => {
-    // Resolve puppeteer issue by ignoring problematic files
     if (!isServer) {
-      config.resolve.alias['puppeteer-core'] = false
-      config.resolve.alias['@sparticuz/chromium'] = false
-      
-      // Prevent Google AI SDKs from being included in client bundles
+      // Keep the server-only Google AI SDK out of client bundles
       config.resolve.alias['@google/genai'] = false
-      config.resolve.alias['@google/generative-ai'] = false
+      // pdf.js references the Node-only `canvas` package; the browser never needs it
+      config.resolve.alias['canvas'] = false
     }
-    
-    // Membuat puppeteer-core dan @sparticuz/chromium sebagai external module di server
-    if (isServer) {
-      const nodeExternals = ['puppeteer-core', '@sparticuz/chromium']
-      
-      // Menambahkan ke externals yang sudah ada
-      const externals = [...(config.externals || [])];
-      externals.push((context, request, callback) => {
-        if (nodeExternals.includes(request)) {
-          // Externalize ke commonjs module
-          return callback(null, `commonjs ${request}`);
-        }
-        // Lanjutkan untuk modul lain
-        callback();
-      });
-      
-      config.externals = externals;
-    }
-    
+
     return config
   },
 };

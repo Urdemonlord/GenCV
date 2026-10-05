@@ -6,6 +6,7 @@ import { CVData, Education } from '@cv-generator/types';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
+import { MonthYearInput } from '../month-year-input';
 
 export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -21,27 +22,25 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
       gpa: '',
     };
 
-    onDataChange({
-      ...cvData,
-      education: [...cvData.education, newEducation],
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      education: [...previous.education, newEducation],
+    }));
     setEditingId(newEducation.id);
   };
 
   const updateEducation = (id: string, field: keyof Education, value: string) => {
-    onDataChange({
-      ...cvData,
-      education: cvData.education.map(edu =>
-        edu.id === id ? { ...edu, [field]: value } : edu
-      ),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      education: previous.education.map((edu) => (edu.id === id ? { ...edu, [field]: value } : edu)),
+    }));
   };
 
   const deleteEducation = (id: string) => {
-    onDataChange({
-      ...cvData,
-      education: cvData.education.filter(edu => edu.id !== id),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      education: previous.education.filter((edu) => edu.id !== id),
+    }));
     if (editingId === id) {
       setEditingId(null);
     }
@@ -135,25 +134,23 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <span className="block text-sm font-medium mb-1">
                       <Calendar className="inline w-4 h-4 mr-1" />
                       Start Date
-                    </label>
-                    <Input
-                      type="date"
+                    </span>
+                    <MonthYearInput
+                      label="Start date"
                       value={edu.startDate}
-                      onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                      onChange={(value) => updateEducation(edu.id, 'startDate', value)}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      End Date
-                    </label>
-                    <Input
-                      type="date"
+                    <span className="block text-sm font-medium mb-1">End Date (or expected)</span>
+                    <MonthYearInput
+                      label="End date"
                       value={edu.endDate}
-                      onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                      onChange={(value) => updateEducation(edu.id, 'endDate', value)}
                     />
                   </div>
                 </div>

@@ -8,11 +8,15 @@ import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
 import { useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/api-url';
+import { toHref } from '@/lib/cv/format';
+import { parseList } from '@/lib/cv/normalize';
 
 export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [generatingDescriptions, setGeneratingDescriptions] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Raw text of the technologies field while it is being edited, so typing ", " is not swallowed.
+  const [technologyDrafts, setTechnologyDrafts] = useState<Record<string, string>>({});
   const router = useRouter();
 
   const addProject = () => {
@@ -24,20 +28,18 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
       link: '',
     };
 
-    onDataChange({
-      ...cvData,
-      projects: [...cvData.projects, newProject],
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      projects: [...previous.projects, newProject],
+    }));
     setEditingId(newProject.id);
   };
 
   const updateProject = (id: string, field: keyof Project, value: string | string[]) => {
-    onDataChange({
-      ...cvData,
-      projects: cvData.projects.map(project =>
-        project.id === id ? { ...project, [field]: value } : project
-      ),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      projects: previous.projects.map((project) => (project.id === id ? { ...project, [field]: value } : project)),
+    }));
     // Clear error when user updates the field
     if (errors[id]) {
       setErrors(prev => ({...prev, [id]: ''}));
@@ -45,10 +47,10 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
   };
 
   const deleteProject = (id: string) => {
-    onDataChange({
-      ...cvData,
-      projects: cvData.projects.filter(project => project.id !== id),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      projects: previous.projects.filter((project) => project.id !== id),
+    }));
     if (editingId === id) {
       setEditingId(null);
     }
@@ -63,8 +65,12 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
   };
 
   const handleTechnologiesChange = (id: string, value: string) => {
-    const technologies = value.split(',').map(tech => tech.trim()).filter(Boolean);
-    updateProject(id, 'technologies', technologies);
+    setTechnologyDrafts((drafts) => ({ ...drafts, [id]: value }));
+    updateProject(id, 'technologies', parseList(value));
+  };
+
+  const finishTechnologiesEdit = (id: string) => {
+    setTechnologyDrafts(({ [id]: _finished, ...rest }) => rest);
   };
 
   const generateDescription = async (projectId: string) => {
@@ -134,8 +140,8 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                 <CardTitle className="text-lg">
                   {project.name || 'New Project'}
                   {project.link && (
-                    <a 
-                      href={project.link} 
+                    <a
+                      href={toHref(project.link)}
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="ml-2 text-blue-600 hover:text-blue-800"
@@ -203,8 +209,9 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                     Technologies Used
                   </label>
                   <Input
-                    value={project.technologies.join(', ')}
+                    value={technologyDrafts[project.id] ?? project.technologies.join(', ')}
                     onChange={(e) => handleTechnologiesChange(project.id, e.target.value)}
+                    onBlur={() => finishTechnologiesEdit(project.id)}
                     placeholder="React, Node.js, MongoDB (comma-separated)"
                   />
                   <span className="text-xs text-muted-foreground">
@@ -242,7 +249,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                   <Textarea
                     value={project.description}
                     onChange={(e) => updateProject(project.id, 'description', e.target.value)}
-                    placeholder="Describe what the project does, your role, key features, and impact..."
+                    placeholder={'What it does, your role and the result. Use one line per point for bullets.'}
                     className="min-h-[100px]"
                   />
                   {errors[project.id] && (
