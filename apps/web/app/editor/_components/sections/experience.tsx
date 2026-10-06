@@ -1,13 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { Field, Input } from '@/components/ds';
-import { requestAi } from '@/lib/ai-client';
-import { toBulletList } from '@/lib/cv/format';
 import { newId, type Experience } from '@/lib/cv/schema';
+import { BulletAssist } from '../ai/bullet-assist';
 import { BulletEditor } from '../fields/bullet-editor';
 import { MonthYearInput } from '../fields/month-year-input';
-import { AddButton, AiButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
+import { AddButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
 
 const blank = (): Experience => ({
   id: newId('exp'),
@@ -21,27 +19,7 @@ const blank = (): Experience => ({
 });
 
 export function ExperienceSection({ cv, update }: SectionProps) {
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const patch = (id: string, value: Partial<Experience>) => patchItem(update, 'experience', id, value);
-
-  const enhance = async (exp: Experience) => {
-    setBusyId(exp.id);
-    setErrors((e) => ({ ...e, [exp.id]: '' }));
-    try {
-      const text = await requestAi({
-        type: 'experience',
-        role: exp.position,
-        company: exp.company,
-        text: exp.bullets.filter((b) => b.trim()).map((b) => `- ${b}`).join('\n'),
-      });
-      patch(exp.id, { bullets: toBulletList(text) });
-    } catch (err) {
-      setErrors((e) => ({ ...e, [exp.id]: err instanceof Error ? err.message : 'Gagal memperbaiki deskripsi.' }));
-    } finally {
-      setBusyId(null);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -96,13 +74,7 @@ export function ExperienceSection({ cv, update }: SectionProps) {
               onChange={(bullets) => patch(exp.id, { bullets })}
               placeholder="Mis. Memangkas waktu laporan 30% dengan otomasi Python"
             />
-            <div className="flex flex-wrap items-center gap-3">
-              <AiButton busy={busyId === exp.id} disabled={!exp.bullets.some((b) => b.trim())} onClick={() => enhance(exp)}>
-                Perbaiki dengan AI
-              </AiButton>
-              <span className="text-xs text-muted-foreground">Satu pencapaian per poin, diawali kata kerja aktif.</span>
-            </div>
-            {errors[exp.id] && <p className="text-sm text-destructive">{errors[exp.id]}</p>}
+            <BulletAssist cv={cv} update={update} section="experience" itemId={exp.id} hint="Satu pencapaian per poin, diawali kata kerja aktif." />
           </div>
         </ItemPanel>
       ))}

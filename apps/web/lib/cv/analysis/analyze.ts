@@ -1,4 +1,5 @@
 import type { CV } from '../schema';
+import { hasPlaceholder } from '@/lib/ai/suggestions';
 import { matchKeywords, type KeywordMatch } from './keywords';
 import { ACTION_VERBS, BUZZWORDS, PRONOUNS, WEAK_OPENERS } from './lexicon';
 
@@ -151,7 +152,8 @@ function content(cv: CV): ScoreComponent {
     firstWords.set(first, (firstWords.get(first) ?? 0) + 1);
     const weak = WEAK_OPENERS.find((phrase) => lower.startsWith(phrase));
     const strong = ACTION_VERBS.has(first);
-    const metric = /\d/.test(bullet);
+    // An unfilled AI placeholder such as [X%] is not a metric yet.
+    const metric = /\d/.test(bullet) && !hasPlaceholder(bullet);
 
     if (weak) findings.push({ severity: 'warn', message: `Diawali frasa tugas "${weak}": ${quote(bullet)}. Tulis hasilnya, mis. "Meningkatkan…".` });
     else if (!strong) findings.push({ severity: 'warn', message: `Awali dengan kata kerja aktif: ${quote(bullet)}.` });
@@ -168,11 +170,18 @@ function content(cv: CV): ScoreComponent {
     if (text.includes(buzzword)) findings.push({ severity: 'warn', message: `Klise "${buzzword}"; tunjukkan buktinya lewat pencapaian.` });
   }
 
-  const quantified = bullets.filter((b) => /\d/.test(b)).length;
+  const quantified = bullets.filter((b) => /\d/.test(b) && !hasPlaceholder(b)).length;
   findings.unshift({
     severity: quantified / bullets.length >= 0.5 ? 'good' : 'warn',
     message: `${quantified} dari ${bullets.length} poin memuat angka.`,
   });
+  const unfilled = [cv.professionalSummary, ...bullets].filter(hasPlaceholder);
+  if (unfilled.length) {
+    findings.unshift({
+      severity: 'issue',
+      message: `${unfilled.length} teks masih memuat placeholder seperti [X%]: ${quote(unfilled[0])}. Isi dengan angka asli atau hapus sebelum mengirim CV.`,
+    });
+  }
   return { id: 'content', label: 'Kualitas konten', score: Math.round((points / bullets.length) * 100), findings };
 }
 

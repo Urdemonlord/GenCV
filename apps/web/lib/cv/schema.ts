@@ -122,6 +122,8 @@ export const cvSchema = z.object({
   professionalSummary: text,
   /** Pasted job ad this CV is tailored to; drives the keyword match. Never exported. */
   jobDescription: text,
+  /** Job-ad keywords the user confirmed real experience with; the only new terms AI may use. */
+  confirmedKeywords: list,
   experience: items(experienceSchema),
   education: items(educationSchema),
   skills: items(skillSchema),

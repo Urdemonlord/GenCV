@@ -24,8 +24,7 @@ cv-generator-monorepo/
 ├── packages/
 │   ├── types/        # Shared TypeScript types
 │   ├── utils/        # Shared utility functions
-│   ├── ui/           # Shared UI components (shadcn/ui)
-│   └── lib-ai/       # AI integration wrapper (Gemini)
+│   └── ui/           # Shared UI components (shadcn/ui)
 └── turbo.json        # Turborepo configuration
 ```
 
@@ -52,7 +51,6 @@ cv-generator-monorepo/
 - **@cv-generator/types** - Shared TypeScript interfaces
 - **@cv-generator/utils** - Common utility functions
 - **@cv-generator/ui** - Reusable UI components
-- **@cv-generator/lib-ai** - AI integration wrapper
 
 ## 🚀 Quick Start
 
@@ -96,8 +94,8 @@ cv-generator-monorepo/
    
    Edit `apps/web/.env.local`:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:3001
    NEXT_PUBLIC_APP_URL=http://localhost:3000
+   GEMINI_API_KEY=your_gemini_key   # optional, only for AI suggestions
    ```
 
 4. **Start development servers**
@@ -184,8 +182,7 @@ apps/api/
 packages/
 ├── types/                 # Shared TypeScript types
 ├── utils/                 # Utility functions
-├── ui/                    # UI component library
-└── lib-ai/                # AI integration
+└── ui/                    # UI component library
 ```
 
 ## 🔒 Security Features
@@ -235,14 +232,17 @@ FRONTEND_URL=https://your-frontend-domain.com
 GEMINI_API_KEY=your_production_gemini_key
 
 # Frontend
-NEXT_PUBLIC_API_URL=https://your-api-domain.com
 NEXT_PUBLIC_APP_URL=https://your-frontend-domain.com
 ```
 
 ### Deploy ke Vercel
 
 - Root directory: `apps/web`
-- Environment variable: `GEMINI_API_KEY` (hanya untuk fitur AI)
+- Environment variable:
+  - `GEMINI_API_KEY`: hanya untuk fitur AI. Pakai key dari project Gemini API **berbayar**; kebijakan privasi (`/privasi`) menyatakan teks tidak dipakai Google untuk melatih model, dan itu hanya berlaku di tier berbayar.
+  - `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN` (disarankan): rate limit AI yang dibagi semua instance. Tanpa ini, limit hanya per instance.
+  - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` dan `TURNSTILE_SECRET_KEY` (opsional): verifikasi Cloudflare Turnstile di `/api/ai`.
+- AI hanya dipanggil lewat route `/api/ai` milik aplikasi ini; tidak ada backend AI terpisah.
 - PDF dan DOCX dibuat di browser (react-pdf + docx), jadi tidak perlu Chromium/Puppeteer di server.
 
 ## Troubleshooting

@@ -4,7 +4,6 @@ const nextConfig = {
     '@cv-generator/ui',
     '@cv-generator/types',
     '@cv-generator/utils',
-    '@cv-generator/lib-ai',
   ],
   eslint: {
     ignoreDuringBuilds: true,

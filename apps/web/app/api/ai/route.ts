@@ -1,151 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { ZodError } from 'zod';
+import { generate, isAiConfigured } from '@/lib/ai/generate';
+import { AiOutputRejected } from '@/lib/ai/postprocess';
+import { aiRequestSchema } from '@/lib/ai/tasks';
 import { clientKey, rateLimit } from '@/lib/rate-limit';
+import { verifyTurnstile } from '@/lib/turnstile';
 
-const MAX_INPUT_CHARS = 4000;
-const REQUESTS_PER_MINUTE = 10;
-
-// Gunakan runtime nodejs untuk memastikan SDK Google bekerja dengan benar
 export const runtime = 'nodejs';
 
+/** Raw body cap; the schema caps each field as well. */
+const MAX_BODY_BYTES = 16_000;
+const LIMITS = [
+  { name: 'minute', limit: 10, windowMs: 60_000 },
+  { name: 'day', limit: 150, windowMs: 86_400_000 },
+];
+
+const fail = (status: number, error: string, headers?: HeadersInit) =>
+  NextResponse.json({ success: false, error }, { status, headers });
+
+// CV text is personal data: nothing from the request body is ever logged.
 export async function POST(request: NextRequest) {
-  const limit = rateLimit(clientKey(request.headers), REQUESTS_PER_MINUTE, 60_000);
-  if (!limit.ok) {
-    return NextResponse.json(
-      { success: false, error: 'Too many requests, please try again shortly.' },
-      { status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
-    );
+  const ip = clientKey(request.headers);
+  for (const { name, limit, windowMs } of LIMITS) {
+    const result = await rateLimit(`ai:${name}:${ip}`, limit, windowMs);
+    if (!result.ok) {
+      return fail(429, 'Terlalu banyak permintaan AI. Coba lagi sebentar lagi.', { 'Retry-After': String(result.retryAfter) });
+    }
+  }
+
+  if (!isAiConfigured()) return fail(503, 'Fitur AI belum dikonfigurasi di server ini.');
+
+  if (!(await verifyTurnstile(request.headers.get('x-turnstile-token'), ip))) {
+    return fail(403, 'Verifikasi keamanan gagal. Muat ulang halaman lalu coba lagi.');
+  }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) return fail(413, 'Teks terlalu panjang untuk diproses sekaligus.');
+
+  let body;
+  try {
+    body = aiRequestSchema.parse(JSON.parse(raw));
+  } catch (error) {
+    const tooLong = error instanceof ZodError && error.issues.some((issue) => issue.code === 'too_big');
+    return fail(tooLong ? 413 : 400, tooLong ? 'Teks terlalu panjang untuk diproses sekaligus.' : 'Permintaan tidak valid.');
   }
 
   try {
-    const data = await request.json();
-    // CV text is personal data: never log it, and cap its size to bound AI cost.
-    if (JSON.stringify(data ?? {}).length > MAX_INPUT_CHARS) {
-      return NextResponse.json({ success: false, error: 'Input is too long.' }, { status: 413 });
-    }
-    
-    // Initialize Gemini API
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY is not configured');
-      return NextResponse.json(
-        { error: 'AI service is not configured properly' },
-        { status: 500 }
-      );
-    }
-    
-    const ai = new GoogleGenAI({ apiKey });
-    
-    // Create prompt based on request type
-    let prompt = '';
-    let responseData = '';
-    
-    switch (data.type) {
-      case 'summary':
-        // For professional summary enhancement
-        prompt = `Create a compelling professional summary for a CV based on this information: "${data.text}".
-        Guidelines:
-        - Keep it concise (3-4 sentences max)
-        - Highlight key skills and experience level
-        - Include career objectives or passion
-        - Use active voice and first-person perspective
-        - Avoid clichés and focus on unique value proposition
-        - Ensure the tone is confident but not arrogant`;
-        break;
-        
-      case 'experience':
-        // For work experience enhancement
-        prompt = `Enhance this job description for a CV, focusing on achievements and impact:
-        Role: ${data.role || 'Professional'}
-        Company: ${data.company || 'Company'}
-        Description to enhance: "${data.text}"
-        
-        Guidelines:
-        - Start with strong action verbs
-        - Quantify achievements where possible (%, numbers, metrics)
-        - Focus on results and impact, not just responsibilities
-        - Highlight relevant skills for ${data.role || 'this position'}
-        - Keep entries concise and impactful
-        - Include keywords relevant to the industry`;
-        break;
-        
-      case 'skills':
-        // For suggesting skills based on role and experience level
-        prompt = `Suggest 8-10 relevant professional skills for a ${data.experienceLevel || 'mid-level'} ${data.role || 'Software Developer'}.
-        
-        Include:
-        - Technical skills specific to the role
-        - Relevant soft skills (2-3)
-        - Industry-specific knowledge
-        - Current in-demand technologies or methodologies
-        
-        Format as a comma-separated list only, without explanations or numbering.`;
-        break;
-        
-      case 'project':
-        // For generating project descriptions
-        prompt = `Write a concise, professional project description for a CV with the following details:
-        Project Name: ${data.projectName}
-        Technologies Used: ${Array.isArray(data.technologies) ? data.technologies.join(', ') : data.technologies}
-        Project Type: ${data.projectType || 'Software Project'}
-        
-        Guidelines:
-        - 2-3 impactful sentences only
-        - Start with the project purpose/problem solved
-        - Mention specific technologies and your role
-        - Include measurable outcomes or impact
-        - Focus on unique challenges overcome
-        - Use first-person perspective and active voice`;
-        break;
-        
-      default:
-        // Default enhancement
-        prompt = `Enhance this text to be more impactful for a CV: "${data.text}"
-        
-        Guidelines:
-        - Use strong action verbs and professional language
-        - Be concise but detailed
-        - Quantify achievements where possible
-        - Focus on results and impact
-        - Ensure content is relevant to hiring managers
-        - Keep the tone confident and professional`;
-    }
-    
-    console.log('Sending prompt to Gemini:', { type: data.type });
-    
-    // Generate response using the new API
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
-    
-    responseData = response.text || ''; // Handle undefined case
-    
-    console.log('Received response from Gemini:', { responseLength: responseData.length });
-
-    return NextResponse.json({ 
-      success: true,
-      data: responseData
-    });
+    const data = await generate(body.task, body.input as never);
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('AI enhancement failed:', error);
-    
-    // Log more details for debugging
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-    }
-    
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'AI enhancement failed', 
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    if (error instanceof AiOutputRejected) return fail(422, error.message);
+    // Only the error type: messages from the SDK can echo the prompt.
+    console.error('AI request failed', { task: body.task, error: error instanceof Error ? error.name : 'unknown' });
+    return fail(502, 'Layanan AI sedang tidak tersedia. Coba lagi nanti.');
   }
 }

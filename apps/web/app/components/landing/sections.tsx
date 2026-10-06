@@ -82,7 +82,7 @@ const FAQS = [
   },
   {
     q: 'Di mana data CV saya disimpan?',
-    a: 'Di browser perangkatmu sendiri; PDF dan DOCX juga dibuat di browser. Teks baru dikirim ke server saat kamu menekan tombol AI: server kami meneruskannya ke Google Gemini untuk diproses dan tidak menyimpannya.',
+    a: 'Di browser perangkatmu sendiri; PDF dan DOCX juga dibuat di browser. Teks baru dikirim ke server saat kamu menekan tombol AI: server kami meneruskannya ke Google Gemini untuk diproses dan tidak menyimpannya. Nama dan kontakmu tidak ikut dikirim.',
   },
   {
     q: 'Apakah saya wajib memakai AI?',
@@ -160,6 +160,11 @@ export function SiteFooter() {
             <li>
               <Link href="/#faq" className="hover:text-foreground">
                 FAQ
+              </Link>
+            </li>
+            <li>
+              <Link href="/privasi" className="hover:text-foreground">
+                Privasi
               </Link>
             </li>
           </ul>

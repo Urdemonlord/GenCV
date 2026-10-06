@@ -29,6 +29,13 @@ describe('analyzeCv', () => {
     expect(result.components.map((c) => c.id)).toEqual(['completeness', 'format', 'readability', 'content']);
   });
 
+  it('treats unfilled AI placeholders as an issue, not a metric', () => {
+    const cv = normalizeCV({ ...strong, experience: [{ position: 'Dev', company: 'A', bullets: ['Reduced load time by [X%] for 2 apps'] }] });
+    const content = analyzeCv(cv).components.find((c) => c.id === 'content')!;
+    expect(content.findings[0]).toMatchObject({ severity: 'issue' });
+    expect(content.findings[0].message).toContain('placeholder');
+  });
+
   it('flags duty-style bullets, pronouns, missing metrics and buzzwords', () => {
     const weak = normalizeCV({
       ...strong,
