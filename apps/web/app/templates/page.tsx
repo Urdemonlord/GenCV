@@ -7,7 +7,7 @@ export default function TemplatesPage() {
       <h1 className="text-3xl font-bold">Templates</h1>
       <p className="text-muted-foreground">Template gallery coming soon.</p>
       <Button asChild>
-        <Link href="/builder">Back to Builder</Link>
+        <Link href="/editor">Back to Builder</Link>
       </Button>
     </div>
   );

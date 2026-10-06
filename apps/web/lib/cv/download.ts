@@ -24,6 +24,13 @@ export async function downloadCvDocx(data: CV, template: TemplateId) {
   saveBlob(await renderCvDocx(data, template), `${cvFileBaseName(data)}.docx`);
 }
 
+/** Opens the OS share sheet with the PDF file itself (no link to share: data stays on the device). */
+export async function shareCvPdf(data: CV, template: TemplateId) {
+  const { renderCvPdf } = await import('./pdf');
+  const file = new File([await renderCvPdf(data, template)], `${cvFileBaseName(data)}.pdf`, { type: 'application/pdf' });
+  await navigator.share({ files: [file], title: file.name });
+}
+
 export function downloadCvJson(data: CV) {
   saveBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `${cvFileBaseName(data)}-data.json`);
 }

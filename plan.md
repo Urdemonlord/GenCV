@@ -28,7 +28,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Sebagian (test lokal ada, CI belum) |
 | R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Selesai (PR) |
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Selesai (PR) |
-| R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Belum |
+| R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Selesai (PR) |
 | R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Belum |
 | R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Belum |
 | R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Belum |
@@ -145,12 +145,12 @@ Catatan:
 - Judul section di template Classic tidak memakai letter spacing. Dengan kerning Source Serif, teksnya terekstrak terpotong ("SERTIFIK ASI").
 - zod menambah ~17 kB di first load `/builder`. Kalau perlu, bisa diganti `zod/mini`.
 
-## R3. Editor workspace
+## R3. Editor workspace (selesai)
 
 Menggantikan `/builder` dan `/result`.
 
-- [ ] Halaman `/editor`. `/builder` dan `/result` di-redirect ke sini.
-- [ ] Layout responsif:
+- [x] Halaman `/editor`. `/builder` dan `/result` di-redirect ke sini.
+- [x] Layout responsif:
 
   | Lebar layar | Susunan |
   |---|---|
@@ -158,24 +158,29 @@ Menggantikan `/builder` dan `/result`.
   | 1024–1439 px | Kolom analisis jadi panel yang bisa dilipat |
   | <1024 px | Tab Form / Preview / Analisis |
 
-- [ ] Topbar berisi:
+- [x] Topbar berisi:
   - Judul CV yang bisa diedit
   - Status simpan yang jujur, misalnya "Tersimpan di perangkat ini · 2 menit lalu"
   - Tombol Analisis ATS
   - Menu Export: PDF, DOCX, backup JSON, serta "Bagikan file" lewat Web Share API kalau browser mendukung
   - Import JSON
-- [ ] Sidebar berisi daftar section dengan tanda ✓ kalau sudah terisi, plus grup AI Tools: Analisis ATS, Job Match, AI Assistant
-- [ ] Form per section:
+- [x] Sidebar berisi daftar section dengan tanda ✓ kalau sudah terisi, plus grup AI Tools: Analisis ATS, Job Match, AI Assistant
+- [x] Form per section:
   - Informasi Pribadi (dengan foto)
   - Pengalaman (editor bullet yang bisa diurutkan)
   - Pendidikan, Keahlian (chip per kategori), Proyek
   - Sertifikasi, Bahasa, Tambahan
-- [ ] Navigasi Sebelumnya/Selanjutnya dan validasi inline di form
-- [ ] Panel preview:
+- [x] Navigasi Sebelumnya/Selanjutnya dan validasi inline di form
+- [x] Panel preview:
   - Tab Preview menampilkan PDF asli (`PdfPreview`) dan jumlah halaman
   - Tab Template menampilkan pemilih template dengan thumbnail
-- [ ] Label terhubung ke input; semua bisa dioperasikan dengan keyboard
-- [ ] Semua perilaku Fase 0 tetap jalan: migrasi data lama, export, dan preview
+- [x] Label terhubung ke input; semua bisa dioperasikan dengan keyboard
+- [x] Semua perilaku Fase 0 tetap jalan: migrasi data lama, export, dan preview
+
+Catatan:
+- Kolom analisis, tombol Analisis ATS, dan grup AI Tools baru ditambahkan di R4/R8, saat fiturnya ada (tanpa link mati). Untuk sekarang layoutnya 3 kolom: sidebar, form, preview.
+- Saran keahlian dari AI harus dipilih user satu per satu; tidak lagi otomatis masuk ke CV.
+- Template yang dipilih disimpan di `settings.template` dan dipakai semua export.
 
 ## R4. Analisis ATS & Job Match
 
