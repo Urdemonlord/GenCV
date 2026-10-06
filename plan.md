@@ -30,7 +30,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Selesai (PR) |
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Selesai (PR) |
 | R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Selesai (PR) |
-| R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Belum |
+| R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Selesai (PR) |
 | R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Belum |
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Belum |
 | R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Belum |
@@ -206,9 +206,9 @@ Deterministik, tanpa AI, berjalan di browser.
 - [x] Ringkasan tampil di kolom kanan editor, versi lengkapnya di panel Analisis ATS dan Job Match
 - [x] `calculateCVScore` lama (yang menghitung jumlah karakter) dihapus
 
-## R5. Landing page
+## R5. Landing page (selesai)
 
-- [ ] Struktur halaman:
+- [x] Struktur halaman:
   1. Hero
   2. "Dibuat untuk diterima kerja"
   3. Editor
@@ -220,10 +220,10 @@ Deterministik, tanpa AI, berjalan di browser.
   9. FAQ
   10. CTA
   11. Footer
-- [ ] Visual hero memakai output produk asli. CV dirender dari template sungguhan lewat script build menjadi gambar WebP, supaya landing tidak perlu memuat react-pdf. Kartu skor dihitung dengan engine R4 dari data contoh.
-- [ ] Contoh AI sebelum/sesudah memakai placeholder, bukan angka karangan
-- [ ] Menu: Beranda, Template, Fitur. Masuk, Harga, dan Blog disembunyikan sampai fiturnya ada.
-- [ ] Section social proof palsu dihapus; metadata SEO dan gambar OG diperbarui
+- [x] Visual hero memakai output produk asli. CV dirender dari template sungguhan lewat script build menjadi gambar WebP, supaya landing tidak perlu memuat react-pdf. Kartu skor dihitung dengan engine R4 dari data contoh.
+- [x] Contoh AI sebelum/sesudah memakai placeholder, bukan angka karangan
+- [x] Menu: Beranda, Template, Fitur. Masuk, Harga, dan Blog disembunyikan sampai fiturnya ada.
+- [x] Section social proof palsu dihapus; metadata SEO dan gambar OG diperbarui
 
 ## R6. Template & galeri
 

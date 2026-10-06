@@ -1,14 +1,20 @@
-import Link from 'next/link';
-import { Button } from '@cv-generator/ui';
+import type { Metadata } from 'next';
+import { SiteFooter, TemplatesShowcase } from '../components/landing/sections';
+import { SiteHeader } from '../components/landing/site-header';
+
+export const metadata: Metadata = {
+  title: 'Template CV ramah ATS · GenCV',
+  description: 'Template CV satu kolom yang terbaca ATS, dengan contoh hasil ekspor asli.',
+};
 
 export default function TemplatesPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-center p-8">
-      <h1 className="text-3xl font-bold">Templates</h1>
-      <p className="text-muted-foreground">Template gallery coming soon.</p>
-      <Button asChild>
-        <Link href="/editor">Back to Builder</Link>
-      </Button>
-    </div>
+    <>
+      <SiteHeader />
+      <main>
+        <TemplatesShowcase />
+      </main>
+      <SiteFooter />
+    </>
   );
 }

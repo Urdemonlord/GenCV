@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "previews": "vite-node --config vitest.config.ts scripts/render-previews.tsx"
   },
   "dependencies": {
     "@cv-generator/lib-ai": "file:../../packages/lib-ai",
