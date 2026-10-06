@@ -1,49 +1,46 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { normalizeCV } from './normalize';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { emptyCV, type CV } from './schema';
+import { listDocuments, loadDocument, saveDocument } from './storage';
 
 export type CvUpdate = CV | ((previous: CV) => CV);
 
-const DATA_KEY = 'cv-data';
-const SAVED_AT_KEY = 'cv-data-saved-at';
-
-function readDraft(): { cv: CV; savedAt: number | null } {
-  try {
-    const raw = localStorage.getItem(DATA_KEY);
-    const savedAt = Number(localStorage.getItem(SAVED_AT_KEY)) || null;
-    return { cv: raw ? normalizeCV(JSON.parse(raw)) : emptyCV(), savedAt };
-  } catch {
-    return { cv: emptyCV(), savedAt: null };
-  }
-}
+export type CvDocumentStatus = 'loading' | 'ready' | 'missing';
 
 /**
- * The CV being edited, autosaved to this device. `ready` is false until the stored draft
- * has been read, so the empty initial state can never overwrite it.
+ * One stored CV, autosaved to this device. Nothing is written until the stored copy has been
+ * read, so the empty initial state can never overwrite it, and merely opening a CV does not
+ * count as an edit.
  */
-export function useCvDocument() {
+export function useCvDocument(id: string) {
   const [cv, setCv] = useState<CV>(emptyCV);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<CvDocumentStatus>('loading');
   const [saveError, setSaveError] = useState(false);
+  const loaded = useRef<CV | null>(null);
 
   useEffect(() => {
-    const draft = readDraft();
-    setCv(draft.cv);
-    setSavedAt(draft.savedAt);
-    setReady(true);
-  }, []);
+    try {
+      const stored = loadDocument(id);
+      if (!stored) {
+        setStatus('missing');
+        return;
+      }
+      loaded.current = stored;
+      setCv(stored);
+      setSavedAt(listDocuments().find((doc) => doc.id === id)?.updatedAt ?? null);
+      setStatus('ready');
+    } catch {
+      setStatus('missing');
+    }
+  }, [id]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (status !== 'ready' || cv === loaded.current) return;
     const timer = setTimeout(() => {
       try {
-        localStorage.setItem(DATA_KEY, JSON.stringify(cv));
-        const now = Date.now();
-        localStorage.setItem(SAVED_AT_KEY, String(now));
-        setSavedAt(now);
+        setSavedAt(saveDocument(id, cv));
         setSaveError(false);
       } catch {
         // Usually a full quota (e.g. a large photo); the edit stays in memory.
@@ -51,12 +48,12 @@ export function useCvDocument() {
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [cv, ready]);
+  }, [cv, id, status]);
 
   /** Prefer the updater form: async callbacks would otherwise overwrite newer edits. */
   const update = useCallback((next: CvUpdate) => {
     setCv((previous) => (typeof next === 'function' ? next(previous) : next));
   }, []);
 
-  return { cv, update, ready, savedAt, saveError };
+  return { cv, update, status, ready: status === 'ready', savedAt, saveError };
 }

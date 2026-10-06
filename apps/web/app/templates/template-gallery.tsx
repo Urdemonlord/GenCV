@@ -32,12 +32,15 @@ export function TemplateGallery() {
           {ids.map((id) => (
             <li key={id}>
               <TemplateCard id={id} />
+              <Button asChild variant="outline" size="sm" className="mt-3">
+                <Link href={`/editor?new=1&template=${id}`}>Pakai template ini</Link>
+              </Button>
             </li>
           ))}
         </ul>
         <div className="mt-12 text-center">
           <Button asChild variant="primary" size="lg">
-            <Link href="/editor">Mulai dengan template ini di editor</Link>
+            <Link href="/editor">Buka editor</Link>
           </Button>
         </div>
       </div>

@@ -7,6 +7,7 @@ const NAV = [
   { href: '/templates', label: 'Template' },
   { href: '/#fitur', label: 'Fitur' },
   { href: '/#faq', label: 'FAQ' },
+  { href: '/dashboard', label: 'CV saya' },
 ];
 
 export function SiteHeader() {
