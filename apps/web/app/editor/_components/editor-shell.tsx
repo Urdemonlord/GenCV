@@ -2,25 +2,22 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, FileText, Gauge, Pencil } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Gauge, LayoutGrid, Pencil } from 'lucide-react';
 import { Button, NavItem, Select, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
 import { useCvDocument } from '@/lib/cv/use-cv-document';
+import { relativeTimeLabel } from '@/lib/relative-time';
 import { ExportMenu } from './export-menu';
 import { PreviewPanel, type PreviewTab } from './preview-panel';
 import { EDITOR_SECTIONS } from './sections';
 
-const relativeTime = new Intl.RelativeTimeFormat('id', { numeric: 'auto' });
-
 function savedLabel(savedAt: number | null, now: number): string {
-  if (!savedAt) return 'Belum tersimpan';
-  const minutes = Math.round((savedAt - now) / 60_000);
-  return `Tersimpan di perangkat ini · ${minutes === 0 ? 'baru saja' : relativeTime.format(minutes, 'minute')}`;
+  return savedAt ? `Tersimpan di perangkat ini · ${relativeTimeLabel(savedAt, now)}` : 'Belum tersimpan';
 }
 
-export function EditorShell() {
-  const { cv, update, ready, savedAt, saveError } = useCvDocument();
+export function EditorShell({ id }: { id: string }) {
+  const { cv, update, status, ready, savedAt, saveError } = useCvDocument(id);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
   const [now, setNow] = useState(() => Date.now());
@@ -47,6 +44,23 @@ export function EditorShell() {
     document.getElementById('editor-form')?.scrollTo({ top: 0 });
   };
 
+  if (status === 'missing') {
+    return (
+      <div className="grid h-dvh place-items-center px-4">
+        <div className="max-w-sm text-center">
+          <h1 className="text-xl font-bold">CV tidak ditemukan</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            CV ini mungkin sudah dihapus, atau disimpan di perangkat/browser lain. Data CV hanya tersimpan di perangkat tempat kamu
+            membuatnya.
+          </p>
+          <Button asChild variant="primary" className="mt-6">
+            <Link href="/dashboard">Ke daftar CV saya</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-dvh flex-col overflow-x-hidden">
       <header className="flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-2.5">
@@ -56,6 +70,13 @@ export function EditorShell() {
             Gen<span className="text-gradient">CV</span>
           </span>
         </Link>
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/dashboard">
+            <LayoutGrid aria-hidden="true" />
+            <span className="hidden md:inline">CV saya</span>
+            <span className="sr-only md:hidden">CV saya</span>
+          </Link>
+        </Button>
 
         <div className="hidden min-w-0 items-center gap-2 border-l border-border pl-3 sm:flex">
           <label htmlFor="cv-title" className="sr-only">
