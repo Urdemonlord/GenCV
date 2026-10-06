@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Languages,
   Settings2,
+  Target,
   TextQuote,
   User,
   Wrench,
@@ -22,6 +23,7 @@ import { SetupSection } from './setup';
 import type { SectionProps } from './shared';
 import { SkillsSection } from './skills';
 import { SummarySection } from './summary';
+import { JobMatchSection } from './job-match';
 
 export interface EditorSection {
   id: string;
@@ -29,6 +31,8 @@ export interface EditorSection {
   icon: LucideIcon;
   component: ComponentType<SectionProps>;
   optional?: boolean;
+  /** Sidebar group: CV content or tools that work on it. */
+  group: 'cv' | 'tools';
   /** Shown as a check mark in the sidebar. */
   isComplete: (cv: CV) => boolean;
 }
@@ -36,26 +40,29 @@ export interface EditorSection {
 const filled = (value: string) => value.trim() !== '';
 
 export const EDITOR_SECTIONS: EditorSection[] = [
-  { id: 'setup', label: 'Pengaturan', icon: Settings2, component: SetupSection, isComplete: () => true },
+  { group: 'cv', id: 'setup', label: 'Pengaturan', icon: Settings2, component: SetupSection, isComplete: () => true },
   {
+    group: 'cv',
     id: 'personal',
     label: 'Informasi pribadi',
     icon: User,
     component: PersonalSection,
     isComplete: ({ personalInfo: p }) => [p.fullName, p.email, p.phone, p.location].every(filled),
   },
-  { id: 'summary', label: 'Ringkasan', icon: TextQuote, component: SummarySection, isComplete: (cv) => filled(cv.professionalSummary) },
+  { group: 'cv', id: 'summary', label: 'Ringkasan', icon: TextQuote, component: SummarySection, isComplete: (cv) => filled(cv.professionalSummary) },
   {
+    group: 'cv',
     id: 'experience',
     label: 'Pengalaman kerja',
     icon: Briefcase,
     component: ExperienceSection,
     isComplete: (cv) => cv.experience.some((e) => filled(e.position) && e.bullets.some(filled)),
   },
-  { id: 'education', label: 'Pendidikan', icon: GraduationCap, component: EducationSection, isComplete: (cv) => cv.education.some((e) => filled(e.institution)) },
-  { id: 'skills', label: 'Keahlian', icon: Wrench, component: SkillsSection, isComplete: (cv) => cv.skills.length >= 3 },
-  { id: 'projects', label: 'Proyek', icon: FolderGit2, component: ProjectsSection, optional: true, isComplete: (cv) => cv.projects.some((p) => filled(p.name)) },
+  { group: 'cv', id: 'education', label: 'Pendidikan', icon: GraduationCap, component: EducationSection, isComplete: (cv) => cv.education.some((e) => filled(e.institution)) },
+  { group: 'cv', id: 'skills', label: 'Keahlian', icon: Wrench, component: SkillsSection, isComplete: (cv) => cv.skills.length >= 3 },
+  { group: 'cv', id: 'projects', label: 'Proyek', icon: FolderGit2, component: ProjectsSection, optional: true, isComplete: (cv) => cv.projects.some((p) => filled(p.name)) },
   {
+    group: 'cv',
     id: 'certifications',
     label: 'Sertifikasi',
     icon: BadgeCheck,
@@ -63,6 +70,15 @@ export const EDITOR_SECTIONS: EditorSection[] = [
     optional: true,
     isComplete: (cv) => cv.certifications.some((c) => filled(c.name)),
   },
-  { id: 'languages', label: 'Bahasa', icon: Languages, component: LanguagesSection, optional: true, isComplete: (cv) => cv.languages.some((l) => filled(l.name)) },
-  { id: 'additional', label: 'Tambahan', icon: Award, component: AdditionalSection, optional: true, isComplete: (cv) => cv.additional.some((a) => filled(a.title)) },
+  { group: 'cv', id: 'languages', label: 'Bahasa', icon: Languages, component: LanguagesSection, optional: true, isComplete: (cv) => cv.languages.some((l) => filled(l.name)) },
+  { group: 'cv', id: 'additional', label: 'Tambahan', icon: Award, component: AdditionalSection, optional: true, isComplete: (cv) => cv.additional.some((a) => filled(a.title)) },
+  {
+    group: 'tools',
+    id: 'job-match',
+    label: 'Job Match',
+    icon: Target,
+    component: JobMatchSection,
+    optional: true,
+    isComplete: (cv) => filled(cv.jobDescription),
+  },
 ];

@@ -75,9 +75,9 @@ export function ExportMenu({ cv, update }: ExportMenuProps) {
 
   return (
     <div ref={rootRef} className="relative flex">
-      <Button variant="primary" size="sm" className="rounded-r-none" disabled={busy !== null} onClick={() => run('pdf', () => downloadCvPdf(cv, template))}>
+      <Button variant="primary" size="sm" className="rounded-r-none" disabled={busy !== null} aria-label="Export PDF" onClick={() => run('pdf', () => downloadCvPdf(cv, template))}>
         {busy ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Download aria-hidden="true" />}
-        Export PDF
+        <span className="hidden sm:inline">Export PDF</span>
       </Button>
       <Button
         variant="primary"
