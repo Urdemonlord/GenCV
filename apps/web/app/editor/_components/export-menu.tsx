@@ -8,14 +8,18 @@ import { downloadCvDocx, downloadCvJson, downloadCvPdf, shareCvPdf } from '@/lib
 import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
 import type { CV } from '@/lib/cv/schema';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
+import { ExportSuccess } from './export-success';
 
 interface ExportMenuProps {
   cv: CV;
   update: (next: CvUpdate) => void;
+  docId: string;
+  onOpenJobMatch: () => void;
 }
 
-export function ExportMenu({ cv, update }: ExportMenuProps) {
+export function ExportMenu({ cv, update, docId, onOpenJobMatch }: ExportMenuProps) {
   const [open, setOpen] = useState(false);
+  const [exported, setExported] = useState<'PDF' | 'DOCX' | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [canShare, setCanShare] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -44,9 +48,11 @@ export function ExportMenu({ cv, update }: ExportMenuProps) {
 
   const run = async (key: string, action: () => Promise<void> | void) => {
     setOpen(false);
+    setExported(null);
     setBusy(key);
     try {
       await action();
+      if (key === 'pdf' || key === 'docx') setExported(key === 'pdf' ? 'PDF' : 'DOCX');
     } catch (error) {
       if ((error as Error)?.name === 'AbortError') return; // user closed the share sheet
       toast({ variant: 'destructive', title: 'Gagal mengekspor', description: error instanceof Error ? error.message : undefined });
@@ -115,6 +121,9 @@ export function ExportMenu({ cv, update }: ExportMenuProps) {
             <Upload /> Impor dari JSON
           </button>
         </div>
+      )}
+      {exported && (
+        <ExportSuccess cv={cv} docId={docId} format={exported} onOpenJobMatch={onOpenJobMatch} onClose={() => setExported(null)} />
       )}
       <input
         ref={fileRef}

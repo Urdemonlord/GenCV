@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { EditorEntry } from './_components/editor-entry';
 import { EditorShell } from './_components/editor-shell';
 
-export const metadata: Metadata = {
-  title: 'Editor CV · GenCV',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Editor CV',
+  description: 'Tulis CV dengan pratinjau PDF langsung, analisis ATS, Job Match, dan saran AI. Data tersimpan di perangkatmu.',
+  path: '/editor',
+  index: false,
+});
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

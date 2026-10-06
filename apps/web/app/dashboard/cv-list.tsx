@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Copy, FilePlus2, FileText, Pencil, Trash2, Upload } from 'lucide-react';
-import { Button, Chip } from '@/components/ds';
+import { Button, Chip, Skeleton } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
 import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
@@ -142,9 +142,11 @@ export function CvList() {
       </div>
 
       {items === null ? (
-        <p className="mt-10 text-sm text-muted-foreground" role="status">
-          Memuat CV…
-        </p>
+        <div className="mt-10 grid gap-4 md:grid-cols-2" role="status">
+          <span className="sr-only">Memuat CV…</span>
+          <Skeleton className="h-48 rounded-xl" />
+          <Skeleton className="h-48 rounded-xl" />
+        </div>
       ) : items.length === 0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
           <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button, Chip } from '@/components/ds';
 import { TEMPLATE_IDS, TEMPLATE_INFO, type TemplateId } from '@/lib/cv/templates';
+import { CONTACT_EMAIL, OPERATOR } from '@/lib/seo';
 
 const FEATURED: TemplateId[] = ['professional', 'tech', 'creative'];
 
@@ -10,7 +11,7 @@ export function TemplateCard({ id }: { id: TemplateId }) {
   return (
     <figure>
       <div className="overflow-hidden rounded-lg ring-1 ring-white/10 transition-transform hover:-translate-y-1">
-        <Image src={`/previews/${id}.webp`} alt={`Contoh CV dengan template ${TEMPLATE_INFO[id].name}`} width={893} height={1263} className="h-auto w-full" />
+        <Image src={`/previews/${id}.webp`} alt={`Contoh CV dengan template ${TEMPLATE_INFO[id].name}`} width={893} height={1263} sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className="h-auto w-full" />
       </div>
       <figcaption className="mt-3">
         <span className="flex items-center gap-2 text-sm font-semibold">
@@ -140,33 +141,38 @@ export function FinalCta() {
   );
 }
 
+const FOOTER_LINKS = [
+  { href: '/editor', label: 'Editor' },
+  { href: '/templates', label: 'Template' },
+  { href: '/#faq', label: 'FAQ' },
+  { href: '/privasi', label: 'Privasi' },
+  { href: '/syarat', label: 'Syarat' },
+];
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 py-8 text-sm text-muted-foreground">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4">
-        <p>© {new Date().getFullYear()} GenCV</p>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4 px-4">
+        <div className="space-y-1">
+          <p>
+            © {new Date().getFullYear()} GenCV oleh {OPERATOR}
+          </p>
+          <p>
+            Kontak:{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-foreground">
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+        </div>
         <nav aria-label="Footer">
-          <ul className="flex gap-4">
-            <li>
-              <Link href="/editor" className="hover:text-foreground">
-                Editor
-              </Link>
-            </li>
-            <li>
-              <Link href="/templates" className="hover:text-foreground">
-                Template
-              </Link>
-            </li>
-            <li>
-              <Link href="/#faq" className="hover:text-foreground">
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/privasi" className="hover:text-foreground">
-                Privasi
-              </Link>
-            </li>
+          <ul className="flex flex-wrap gap-x-4 gap-y-2">
+            {FOOTER_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="hover:text-foreground">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>

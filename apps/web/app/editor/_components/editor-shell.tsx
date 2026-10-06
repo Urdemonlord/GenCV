@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, FileText, Gauge, LayoutGrid, Pencil } from 'lucide-react';
-import { Button, NavItem, Select, Tabs } from '@/components/ds';
+import { Button, NavItem, Select, Skeleton, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
 import { useCvDocument } from '@/lib/cv/use-cv-document';
@@ -30,6 +30,10 @@ export function EditorShell({ id }: { id: string }) {
   const openAnalysis = () => {
     setPreviewTab('analysis');
     setMobileView('preview');
+  };
+  const openJobMatch = () => {
+    goTo(jobMatchIndex);
+    setMobileView('form');
   };
   const section = EDITOR_SECTIONS[sectionIndex];
   const Section = section.component;
@@ -113,7 +117,7 @@ export function EditorShell({ id }: { id: string }) {
               <span className="rounded bg-surface-raised px-1.5 text-xs font-semibold">{analysis.overall}</span>
             </Button>
           )}
-          <ExportMenu cv={cv} update={update} />
+          <ExportMenu cv={cv} update={update} docId={id} onOpenJobMatch={openJobMatch} />
         </div>
       </header>
 
@@ -177,7 +181,16 @@ export function EditorShell({ id }: { id: string }) {
               </Select>
             </div>
 
-            {ready ? <Section cv={cv} update={update} /> : <p className="text-sm text-muted-foreground">Memuat draf…</p>}
+            {ready ? (
+              <Section cv={cv} update={update} />
+            ) : (
+              <div className="space-y-4" role="status">
+                <span className="sr-only">Memuat CV…</span>
+                <Skeleton className="h-7 w-48" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+              </div>
+            )}
 
             <div className="mt-8 flex justify-between gap-3 border-t border-border pt-5">
               <Button variant="outline" disabled={sectionIndex === 0} onClick={() => goTo(sectionIndex - 1)}>
@@ -212,10 +225,7 @@ export function EditorShell({ id }: { id: string }) {
               analysis={analysis}
               tab={previewTab}
               onTabChange={setPreviewTab}
-              onOpenJobMatch={() => {
-                goTo(jobMatchIndex);
-                setMobileView('form');
-              }}
+              onOpenJobMatch={openJobMatch}
             />
           )}
         </aside>

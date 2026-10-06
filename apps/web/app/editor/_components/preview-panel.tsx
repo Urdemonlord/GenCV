@@ -1,13 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import { FileText } from 'lucide-react';
-import { Tabs } from '@/components/ds';
+import { Chip, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import type { CvAnalysis } from '@/lib/cv/analysis/analyze';
 import { buildCvView } from '@/lib/cv/format';
 import type { CV } from '@/lib/cv/schema';
 import { recommendTemplate, TEMPLATE_IDS, TEMPLATE_INFO } from '@/lib/cv/templates';
-import { Chip } from '@/components/ds';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
 import { AnalysisPanel } from './analysis-panel';
 import { PdfPreview } from './pdf-preview';
@@ -83,8 +83,7 @@ export function PreviewPanel({ cv, update, analysis, tab, onTabChange, onOpenJob
                     checked={selected}
                     onChange={() => update((p) => ({ ...p, settings: { ...p.settings, template: id } }))}
                   />
-                  {/* eslint-disable-next-line @next/next/no-img-element -- static preview thumbnail */}
-                  <img src={`/previews/${id}.webp`} alt="" width={60} height={85} className="h-[85px] w-[60px] shrink-0 rounded-sm bg-white object-cover object-top ring-1 ring-border" />
+                  <Image src={`/previews/${id}.webp`} alt="" width={60} height={85} sizes="60px" className="h-[85px] w-[60px] shrink-0 rounded-sm bg-white object-cover object-top ring-1 ring-border" />
                   <span>
                     <span className="flex flex-wrap items-center gap-2 font-semibold text-foreground">
                       {TEMPLATE_INFO[id].name}

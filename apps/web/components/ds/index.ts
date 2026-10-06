@@ -5,4 +5,5 @@ export { NavItem } from './nav-item';
 export { Panel, PanelHeader } from './panel';
 export { ProgressBar } from './progress-bar';
 export { ScoreRing } from './score-ring';
+export { Skeleton } from './skeleton';
 export { Tabs } from './tabs';
