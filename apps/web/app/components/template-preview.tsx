@@ -26,7 +26,7 @@ export default function TemplatePreview() {
             alt="CV template preview"
             width={960}
             height={720}
-            className="w-full h-auto rounded-2xl border bg-white shadow-sm"
+            className="w-full h-auto rounded-2xl border bg-surface shadow-sm"
             priority
           />
         </div>

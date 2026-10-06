@@ -3,7 +3,7 @@ import { Button } from '@cv-generator/ui';
 
 export default function CTA() {
   return (
-    <section className="py-20 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+    <section className="py-20 bg-gradient-brand text-white">
       <div className="max-w-4xl mx-auto px-4 text-center">
         <h2 className="text-3xl sm:text-4xl font-bold">Ready to build your CV?</h2>
         <p className="mt-4 text-lg">
@@ -12,7 +12,7 @@ export default function CTA() {
         <Button
           asChild
           size="lg"
-          className="mt-8 bg-white text-purple-600 hover:bg-gray-100"
+          className="mt-8 bg-surface text-brand-accent-soft hover:bg-accent"
         >
           <Link href="/builder">Get Started</Link>
         </Button>

@@ -26,7 +26,7 @@ export default function Process() {
         <div className="mt-10 grid gap-8 sm:grid-cols-3">
           {steps.map((step, index) => (
             <div key={index} className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-500 text-white">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-accent text-white">
                 <step.icon className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-xl font-semibold">{step.title}</h3>

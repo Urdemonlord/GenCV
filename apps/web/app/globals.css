@@ -2,49 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * GenCV design tokens (dark only). HSL channels so Tailwind can apply opacity.
+ *   background #0B1020 · surface #111827 · border #253047 · text #F8FAFC · muted #94A3B8
+ *   primary #4F46E5 (text on dark: #A5B4FC) · accent #A855F7 (text: #C084FC) · success #22C55E · warning #F59E0B · danger #EF4444
+ * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
+ */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 217 91% 60%;
-  --radius: 0.75rem;
-}
+  color-scheme: dark;
 
-.dark {
-  --background: 0 0% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 63.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 14.9%;
-  --input: 0 0% 14.9%;
-  --ring: 217 91% 60%;
+  --background: 226 49% 8%;
+  --foreground: 210 40% 98%;
+  --surface: 221 39% 11%;
+  --surface-raised: 222 33% 15%;
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--foreground);
+
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+  --brand-accent: 271 91% 65%;
+  /* Lighter variants for text on dark surfaces (WCAG AA: >= 4.5:1). */
+  --primary-soft: 230 94% 82%;
+  --brand-accent-soft: 270 95% 75%;
+
+  --secondary: 222 33% 15%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 222 33% 15%;
+  --muted-foreground: 215 20% 65%;
+  /* shadcn "accent" is the hover/selected background, not the brand purple */
+  --accent: 222 33% 18%;
+  --accent-foreground: 210 40% 98%;
+
+  --success: 142 71% 45%;
+  --warning: 38 92% 50%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 220 31% 21%;
+  --input: 220 31% 21%;
+  --ring: 239 84% 67%;
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -52,81 +51,35 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  /* Improve touch targets on mobile */
-  button, 
-  a, 
-  input[type="checkbox"], 
-  input[type="radio"] {
-    @apply min-h-[44px] min-w-[44px];
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl;
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-soft to-brand-accent-soft bg-clip-text text-transparent;
   }
-  
-  .gradient-text {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
-  }
-  
-  .hover-lift {
-    @apply transition-transform duration-200 hover:translate-y-[-2px];
-  }
-  
-  /* Mobile optimized styles */
-  .mobile-container {
-    @apply px-3 sm:px-4 py-3 sm:py-6;
-  }
-  
-  .mobile-touch-target {
-    @apply min-h-[44px] min-w-[44px];
-  }
-  
-  .mobile-spacing {
-    @apply space-y-3 sm:space-y-6;
-  }
-  
-  .mobile-text {
-    @apply text-sm sm:text-base;
-  }
-  
-  .mobile-heading {
-    @apply text-lg sm:text-xl md:text-2xl;
+  /* Darker stops than the tokens so white labels stay above 4.5:1 across the gradient. */
+  .bg-gradient-brand {
+    background-image: linear-gradient(to right, hsl(243 75% 59%), hsl(271 81% 56%));
   }
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background: hsl(var(--background));
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background: hsl(var(--border));
+  border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
-}
-
-/* Custom animations */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  background: hsl(var(--muted-foreground) / 0.5);
 }

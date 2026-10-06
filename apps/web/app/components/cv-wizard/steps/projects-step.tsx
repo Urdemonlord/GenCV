@@ -144,7 +144,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                       href={toHref(project.link)}
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="ml-2 text-blue-600 hover:text-blue-800"
+                      className="ml-2 text-primary-soft hover:text-primary/80"
                     >
                       <ExternalLink className="w-4 h-4 inline" />
                     </a>
@@ -253,7 +253,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                     className="min-h-[100px]"
                   />
                   {errors[project.id] && (
-                    <div className="text-red-500 text-sm bg-red-50 dark:bg-red-950 p-2 rounded mt-2">
+                    <div className="text-destructive text-sm bg-destructive/10  p-2 rounded mt-2">
                       {errors[project.id]}
                     </div>
                   )}
@@ -266,12 +266,12 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
         <Button
           variant="outline"
           onClick={addProject}
-          className="w-full py-6 border-dashed border-2 hover:border-blue-400"
+          className="w-full py-6 border-dashed border-2 hover:border-primary/60"
         >
           <Plus className="w-5 h-5 mr-2" />
           Add Project
         </Button>
-      </div>      <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+      </div>      <div className="bg-primary/10  p-4 rounded-lg">
         <h4 className="font-medium mb-2">💡 Project Tips:</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Include personal projects, open source contributions, or freelance work</li>
@@ -288,7 +288,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
         )}
         <Button 
           onClick={() => router.push('/result')} 
-          className="ml-auto bg-green-600 hover:bg-green-700"
+          className="ml-auto bg-success hover:bg-success/90"
         >
           Finish & View CV
         </Button>

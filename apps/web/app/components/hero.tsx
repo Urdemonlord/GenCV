@@ -5,7 +5,7 @@ export default function Hero() {
   return (
     <section className="flex flex-col items-center justify-center text-center px-4 py-20">
       <h2 className="text-3xl sm:text-5xl font-bold max-w-2xl mx-auto">
-        Create Professional CVs in <span className="text-purple-500">Minutes</span>
+        Create Professional CVs in <span className="text-brand-accent-soft">Minutes</span>
       </h2>
       <p className="mt-4 text-sm sm:text-lg text-muted-foreground max-w-2xl">
         Build, customize, and export professional CVs with AI-powered content improvement and job-specific tailoring. Stand out from the crowd with ATS-friendly templates.

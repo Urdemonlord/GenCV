@@ -64,7 +64,7 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
         </select>
       </div>
       {value && !match && (
-        <p className="text-xs text-amber-600">Saved as “{value}”. Pick a year and month to standardise it.</p>
+        <p className="text-xs text-warning">Saved as “{value}”. Pick a year and month to standardise it.</p>
       )}
     </div>
   );

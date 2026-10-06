@@ -78,7 +78,7 @@ export function CVPreview({ cvData, template }: CVPreviewProps) {
               </div>
 
               {cvScore.suggestions.length > 0 && (
-                <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded text-xs">
+                <div className="bg-warning/10  p-3 rounded text-xs">
                   <h4 className="font-medium mb-1">Suggestions:</h4>
                   <ul className="space-y-0.5">
                     {cvScore.suggestions.map((suggestion, index) => (
@@ -113,7 +113,7 @@ export function CVPreview({ cvData, template }: CVPreviewProps) {
           {hasContent ? (
             <PdfPreview data={cvData} template={templateId} />
           ) : (
-            <div className="text-center text-gray-500 py-12 bg-white rounded border">
+            <div className="text-center text-muted-foreground py-12 bg-surface rounded border">
               <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Start filling out your information to see the preview</p>
             </div>
