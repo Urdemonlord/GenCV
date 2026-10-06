@@ -180,7 +180,7 @@ Menggantikan `/builder` dan `/result`.
 Catatan:
 - Kolom analisis, tombol Analisis ATS, dan grup AI Tools baru ditambahkan di R4/R8, saat fiturnya ada (tanpa link mati). Untuk sekarang layoutnya 3 kolom: sidebar, form, preview.
 - Saran keahlian dari AI harus dipilih user satu per satu; tidak lagi otomatis masuk ke CV.
-- Template yang dipilih disimpan di  dan dipakai semua export.
+- Template yang dipilih disimpan di `settings.template` dan dipakai semua export.
 
 ## R4. Analisis ATS & Job Match
 
