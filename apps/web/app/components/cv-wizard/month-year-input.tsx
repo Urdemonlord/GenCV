@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const selectClass =
@@ -20,48 +18,27 @@ interface MonthYearInputProps {
  * desktop render as a plain text box.
  */
 export function MonthYearInput({ value, onChange, label, disabled }: MonthYearInputProps) {
-  const match = value.match(/^(\d{4})(?:-(\d{2}))?$/);
+  const match = value.match(/^(\d{4})(?:-(0[1-9]|1[0-2]))?$/);
   const year = match?.[1] ?? '';
-  // A month picked before the year has nowhere to live in "YYYY-MM", so hold it locally.
-  const [pendingMonth, setPendingMonth] = useState('');
-  const month = match ? match[2] ?? '' : pendingMonth;
+  const month = match?.[2] ?? '';
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 66 }, (_, index) => String(currentYear + 6 - index));
   if (year && !years.includes(year)) years.push(year);
 
-  const emit = (nextYear: string, nextMonth: string) => {
-    onChange(nextYear ? (nextMonth ? `${nextYear}-${nextMonth}` : nextYear) : '');
-  };
-
+  // Year comes first and the month stays disabled until a year is chosen, so a month can
+  // never be picked without somewhere to store it.
   return (
     <div className="space-y-1">
       <div className="flex gap-2">
-        <select
-          aria-label={`${label} month`}
-          className={selectClass}
-          value={month}
-          disabled={disabled}
-          onChange={(event) => {
-            if (year) emit(year, event.target.value);
-            else setPendingMonth(event.target.value);
-          }}
-        >
-          <option value="">Month</option>
-          {MONTHS.map((name, index) => (
-            <option key={name} value={String(index + 1).padStart(2, '0')}>
-              {name}
-            </option>
-          ))}
-        </select>
         <select
           aria-label={`${label} year`}
           className={selectClass}
           value={year}
           disabled={disabled}
           onChange={(event) => {
-            emit(event.target.value, month);
-            setPendingMonth('');
+            const nextYear = event.target.value;
+            onChange(nextYear ? (month ? `${nextYear}-${month}` : nextYear) : '');
           }}
         >
           <option value="">Year</option>
@@ -71,9 +48,23 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
             </option>
           ))}
         </select>
+        <select
+          aria-label={`${label} month`}
+          className={selectClass}
+          value={month}
+          disabled={disabled || !year}
+          onChange={(event) => onChange(event.target.value ? `${year}-${event.target.value}` : year)}
+        >
+          <option value="">Month</option>
+          {MONTHS.map((name, index) => (
+            <option key={name} value={String(index + 1).padStart(2, '0')}>
+              {name}
+            </option>
+          ))}
+        </select>
       </div>
       {value && !match && (
-        <p className="text-xs text-warning">Saved as “{value}”. Pick a month and year to standardise it.</p>
+        <p className="text-xs text-warning">Saved as “{value}”. Pick a year and month to standardise it.</p>
       )}
     </div>
   );
