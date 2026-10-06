@@ -57,7 +57,7 @@ cv-generator-monorepo/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18.18+ (required by Next.js 15; Node 20 LTS or newer recommended)
 - npm 10+
 - Google Gemini API key
 
