@@ -90,26 +90,26 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
         <CardContent className="p-6 space-y-4">
           {/* Skills Status Display */}
           {cvData.skills?.length > 0 ? (
-            <div className="bg-green-50 dark:bg-green-950 p-4 rounded mb-4">
+            <div className="bg-success/10  p-4 rounded mb-4">
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                <span className="text-sm font-medium text-success ">
                   Your skills ({cvData.skills.length}):
                 </span>
                 {cvData.skills.slice(0, 5).map((skill, index) => (
-                  <Badge key={index} variant="outline" className="text-green-700 border-green-300">
+                  <Badge key={index} variant="outline" className="text-success border-success/30">
                     {skill.name}
                   </Badge>
                 ))}
                 {cvData.skills.length > 5 && (
-                  <Badge variant="outline" className="text-green-700 border-green-300">
+                  <Badge variant="outline" className="text-success border-success/30">
                     +{cvData.skills.length - 5} more
                   </Badge>
                 )}
               </div>
             </div>
           ) : (
-            <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded mb-4">
-              <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+            <div className="bg-warning/10  p-4 rounded mb-4">
+              <p className="text-sm text-warning  mb-2">
                 <strong>💡 Tip:</strong> Adding skills will help generate a more personalized summary. 
                 You can still generate with our defaults, but results will be better with your own skills.
               </p>
@@ -118,11 +118,11 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
                   variant="outline" 
                   size="sm"
                   onClick={onPrevious} 
-                  className="text-amber-700 border-amber-300 hover:bg-amber-100"
+                  className="text-warning border-warning/30 hover:bg-warning/20"
                 >
                   ← Add Skills First
                 </Button>
-                <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center">
+                <span className="text-xs text-warning  flex items-center">
                   or continue with default skills: JavaScript, React, TypeScript...
                 </span>
               </div>
@@ -168,10 +168,10 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm bg-red-50 dark:bg-red-950 p-3 rounded">
+            <div className="text-destructive text-sm bg-destructive/10  p-3 rounded">
               {error}
             </div>
-          )}          <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded text-sm">
+          )}          <div className="bg-primary/10  p-4 rounded text-sm">
             <h4 className="font-medium mb-2">💡 Tips for a great summary:</h4>
             <ul className="space-y-1 text-muted-foreground mb-3">
               <li>• Keep it concise (2-3 sentences)</li>
@@ -179,8 +179,8 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
               <li>• Mention years of experience (if applicable)</li>
               <li>• Include your career objectives</li>
             </ul>
-            <div className="mt-3 p-3 bg-blue-100 dark:bg-blue-900 rounded">
-              <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">Example:</p>              <p className="text-blue-700 dark:text-blue-300 text-xs italic">
+            <div className="mt-3 p-3 bg-primary/15  rounded">
+              <p className="font-medium text-foreground/90  mb-1">Example:</p>              <p className="text-primary  text-xs italic">
                 &ldquo;Experienced software developer with 5+ years creating web applications using React, TypeScript, and Node.js. 
                 Passionate about building clean, maintainable code and optimizing application performance. 
                 Committed to delivering exceptional user experiences through innovative solutions.&rdquo;

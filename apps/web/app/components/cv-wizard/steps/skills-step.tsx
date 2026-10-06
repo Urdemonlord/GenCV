@@ -170,7 +170,7 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
                   <h3 className="text-lg font-semibold mb-3">{category} Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {categorySkills.map(skill => (
-                      <div key={skill.id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
+                      <div key={skill.id} className="flex items-center gap-2 bg-surface-raised  rounded-lg p-2">
                         <Badge variant="secondary">{skill.name}</Badge>
                         <span className="text-xs text-muted-foreground">{skill.level}</span>
                         <Button

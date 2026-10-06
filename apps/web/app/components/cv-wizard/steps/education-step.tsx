@@ -162,7 +162,7 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
         <Button
           variant="outline"
           onClick={addEducation}
-          className="w-full py-6 border-dashed border-2 hover:border-blue-400"
+          className="w-full py-6 border-dashed border-2 hover:border-primary/60"
         >
           <Plus className="w-5 h-5 mr-2" />
           Add Education

@@ -25,8 +25,8 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 |---|---|---|---|---|
 | 0 | Output harus benar |PDF/DOCX baru, bug wizard, dependency | – | Selesai (PR) |
 | 0.5 | Next 15 + React 19 | Upgrade framework, tutup advisory | Sedang | Selesai (PR) |
-| T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Belum |
-| R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Belum |
+| T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Sebagian (test lokal ada, CI belum) |
+| R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Selesai (PR) |
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Belum |
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Belum |
 | R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Belum |
@@ -90,12 +90,12 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 ## T. Jaring pengaman
 
 - [ ] Unit test `format.ts` dan `normalize.ts`, plus fixture migrasi data lama
-- [ ] Test ekstraksi teks PDF untuk tiap template dengan set CV contoh: fresh grad, senior, non-IT, nama non-Latin
+- [x] Test ekstraksi teks PDF untuk tiap template (nama non-Latin, urutan baca, link). Set CV contoh yang lebih lengkap menyusul.
 - [ ] GitHub Actions: type-check, test, build
 
-## R1. Design system & app shell
+## R1. Design system & app shell (selesai)
 
-- [ ] Token warna sebagai CSS variables:
+- [x] Token warna sebagai CSS variables:
 
   | Token | Warna |
   |---|---|
@@ -110,16 +110,17 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
   | warning | `#F59E0B` |
   | danger | `#EF4444` |
 
-- [ ] Gradient hanya untuk CTA, skor ATS, highlight AI, dan aksen hero. Sisanya flat.
-- [ ] Font Plus Jakarta Sans lewat `next/font` (di-self-host saat build), menggantikan `<link>` Google Fonts di `layout.tsx`
-- [ ] Komponen dasar app-local di `apps/web/components/ds/`:
+- [x] Gradient hanya untuk CTA, skor ATS, highlight AI, dan aksen hero. Sisanya flat.
+- [x] Font Plus Jakarta Sans lewat `next/font` (di-self-host saat build), menggantikan `<link>` Google Fonts di `layout.tsx`
+- [x] Komponen dasar app-local di `apps/web/components/ds/`:
   - Button (primary gradient, secondary, outline, ghost)
   - Panel/Card, Input, Textarea, Select, Tabs
   - Chip (netral/sukses/bahaya)
   - ProgressBar, ScoreRing, NavItem, Topbar, EmptyState
-- [ ] Tema gelap saja. Toggle dark/light dihapus.
-- [ ] Kontras teks minimal WCAG AA; fokus keyboard terlihat di semua komponen
-- [ ] Hapus kelas lama (`glass-card`, `gradient-text`, dll.) setelah semua halaman pindah
+- [x] Tema gelap saja. Toggle dark/light dihapus.
+- [x] Kontras teks minimal WCAG AA; fokus keyboard terlihat di semua komponen
+- [x] Hapus kelas lama (`glass-card`, `gradient-text`, dll.); semua halaman memakai token
+- Komponen ada di `apps/web/components/ds/`. Halaman yang ada baru dipindah ke token; layout editor (R3) dan landing (R5) memakai komponen ini.
 
 ## R2. Model data v2
 

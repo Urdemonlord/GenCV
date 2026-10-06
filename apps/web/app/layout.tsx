@@ -1,8 +1,14 @@
-/* eslint-disable @next/next/no-page-custom-font */
 import './globals.css';
-import type { Metadata } from 'next';
-import { ThemeProvider } from './providers/theme-provider';
+import type { Metadata, Viewport } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from './components/ui/toaster';
+
+// Self-hosted at build time by next/font (no runtime request to Google).
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ['latin', 'latin-ext', 'vietnamese'],
+  variable: '--font-sans',
+  display: 'swap',
+});
 
 const baseUrl =
   process.env.NEXT_PUBLIC_APP_URL?.trim() ||
@@ -30,11 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
-// Viewport export must be separate from metadata in Next.js 14+
-export const viewport = {
+export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  themeColor: '#0B1020',
 };
 
 export default function RootLayout({
@@ -43,25 +48,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-sans">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-            {children}
-          </div>
-          <Toaster />
-        </ThemeProvider>
+    <html lang="en" className={fontSans.variable}>
+      <body className="min-h-screen font-sans">
+        {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -118,9 +118,9 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 value={cvData.personalInfo.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
                 placeholder="John Doe"
-                className={errors.fullName ? 'border-red-500' : ''}
+                className={errors.fullName ? 'border-destructive' : ''}
               />
-              {errors.fullName && <span className="text-red-500 text-xs">{errors.fullName}</span>}
+              {errors.fullName && <span className="text-destructive text-xs">{errors.fullName}</span>}
             </div>
 
             <div>
@@ -145,9 +145,9 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 value={cvData.personalInfo.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="john.doe@email.com"
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors.email ? 'border-destructive' : ''}
               />
-              {errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}
+              {errors.email && <span className="text-destructive text-xs">{errors.email}</span>}
             </div>
 
             <div>
@@ -160,14 +160,14 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 value={cvData.personalInfo.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="+62 812 3456 7890"
-                className={errors.phone ? 'border-red-500' : ''}
+                className={errors.phone ? 'border-destructive' : ''}
               />
               {errors.phone ? (
-                <span className="text-red-500 text-xs">{errors.phone}</span>
+                <span className="text-destructive text-xs">{errors.phone}</span>
               ) : (
                 cvData.personalInfo.phone.trim() &&
                 !cvData.personalInfo.phone.trim().startsWith('+') && (
-                  <span className="text-amber-600 text-xs">
+                  <span className="text-warning text-xs">
                     Tip: add your country code (e.g. +62) so international recruiters can reach you.
                   </span>
                 )
@@ -183,9 +183,9 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 value={cvData.personalInfo.location}
                 onChange={(e) => handleChange('location', e.target.value)}
                 placeholder="City, Country"
-                className={errors.location ? 'border-red-500' : ''}
+                className={errors.location ? 'border-destructive' : ''}
               />
-              {errors.location && <span className="text-red-500 text-xs">{errors.location}</span>}
+              {errors.location && <span className="text-destructive text-xs">{errors.location}</span>}
             </div>
 
             <div>
@@ -278,7 +278,7 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                   >
                     {skill.name}
                     <X
-                      className="w-3 h-3 cursor-pointer hover:text-red-500"
+                      className="w-3 h-3 cursor-pointer hover:text-destructive"
                       onClick={() => removeSkill(skill.id)}
                     />
                   </Badge>
@@ -287,8 +287,8 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
             </div>
           )}
 
-          <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded text-sm">
-            <p className="text-blue-800 dark:text-blue-200">
+          <div className="bg-primary/10  p-3 rounded text-sm">
+            <p className="text-foreground/90 ">
               💡 <strong>Tip:</strong> Adding skills here will help generate better AI-powered content in the Professional Summary and Experience sections.
             </p>
           </div>

@@ -112,7 +112,7 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
 
   return (
     <div className="space-y-2">
-      <div ref={containerRef} className="relative rounded-md bg-gray-100 dark:bg-gray-900">
+      <div ref={containerRef} className="relative rounded-md bg-surface-raised ">
         <div ref={pagesRef} className="flex flex-col gap-4" />
         {pageCount === 0 && !error && (
           <div className="flex min-h-[400px] items-center justify-center text-sm text-muted-foreground">
@@ -121,14 +121,14 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
           </div>
         )}
         {rendering && pageCount > 0 && (
-          <div className="absolute right-2 top-2 flex items-center gap-1 rounded bg-white/90 px-2 py-1 text-xs text-gray-600 shadow">
+          <div className="absolute right-2 top-2 flex items-center gap-1 rounded bg-surface/90 px-2 py-1 text-xs text-muted-foreground shadow">
             <Loader2 className="h-3 w-3 animate-spin" />
             Updating…
           </div>
         )}
       </div>
       {error ? (
-        <p className="text-sm text-red-600">Preview failed: {error}</p>
+        <p className="text-sm text-destructive">Preview failed: {error}</p>
       ) : (
         pageCount > 0 && (
           <p className="text-xs text-muted-foreground">

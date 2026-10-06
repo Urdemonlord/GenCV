@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  darkMode: ['class'],  content: [
+  content: [
     './pages/**/*.{ts,tsx,mdx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx,mdx}',
@@ -11,17 +11,22 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'gradient-mesh': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      fontFamily: {
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        surface: {
+          DEFAULT: 'hsl(var(--surface))',
+          raised: 'hsl(var(--surface-raised))',
+        },
+        'brand-accent': 'hsl(var(--brand-accent))',
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

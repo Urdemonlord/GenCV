@@ -25,10 +25,10 @@ export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicator
               className={cn(
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200',
                 index < currentStep
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-success text-white'
                   : index === currentStep
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-raised text-muted-foreground hover:bg-accent'
               )}
             >
               {index < currentStep ? (
@@ -49,7 +49,7 @@ export function StepIndicator({ steps, currentStep, onStepClick }: StepIndicator
                 <div
                   className={cn(
                     'absolute h-0.5 top-4 left-1/2 -translate-x-1/2',
-                    index < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                    index < currentStep ? 'bg-success' : 'bg-surface-raised'
                   )}
                   style={{ width: `${100 / steps.length}%`, zIndex: -1 }}
                 />

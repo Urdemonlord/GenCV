@@ -26,13 +26,13 @@ export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps)
         <Card 
           className={`cursor-pointer transition-all hover:shadow-lg ${
             cvData.experienceLevel === 'fresh' 
-              ? 'ring-2 ring-blue-600 bg-blue-50 dark:bg-blue-950' 
-              : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+              ? 'ring-2 ring-primary bg-primary/10 ' 
+              : 'hover:bg-accent '
           }`}
           onClick={() => handleLevelSelect('fresh')}
         >
           <CardContent className="p-6 text-center">
-            <GraduationCap className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+            <GraduationCap className="w-12 h-12 mx-auto mb-4 text-primary" />
             <h3 className="text-lg font-semibold mb-2">Fresh Graduate</h3>
             <p className="text-sm text-muted-foreground">
               Recent graduate or entry-level professional with limited work experience
@@ -43,13 +43,13 @@ export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps)
         <Card 
           className={`cursor-pointer transition-all hover:shadow-lg ${
             cvData.experienceLevel === 'professional' 
-              ? 'ring-2 ring-blue-600 bg-blue-50 dark:bg-blue-950' 
-              : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+              ? 'ring-2 ring-primary bg-primary/10 ' 
+              : 'hover:bg-accent '
           }`}
           onClick={() => handleLevelSelect('professional')}
         >
           <CardContent className="p-6 text-center">
-            <Briefcase className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+            <Briefcase className="w-12 h-12 mx-auto mb-4 text-primary" />
             <h3 className="text-lg font-semibold mb-2">Professional</h3>
             <p className="text-sm text-muted-foreground">
               Experienced professional with work history and achievements
