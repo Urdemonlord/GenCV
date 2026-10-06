@@ -1,11 +1,15 @@
 'use client';
 
 import { GraduationCap, Briefcase } from 'lucide-react';
-import { CVData } from '@cv-generator/types';
+import type { CvLanguage, CvRegion, CvSettings } from '@/lib/cv/schema';
 import { Button, Card, CardContent } from '@cv-generator/ui';
+import { Field, Select } from '@/components/ds';
 import { StepProps } from '../types';
 
 export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps) {
+  const updateSettings = (patch: Partial<CvSettings>) =>
+    onDataChange((previous) => ({ ...previous, settings: { ...previous.settings, ...patch } }));
+
   const handleLevelSelect = (level: 'fresh' | 'professional') => {
     onDataChange({
       ...cvData,
@@ -58,8 +62,45 @@ export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps)
         </Card>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="CV language" hint="Section headings and dates follow this language.">
+          {(control) => (
+            <Select
+              {...control}
+              value={cvData.settings.language}
+              onChange={(event) => updateSettings({ language: event.target.value as CvLanguage })}
+            >
+              <option value="en">English</option>
+              <option value="id">Bahasa Indonesia</option>
+            </Select>
+          )}
+        </Field>
+        <Field
+          label="Applying in"
+          hint={
+            cvData.settings.region === 'us'
+              ? 'US Letter paper, aim for 1 page, no photo.'
+              : 'A4 paper; a photo is optional for local applications.'
+          }
+        >
+          {(control) => (
+            <Select
+              {...control}
+              value={cvData.settings.region}
+              onChange={(event) => {
+                const region = event.target.value as CvRegion;
+                updateSettings(region === 'us' ? { region, showPhoto: false } : { region });
+              }}
+            >
+              <option value="id">Indonesia</option>
+              <option value="us">United States</option>
+            </Select>
+          )}
+        </Field>
+      </div>
+
       <div className="flex justify-end">
-        <Button 
+        <Button
           onClick={onNext}
           disabled={!cvData.experienceLevel}
           className="min-w-[100px]"

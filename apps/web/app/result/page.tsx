@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
-import { CVData } from '@cv-generator/types';
+import { CV } from '@/lib/cv/schema';
 import { loadFromLocalStorage, saveToLocalStorage } from '@cv-generator/utils';
 import { Download, ArrowLeft, Share2, FileJson, Upload, FileText, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { CVPreview } from '../components/cv-preview';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCvDocx, downloadCvJson, downloadCvPdf } from '@/lib/cv/download';
-import { isCVDataLike, normalizeCVData } from '@/lib/cv/normalize';
+import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
 import { toTemplateId } from '@/lib/cv/templates';
 
 export default function ResultPage() {
-  const [cvData, setCvData] = useState<CVData | null>(null);
+  const [cvData, setCvData] = useState<CV | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [exporting, setExporting] = useState<'PDF' | 'DOCX' | null>(null);
   const { toast } = useToast();
@@ -21,7 +21,7 @@ export default function ResultPage() {
   useEffect(() => {
     const loadedData = loadFromLocalStorage('cv-data');
     if (loadedData) {
-      setCvData(normalizeCVData(loadedData));
+      setCvData(normalizeCV(loadedData));
     }
   }, []);
 
@@ -60,8 +60,8 @@ export default function ResultPage() {
       reader.onload = (event) => {
         try {
           const parsed: unknown = JSON.parse(String(event.target?.result ?? ''));
-          if (!isCVDataLike(parsed)) throw new Error('Invalid CV data format');
-          const importedData = normalizeCVData(parsed);
+          if (!isCvLike(parsed)) throw new Error('Invalid CV data format');
+          const importedData = normalizeCV(parsed);
           setCvData(importedData);
           saveToLocalStorage('cv-data', importedData);
         } catch {

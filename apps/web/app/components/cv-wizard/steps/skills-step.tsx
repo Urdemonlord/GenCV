@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Sparkles } from 'lucide-react';
-import { CVData, Skill } from '@cv-generator/types';
+import { CV, Skill } from '@/lib/cv/schema';
 import { Button, Input, Card, CardContent, Badge } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
 import { getApiUrl } from '@/lib/api-url';
 
 const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
-const skillCategories = ['Technical', 'Soft', 'Language'] as const;
+const skillCategories = ['Technical', 'Soft'] as const;
 
 export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [newSkill, setNewSkill] = useState({ name: '', level: 'Intermediate' as const, category: 'Technical' as const });
@@ -101,7 +101,7 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">Skills</h2>
         <p className="text-muted-foreground">
-          Add your technical skills, soft skills, and languages. Use AI to get relevant suggestions.
+          Add your technical and soft skills (languages have their own step). Use AI to get relevant suggestions.
         </p>
       </div>
 

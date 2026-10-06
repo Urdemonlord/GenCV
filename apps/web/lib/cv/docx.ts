@@ -4,6 +4,7 @@ import {
   Document,
   ExternalHyperlink,
   HeadingLevel,
+  ImageRun,
   LevelFormat,
   Packer,
   Paragraph,
@@ -11,13 +12,13 @@ import {
   TabStopType,
   TextRun,
 } from 'docx';
-import type { CVData } from '@cv-generator/types';
-import { SECTION_TITLES, buildCvView, type ContactItem, type CvView, type EntryView, type SectionId } from './format';
+import { buildCvView, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
+import type { CV } from './schema';
 import type { TemplateId } from './templates';
 
-// A4 in twentieths of a point.
-const PAGE = { width: 11906, height: 16838, marginX: 850, marginY: 720 };
-const CONTENT_WIDTH = PAGE.width - PAGE.marginX * 2;
+// Page sizes in twentieths of a point.
+const PAPER = { A4: { width: 11906, height: 16838 }, LETTER: { width: 12240, height: 15840 } } as const;
+const MARGIN = { x: 850, y: 720 };
 const BULLETS = 'cv-bullets';
 
 interface DocxTheme {
@@ -43,9 +44,24 @@ function contactRuns(contacts: ContactItem[], theme: DocxTheme) {
   ]);
 }
 
+function photoBytes(dataUrl: string): Uint8Array | null {
+  const match = dataUrl.match(/^data:image\/jpeg;base64,(.+)$/);
+  if (!match) return null;
+  return Uint8Array.from(atob(match[1]), (c) => c.charCodeAt(0));
+}
+
 function headerParagraphs(view: CvView, theme: DocxTheme): Paragraph[] {
   const alignment = theme.centered ? AlignmentType.CENTER : AlignmentType.LEFT;
   const paragraphs: Paragraph[] = [];
+  const photo = photoBytes(view.photo);
+  if (photo) {
+    paragraphs.push(
+      new Paragraph({
+        alignment,
+        children: [new ImageRun({ type: 'jpg', data: photo, transformation: { width: 72, height: 72 } })],
+      })
+    );
+  }
   if (view.name) {
     paragraphs.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment, children: [new TextRun(view.name)] }));
   }
@@ -70,12 +86,12 @@ function headerParagraphs(view: CvView, theme: DocxTheme): Paragraph[] {
   return paragraphs;
 }
 
-function entryParagraphs(entry: EntryView, theme: DocxTheme): Paragraph[] {
+function entryParagraphs(entry: EntryView, theme: DocxTheme, contentWidth: number): Paragraph[] {
   const paragraphs = [
     new Paragraph({
       keepNext: true,
       spacing: { before: 120 },
-      tabStops: [{ type: TabStopType.RIGHT, position: CONTENT_WIDTH }],
+      tabStops: [{ type: TabStopType.RIGHT, position: contentWidth }],
       children: [
         new TextRun({ text: entry.title, bold: true }),
         ...(entry.dates ? [new TextRun({ children: [new Tab(), entry.dates], color: theme.muted })] : []),
@@ -100,29 +116,31 @@ function entryParagraphs(entry: EntryView, theme: DocxTheme): Paragraph[] {
   return paragraphs;
 }
 
-function sectionParagraphs(id: SectionId, view: CvView, theme: DocxTheme): Paragraph[] {
-  let body: Paragraph[] = [];
-  if (id === 'summary') {
-    body = view.summary ? [new Paragraph({ children: [new TextRun(view.summary)] })] : [];
-  } else if (id === 'skills') {
-    body = view.skills.map(
-      (group) =>
-        new Paragraph({
-          spacing: { after: 40 },
-          children: [new TextRun({ text: `${group.label}: `, bold: true }), new TextRun(group.items.join(', '))],
-        })
-    );
-  } else {
-    body = view[id].flatMap((entry) => entryParagraphs(entry, theme));
-  }
-  if (body.length === 0) return [];
-  return [new Paragraph({ heading: HeadingLevel.HEADING_2, keepNext: true, children: [new TextRun(SECTION_TITLES[id])] }), ...body];
+function sectionParagraphs(section: SectionView, theme: DocxTheme, contentWidth: number): Paragraph[] {
+  const body =
+    section.kind === 'text'
+      ? [new Paragraph({ children: [new TextRun(section.text)] })]
+      : section.kind === 'lines'
+        ? section.lines.map(
+            (group) =>
+              new Paragraph({
+                spacing: { after: 40 },
+                children: [
+                  ...(group.label ? [new TextRun({ text: group.label + ': ', bold: true })] : []),
+                  new TextRun(group.items.join(', ')),
+                ],
+              })
+          )
+        : section.entries.flatMap((entry) => entryParagraphs(entry, theme, contentWidth));
+  return [new Paragraph({ heading: HeadingLevel.HEADING_2, keepNext: true, children: [new TextRun(section.title)] }), ...body];
 }
 
 /** Client-side only; import lazily so docx stays out of the initial bundle. */
-export async function renderCvDocx(data: CVData, template: TemplateId): Promise<Blob> {
+export async function renderCvDocx(data: CV, template: TemplateId): Promise<Blob> {
   const view = buildCvView(data);
   const theme = THEMES[template];
+  const page = PAPER[view.paper];
+  const contentWidth = page.width - MARGIN.x * 2;
 
   const doc = new Document({
     creator: 'GenCV',
@@ -166,11 +184,11 @@ export async function renderCvDocx(data: CVData, template: TemplateId): Promise<
       {
         properties: {
           page: {
-            size: { width: PAGE.width, height: PAGE.height },
-            margin: { top: PAGE.marginY, bottom: PAGE.marginY, left: PAGE.marginX, right: PAGE.marginX },
+            size: { width: page.width, height: page.height },
+            margin: { top: MARGIN.y, bottom: MARGIN.y, left: MARGIN.x, right: MARGIN.x },
           },
         },
-        children: [...headerParagraphs(view, theme), ...view.sectionOrder.flatMap((id) => sectionParagraphs(id, view, theme))],
+        children: [...headerParagraphs(view, theme), ...view.sections.flatMap((section) => sectionParagraphs(section, theme, contentWidth))],
       },
     ],
   });

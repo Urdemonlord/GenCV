@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Calendar, Building2, MapPin, Sparkles } from 'lucide-react';
-import { CVData, Experience } from '@cv-generator/types';
-import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
+import { CV, Experience } from '@/lib/cv/schema';
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
 import { MonthYearInput } from '../month-year-input';
+import { BulletEditor } from '../bullet-editor';
+import { toBulletList } from '@/lib/cv/format';
 import { getApiUrl } from '@/lib/api-url';
 
 export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
@@ -21,7 +23,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
       startDate: '',
       endDate: '',
       current: false,
-      description: '',
+      bullets: [''],
     };
 
     onDataChange((previous) => ({
@@ -50,7 +52,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
 
   const enhanceDescription = async (id: string) => {
     const experience = cvData.experience.find(exp => exp.id === id);
-    if (!experience || !experience.description.trim()) return;
+    if (!experience || !experience.bullets.some((b) => b.trim())) return;
 
     try {
       const apiUrl = getApiUrl();
@@ -61,7 +63,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
         },
         body: JSON.stringify({
           type: 'experience',
-          text: experience.description,
+          text: experience.bullets.filter((b) => b.trim()).map((b) => '- ' + b).join('\n'),
           role: experience.position,
           company: experience.company,
         }),
@@ -69,7 +71,7 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
 
       const result = await response.json();
       if (result.success && result.data) {
-        updateExperience(id, { description: result.data });
+        updateExperience(id, { bullets: toBulletList(result.data) });
       }
     } catch (error) {
       console.error('Failed to enhance description:', error);
@@ -199,24 +201,22 @@ export function ExperienceStep({ cvData, onDataChange, onNext, onPrevious, isFir
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium">
-                      Job Description
-                    </label>
+                    <span className="block text-sm text-muted-foreground">One achievement per bullet, starting with an action verb.</span>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => enhanceDescription(exp.id)}
-                      disabled={!exp.description.trim()}
+                      disabled={!exp.bullets.some((b) => b.trim())}
                     >
                       <Sparkles className="w-4 h-4 mr-1" />
                       AI Enhance
                     </Button>
                   </div>
-                  <Textarea
-                    value={exp.description}
-                    onChange={(e) => updateExperience(exp.id, { description: e.target.value })}
-                    placeholder={'One achievement per line, e.g.\n- Cut report preparation time by 30% by automating it with Python'}
-                    className="min-h-[100px]"
+                  <BulletEditor
+                    label="Achievements"
+                    bullets={exp.bullets}
+                    onChange={(bullets) => updateExperience(exp.id, { bullets })}
+                    placeholder="e.g. Cut report preparation time by 30% by automating it with Python"
                   />
                 </div>
               </CardContent>

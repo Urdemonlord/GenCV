@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, ExternalLink, Code, Sparkles, RefreshCw } from 'lucide-react';
-import { CVData, Project } from '@cv-generator/types';
+import { CV, Project } from '@/lib/cv/schema';
 import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle, Badge } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
-import { useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/api-url';
 import { toHref } from '@/lib/cv/format';
 import { parseList } from '@/lib/cv/normalize';
+import { toBulletList } from '@/lib/cv/format';
+import { BulletEditor } from '../bullet-editor';
 
 export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -17,13 +18,15 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
   const [errors, setErrors] = useState<Record<string, string>>({});
   // Raw text of the technologies field while it is being edited, so typing ", " is not swallowed.
   const [technologyDrafts, setTechnologyDrafts] = useState<Record<string, string>>({});
-  const router = useRouter();
 
   const addProject = () => {
     const newProject: Project = {
       id: generateId(),
       name: '',
-      description: '',
+      role: '',
+      startDate: '',
+      endDate: '',
+      bullets: [''],
       technologies: [],
       link: '',
     };
@@ -108,7 +111,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
       const result = await response.json();
 
       if (result.success && result.data) {
-        updateProject(projectId, 'description', result.data);
+        updateProject(projectId, 'bullets', toBulletList(result.data));
       } else {
         setErrors(prev => ({...prev, [projectId]: result.error || 'Failed to generate description. Please try again.'}));
       }
@@ -222,7 +225,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-sm font-medium">
-                      Project Description *
+                      Description
                     </label>
                     <Button
                       variant="outline"
@@ -246,11 +249,11 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                       {generatingDescriptions[project.id] ? 'Generating...' : 'AI Generate'}
                     </Button>
                   </div>
-                  <Textarea
-                    value={project.description}
-                    onChange={(e) => updateProject(project.id, 'description', e.target.value)}
-                    placeholder={'What it does, your role and the result. Use one line per point for bullets.'}
-                    className="min-h-[100px]"
+                  <BulletEditor
+                    label="Highlights"
+                    bullets={project.bullets}
+                    onChange={(bullets) => updateProject(project.id, 'bullets', bullets)}
+                    placeholder="What it does, your role and the result"
                   />
                   {errors[project.id] && (
                     <div className="text-destructive text-sm bg-destructive/10  p-2 rounded mt-2">
@@ -286,11 +289,8 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
             Previous
           </Button>
         )}
-        <Button 
-          onClick={() => router.push('/result')} 
-          className="ml-auto bg-success hover:bg-success/90"
-        >
-          Finish & View CV
+        <Button onClick={onNext} className="ml-auto">
+          Next
         </Button>
       </div>
     </div>

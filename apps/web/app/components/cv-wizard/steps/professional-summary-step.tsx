@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
-import { CVData } from '@cv-generator/types';
+import { CV } from '@/lib/cv/schema';
 import { Button, Textarea, Card, CardContent, Badge } from '@cv-generator/ui';
 import { StepProps } from '../types';
 import { getApiUrl } from '@/lib/api-url';

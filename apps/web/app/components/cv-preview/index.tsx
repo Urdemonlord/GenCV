@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 import { Download, Eye, FileText, Loader2 } from 'lucide-react';
-import { CVData } from '@cv-generator/types';
+import { CV } from '@/lib/cv/schema';
 import { Button, Card, CardContent, Progress } from '@cv-generator/ui';
-import { calculateCVScore } from '@cv-generator/utils';
+import { calculateCompleteness } from '@/lib/cv/completeness';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCvPdf } from '@/lib/cv/download';
 import { toTemplateId } from '@/lib/cv/templates';
 import { PdfPreview } from './pdf-preview';
 
 interface CVPreviewProps {
-  cvData: CVData;
+  cvData: CV;
   template?: string;
 }
 
@@ -20,7 +20,7 @@ export function CVPreview({ cvData, template }: CVPreviewProps) {
   const [showScore, setShowScore] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const { toast } = useToast();
-  const cvScore = calculateCVScore(cvData);
+  const cvScore = calculateCompleteness(cvData);
   const hasContent = cvData.personalInfo.fullName.trim() !== '';
 
   const handleDownload = async () => {

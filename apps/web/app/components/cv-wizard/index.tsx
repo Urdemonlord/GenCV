@@ -1,6 +1,6 @@
 'use client';
 
-import { CVData } from '@cv-generator/types';
+import { CV } from '@/lib/cv/schema';
 import { StepIndicator } from './step-indicator';
 import type { CVDataUpdate } from './types';
 import { ExperienceLevelStep } from './steps/experience-level-step';
@@ -10,22 +10,26 @@ import { ExperienceStep } from './steps/experience-step';
 import { EducationStep } from './steps/education-step';
 import { SkillsStep } from './steps/skills-step';
 import { ProjectsStep } from './steps/projects-step';
+import { AdditionalStep, CertificationsStep, LanguagesStep } from './steps/extra-steps';
 
 interface CVWizardProps {
-  cvData: CVData;
+  cvData: CV;
   onDataChange: (update: CVDataUpdate) => void;
   currentStep: number;
   onStepChange: (step: number) => void;
 }
 
 const steps = [
-  { id: 'experience-level', title: 'Experience Level', component: ExperienceLevelStep },
+  { id: 'experience-level', title: 'Setup', component: ExperienceLevelStep },
   { id: 'personal-info', title: 'Personal Information', component: PersonalInfoStep },
   { id: 'summary', title: 'Professional Summary', component: ProfessionalSummaryStep },
   { id: 'experience', title: 'Work Experience', component: ExperienceStep },
   { id: 'education', title: 'Education', component: EducationStep },
   { id: 'skills', title: 'Skills', component: SkillsStep },
   { id: 'projects', title: 'Projects', component: ProjectsStep },
+  { id: 'certifications', title: 'Certifications', component: CertificationsStep },
+  { id: 'languages', title: 'Languages', component: LanguagesStep },
+  { id: 'additional', title: 'Additional', component: AdditionalStep },
 ];
 
 export function CVWizard({ cvData, onDataChange, currentStep, onStepChange }: CVWizardProps) {

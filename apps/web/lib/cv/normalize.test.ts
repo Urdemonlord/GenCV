@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isCVDataLike, normalizeCVData, normalizeMonth } from './normalize';
+import { isCvLike, normalizeCV, normalizeMonth } from './normalize';
 
 describe('normalizeMonth', () => {
   it('trims legacy full dates to month precision', () => {
@@ -10,16 +10,16 @@ describe('normalizeMonth', () => {
   });
 });
 
-describe('normalizeCVData', () => {
+describe('normalizeCV', () => {
   it('fills a complete object from partial input', () => {
-    const data = normalizeCVData({ personalInfo: { fullName: 'Rina' } });
+    const data = normalizeCV({ personalInfo: { fullName: 'Rina' } });
     expect(data.personalInfo.email).toBe('');
     expect(data.experience).toEqual([]);
     expect(data.experienceLevel).toBe('professional');
   });
 
   it('migrates legacy shapes', () => {
-    const data = normalizeCVData({
+    const data = normalizeCV({
       personalInfo: {},
       experience: [{ position: 'Dev', startDate: '2020-01-10', endDate: '2021-01-01', current: true }],
       skills: ['SQL', { name: '' }, { name: 'Go', level: 'Guru', category: 'Weird' }],
@@ -35,7 +35,7 @@ describe('normalizeCVData', () => {
   });
 
   it('rejects non-CV JSON', () => {
-    expect(isCVDataLike({ foo: 1 })).toBe(false);
-    expect(isCVDataLike({ personalInfo: { fullName: 'A' } })).toBe(true);
+    expect(isCvLike({ foo: 1 })).toBe(false);
+    expect(isCvLike({ personalInfo: { fullName: 'A' } })).toBe(true);
   });
 });

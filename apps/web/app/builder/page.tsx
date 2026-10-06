@@ -7,15 +7,16 @@ import { toTemplateId } from '@/lib/cv/templates';
 import { CVWizard } from '../components/cv-wizard';
 import type { CVDataUpdate } from '../components/cv-wizard/types';
 import { CVPreview } from '../components/cv-preview';
-import { CVData } from '@cv-generator/types';
+import { CV } from '@/lib/cv/schema';
 import { loadFromLocalStorage, saveToLocalStorage } from '@cv-generator/utils';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCvJson } from '@/lib/cv/download';
-import { emptyCVData, isCVDataLike, normalizeCVData } from '@/lib/cv/normalize';
+import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
+import { emptyCV } from '@/lib/cv/schema';
 import Link from 'next/link';
 
 export default function BuilderPage() {
-  const [cvData, setCVData] = useState<CVData>(emptyCVData);
+  const [cvData, setCVData] = useState<CV>(emptyCV);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [mounted, setMounted] = useState(false);
@@ -25,7 +26,7 @@ export default function BuilderPage() {
     // Load data from localStorage only after mounting to prevent hydration mismatch
     const savedData = loadFromLocalStorage('cv-data');
     if (savedData) {
-      setCVData(normalizeCVData(savedData));
+      setCVData(normalizeCV(savedData));
     }
     setMounted(true);
   }, []);
@@ -47,8 +48,8 @@ export default function BuilderPage() {
     reader.onload = (e) => {
       try {
         const parsed: unknown = JSON.parse(String(e.target?.result ?? ''));
-        if (!isCVDataLike(parsed)) throw new Error('missing personalInfo');
-        handleDataChange(normalizeCVData(parsed));
+        if (!isCvLike(parsed)) throw new Error('missing personalInfo');
+        handleDataChange(normalizeCV(parsed));
       } catch {
         toast({
           variant: 'destructive',

@@ -1,6 +1,6 @@
-import { Document, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Fragment, type ReactNode } from 'react';
-import { SECTION_TITLES, type ContactItem, type CvView, type EntryView, type SectionId } from '../format';
+import type { ContactItem, CvView, EntryView, SectionView } from '../format';
 import type { TemplateId } from '../templates';
 
 interface Theme {
@@ -97,7 +97,9 @@ function createStyles(theme: Theme) {
       fontSize: 10.5,
       fontWeight: 700,
       lineHeight: LINE_HEIGHT,
-      letterSpacing: 1,
+      // Wide tracking plus Source Serif's kerning (e.g. "KA") makes text extraction split headings
+      // ("SERTIFIK ASI"), which can stop ATS parsers recognising the section.
+      letterSpacing: theme.font === 'Source Serif 4' ? 0 : 1,
       textTransform: 'uppercase',
       color: theme.heading === 'rule' ? theme.text : theme.accent,
     },
@@ -112,6 +114,10 @@ function createStyles(theme: Theme) {
     bulletText: { flex: 1, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
     skillLine: { marginBottom: 2, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
     skillLabel: { fontWeight: 600 },
+    headerRow: { flexDirection: 'row', alignItems: 'center' },
+    headerText: { flex: 1 },
+    photo: { width: 64, height: 64, borderRadius: 32, marginLeft: 16, objectFit: 'cover' },
+    photoCentered: { width: 64, height: 64, borderRadius: 32, marginBottom: 8, objectFit: 'cover' },
     pageNumber: {
       position: 'absolute',
       bottom: 20,
@@ -148,7 +154,8 @@ function ContactLine({ contacts, color, linkColor }: { contacts: ContactItem[]; 
 function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
   if (theme.header === 'band') {
     return (
-      <View style={s.band}>
+      <View style={[s.band, s.headerRow]}>
+        <View style={s.headerText}>
         {view.name ? <Text style={[s.name, { color: '#ffffff' }]}>{view.name}</Text> : null}
         {view.headline ? <Text style={[s.headline, { color: '#ede9fe' }]}>{view.headline}</Text> : null}
         {view.contacts.length > 0 ? (
@@ -156,6 +163,8 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
             <ContactLine contacts={view.contacts} color="#f5f3ff" linkColor="#ffffff" />
           </View>
         ) : null}
+        </View>
+        {view.photo ? <Image src={view.photo} style={s.photo} /> : null}
       </View>
     );
   }
@@ -163,7 +172,9 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
   const centered = theme.header === 'center';
   const align = centered ? 'center' : 'left';
   return (
-    <View style={centered ? [s.header, s.headerCentered] : s.header}>
+    <View style={centered ? [s.header, s.headerCentered] : [s.header, s.headerRow]}>
+      {centered && view.photo ? <Image src={view.photo} style={s.photoCentered} /> : null}
+      <View style={centered ? { alignItems: 'center' } : s.headerText}>
       {view.name ? <Text style={[s.name, { textAlign: align }]}>{view.name}</Text> : null}
       {view.headline ? (
         <Text style={[s.headline, { textAlign: align, color: centered ? theme.muted : theme.accent }]}>
@@ -175,6 +186,8 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
           <ContactLine contacts={view.contacts} color={theme.muted} linkColor={theme.muted} />
         </View>
       ) : null}
+      </View>
+      {!centered && view.photo ? <Image src={view.photo} style={s.photo} /> : null}
     </View>
   );
 }
@@ -264,28 +277,24 @@ function entryBlocks(entry: EntryView, key: string, s: Styles, heading: ReactNod
 export function CvDocument({ view, template }: { view: CvView; template: TemplateId }) {
   const theme = THEMES[template];
   const s = createStyles(theme);
-  const heading = (id: SectionId) => <SectionTitle title={SECTION_TITLES[id]} theme={theme} s={s} />;
-
-  const sectionBlocks = (id: SectionId): ReactNode[] => {
-    switch (id) {
-      case 'summary':
-        return view.summary ? [leadBlock(id, s.sectionStart, <>{heading(id)}<Text style={s.body}>{view.summary}</Text></>)] : [];
-      case 'skills': {
-        const lines = view.skills.map((group) => (
-          <Text key={group.label} style={s.skillLine}>
-            <Text style={s.skillLabel}>{group.label}: </Text>
-            {group.items.join(', ')}
-          </Text>
-        ));
-        if (lines.length === 0) return [];
-        const [first, ...rest] = lines;
-        return [leadBlock(id, s.sectionStart, <>{heading(id)}{first}</>), ...rest];
-      }
-      default:
-        return view[id].flatMap((entry, index) =>
-          entryBlocks(entry, `${id}-${index}`, s, index === 0 ? heading(id) : null)
-        );
+  const sectionBlocks = (section: SectionView): ReactNode[] => {
+    const heading = <SectionTitle title={section.title} theme={theme} s={s} />;
+    if (section.kind === 'text') {
+      return [leadBlock(section.id, s.sectionStart, <>{heading}<Text style={s.body}>{section.text}</Text></>)];
     }
+    if (section.kind === 'lines') {
+      const lines = section.lines.map((group, index) => (
+        <Text key={`${section.id}-${index}`} style={s.skillLine}>
+          {group.label ? <Text style={s.skillLabel}>{group.label}: </Text> : null}
+          {group.items.join(', ')}
+        </Text>
+      ));
+      const [first, ...rest] = lines;
+      return [leadBlock(section.id, s.sectionStart, <>{heading}{first}</>), ...rest];
+    }
+    return section.entries.flatMap((entry, index) =>
+      entryBlocks(entry, `${section.id}-${index}`, s, index === 0 ? heading : null)
+    );
   };
 
   return (
@@ -296,11 +305,11 @@ export function CvDocument({ view, template }: { view: CvView; template: Templat
       keywords={view.meta.keywords}
       creator="GenCV"
       producer="GenCV"
-      language="en"
+      language={view.language}
     >
-      <Page size="A4" style={s.page}>
+      <Page size={view.paper} style={s.page}>
         <Header view={view} theme={theme} s={s} />
-        {view.sectionOrder.flatMap(sectionBlocks)}
+        {view.sections.flatMap(sectionBlocks)}
         <Text
           fixed
           style={s.pageNumber}
