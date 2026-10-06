@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { FileText } from 'lucide-react';
-import { ProgressBar, Tabs } from '@/components/ds';
+import { Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
-import { calculateCompleteness } from '@/lib/cv/completeness';
+import type { CvAnalysis } from '@/lib/cv/analysis/analyze';
 import { buildCvView } from '@/lib/cv/format';
 import type { CV } from '@/lib/cv/schema';
 import { TEMPLATE_IDS, type TemplateId } from '@/lib/cv/templates';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
+import { AnalysisPanel } from './analysis-panel';
 import { PdfPreview } from './pdf-preview';
+
+export type PreviewTab = 'preview' | 'analysis' | 'template';
 
 const TEMPLATE_INFO: Record<TemplateId, { name: string; text: string; swatch: string }> = {
   modern: { name: 'Modern', text: 'Sans-serif, aksen biru. Cocok untuk sebagian besar posisi.', swatch: 'border-t-4 border-t-blue-700' },
@@ -17,27 +19,35 @@ const TEMPLATE_INFO: Record<TemplateId, { name: string; text: string; swatch: st
   creative: { name: 'Creative', text: 'Header berwarna. Untuk desain, marketing, startup.', swatch: 'border-t-[18px] border-t-violet-700' },
 };
 
-export function PreviewPanel({ cv, update }: { cv: CV; update: (next: CvUpdate) => void }) {
-  const [tab, setTab] = useState<'preview' | 'template'>('preview');
+interface PreviewPanelProps {
+  cv: CV;
+  update: (next: CvUpdate) => void;
+  analysis: CvAnalysis;
+  tab: PreviewTab;
+  onTabChange: (tab: PreviewTab) => void;
+  onOpenJobMatch: () => void;
+}
+
+export function PreviewPanel({ cv, update, analysis, tab, onTabChange, onOpenJobMatch }: PreviewPanelProps) {
   const view = buildCvView(cv);
   const hasContent = view.name !== '' || view.sections.length > 0;
-  const completeness = calculateCompleteness(cv);
   const panelId = 'preview-panel-content';
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-3 sm:px-4">
         <Tabs
           label="Panel pratinjau"
           panelId={panelId}
           value={tab}
-          onChange={setTab}
+          onChange={onTabChange}
           tabs={[
             { value: 'preview', label: 'Pratinjau' },
+            { value: 'analysis', label: `Analisis · ${analysis.overall}` },
             { value: 'template', label: 'Template' },
           ]}
         />
-        <span className="text-xs text-muted-foreground">{TEMPLATE_INFO[cv.settings.template].name}</span>
+        <span className="hidden text-xs text-muted-foreground sm:inline">{TEMPLATE_INFO[cv.settings.template].name}</span>
       </div>
 
       <div id={panelId} role="tabpanel" className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -51,21 +61,9 @@ export function PreviewPanel({ cv, update }: { cv: CV; update: (next: CvUpdate) 
                 Isi data kamu, pratinjau CV muncul di sini.
               </div>
             )}
-            <section className="rounded-xl border border-border p-4">
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <h2 className="font-medium text-foreground">Kelengkapan</h2>
-                <span className="font-semibold text-foreground">{completeness.overall}%</span>
-              </div>
-              <ProgressBar value={completeness.overall} label="Kelengkapan CV" />
-              {completeness.suggestions.length > 0 && (
-                <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                  {completeness.suggestions.map((s) => (
-                    <li key={s}>• {s}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
           </div>
+        ) : tab === 'analysis' ? (
+          <AnalysisPanel analysis={analysis} onOpenJobMatch={onOpenJobMatch} />
         ) : (
           <fieldset className="space-y-3">
             <legend className="mb-1 text-sm text-muted-foreground">

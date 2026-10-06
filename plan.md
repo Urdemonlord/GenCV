@@ -29,7 +29,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Selesai (PR) |
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Selesai (PR) |
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Selesai (PR) |
-| R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Belum |
+| R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Selesai (PR) |
 | R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Belum |
 | R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Belum |
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Belum |
@@ -182,12 +182,12 @@ Catatan:
 - Saran keahlian dari AI harus dipilih user satu per satu; tidak lagi otomatis masuk ke CV.
 - Template yang dipilih disimpan di `settings.template` dan dipakai semua export.
 
-## R4. Analisis ATS & Job Match
+## R4. Analisis ATS & Job Match (selesai)
 
 Deterministik, tanpa AI, berjalan di browser.
 
-- [ ] Fungsi murni di `apps/web/lib/cv/analysis/`, dengan unit test
-- [ ] Komponen skor:
+- [x] Fungsi murni di `apps/web/lib/cv/analysis/`, dengan unit test
+- [x] Komponen skor:
 
   | Komponen | Yang dicek |
   |---|---|
@@ -197,14 +197,14 @@ Deterministik, tanpa AI, berjalan di browser.
   | Kualitas Konten | Bullet diawali action verb, ada metrik, frasa lemah ("responsible for"), buzzword, duplikasi |
   | Keyword Match | Hanya muncul kalau user mengisi job description |
 
-- [ ] Setiap skor punya daftar temuan "kenapa skornya segini" plus saran perbaikan. Skornya diberi label "estimasi GenCV".
-- [ ] Job Match:
+- [x] Setiap skor punya daftar temuan "kenapa skornya segini" plus saran perbaikan. Skornya diberi label "estimasi GenCV".
+- [x] Job Match:
   - User paste job description
   - Keyword diekstrak dengan kamus skill (termasuk frasa seperti "CI/CD"), stopword EN/ID, dan normalisasi sinonim
   - Hasilnya persentase cocok, keyword yang cocok, dan keyword yang belum ada
   - Job description disimpan per CV
-- [ ] Ringkasan tampil di kolom kanan editor, versi lengkapnya di panel Analisis ATS dan Job Match
-- [ ] `calculateCVScore` lama (yang menghitung jumlah karakter) dihapus
+- [x] Ringkasan tampil di kolom kanan editor, versi lengkapnya di panel Analisis ATS dan Job Match
+- [x] `calculateCVScore` lama (yang menghitung jumlah karakter) dihapus
 
 ## R5. Landing page
 

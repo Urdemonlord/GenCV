@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, FileText, Pencil } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Gauge, Pencil } from 'lucide-react';
 import { Button, NavItem, Select, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
+import { analyzeCv } from '@/lib/cv/analysis/analyze';
 import { useCvDocument } from '@/lib/cv/use-cv-document';
 import { ExportMenu } from './export-menu';
-import { PreviewPanel } from './preview-panel';
+import { PreviewPanel, type PreviewTab } from './preview-panel';
 import { EDITOR_SECTIONS } from './sections';
 
 const relativeTime = new Intl.RelativeTimeFormat('id', { numeric: 'auto' });
@@ -23,6 +24,16 @@ export function EditorShell() {
   const [sectionIndex, setSectionIndex] = useState(0);
   const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
   const [now, setNow] = useState(() => Date.now());
+  const [previewTab, setPreviewTab] = useState<PreviewTab>('preview');
+  // Analysis is cheap but runs on every keystroke; let typing win.
+  const deferredCv = useDeferredValue(cv);
+  const analysis = useMemo(() => analyzeCv(deferredCv), [deferredCv]);
+  const jobMatchIndex = EDITOR_SECTIONS.findIndex((s) => s.id === 'job-match');
+
+  const openAnalysis = () => {
+    setPreviewTab('analysis');
+    setMobileView('preview');
+  };
   const section = EDITOR_SECTIONS[sectionIndex];
   const Section = section.component;
 
@@ -37,7 +48,7 @@ export function EditorShell() {
   };
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-dvh flex-col overflow-x-hidden">
       <header className="flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-2.5">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold" aria-label="GenCV beranda">
           <FileText className="size-5 text-primary-soft" aria-hidden="true" />
@@ -63,7 +74,7 @@ export function EditorShell() {
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <Tabs
             className="lg:hidden"
             label="Tampilan"
@@ -74,36 +85,57 @@ export function EditorShell() {
               { value: 'preview', label: 'Pratinjau' },
             ]}
           />
+          {ready && (
+            <Button variant="outline" size="sm" onClick={openAnalysis} aria-label={`Analisis ATS, skor ${analysis.overall} dari 100`}>
+              <Gauge aria-hidden="true" />
+              <span className="hidden sm:inline">Analisis ATS</span>
+              <span className="rounded bg-surface-raised px-1.5 text-xs font-semibold">{analysis.overall}</span>
+            </Button>
+          )}
           <ExportMenu cv={cv} update={update} />
         </div>
       </header>
 
       <div className="flex min-h-0 flex-1">
         <nav aria-label="Bagian CV" className="hidden w-60 shrink-0 overflow-y-auto border-r border-border p-3 lg:block">
-          <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Editor CV</p>
-          <ul className="space-y-0.5">
-            {EDITOR_SECTIONS.map((item, index) => {
-              const complete = ready && item.isComplete(cv);
-              return (
-                <li key={item.id}>
-                  <NavItem
-                    icon={<item.icon />}
-                    active={index === sectionIndex}
-                    onClick={() => goTo(index)}
-                    trailing={
-                      complete ? (
-                        <Check className="size-4 text-success" aria-label="lengkap" />
-                      ) : item.optional ? (
-                        <span className="text-[10px] text-muted-foreground">opsional</span>
-                      ) : null
-                    }
-                  >
-                    {item.label}
-                  </NavItem>
-                </li>
-              );
-            })}
-          </ul>
+          {(['cv', 'tools'] as const).map((group) => (
+            <div key={group} className="mb-4">
+              <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {group === 'cv' ? 'Editor CV' : 'Alat'}
+              </p>
+              <ul className="space-y-0.5">
+                {EDITOR_SECTIONS.map((item, index) => {
+                  if (item.group !== group) return null;
+                  const complete = ready && item.isComplete(cv);
+                  return (
+                    <li key={item.id}>
+                      <NavItem
+                        icon={<item.icon />}
+                        active={index === sectionIndex}
+                        onClick={() => goTo(index)}
+                        trailing={
+                          complete ? (
+                            <Check className="size-4 text-success" aria-label="lengkap" />
+                          ) : item.optional ? (
+                            <span className="text-[10px] text-muted-foreground">opsional</span>
+                          ) : null
+                        }
+                      >
+                        {item.label}
+                      </NavItem>
+                    </li>
+                  );
+                })}
+                {group === 'tools' && (
+                  <li>
+                    <NavItem icon={<Gauge />} onClick={openAnalysis} trailing={<span className="text-xs font-semibold text-foreground">{analysis.overall}</span>}>
+                      Analisis ATS
+                    </NavItem>
+                  </li>
+                )}
+              </ul>
+            </div>
+          ))}
         </nav>
 
         <main
@@ -152,7 +184,19 @@ export function EditorShell() {
             mobileView === 'form' && 'hidden'
           )}
         >
-          {ready && <PreviewPanel cv={cv} update={update} />}
+          {ready && (
+            <PreviewPanel
+              cv={cv}
+              update={update}
+              analysis={analysis}
+              tab={previewTab}
+              onTabChange={setPreviewTab}
+              onOpenJobMatch={() => {
+                goTo(jobMatchIndex);
+                setMobileView('form');
+              }}
+            />
+          )}
         </aside>
       </div>
     </div>

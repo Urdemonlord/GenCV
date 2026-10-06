@@ -119,6 +119,8 @@ export const cvSchema = z.object({
   experienceLevel: z.enum(['fresh', 'professional']).catch('professional'),
   personalInfo: personalInfoSchema.catch(() => personalInfoSchema.parse({})),
   professionalSummary: text,
+  /** Pasted job ad this CV is tailored to; drives the keyword match. Never exported. */
+  jobDescription: text,
   experience: items(experienceSchema),
   education: items(educationSchema),
   skills: items(skillSchema),
