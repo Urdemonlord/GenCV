@@ -18,7 +18,7 @@ interface MonthYearInputProps {
  * desktop render as a plain text box.
  */
 export function MonthYearInput({ value, onChange, label, disabled }: MonthYearInputProps) {
-  const match = value.match(/^(d{4})(?:-(0[1-9]|1[0-2]))?$/);
+  const match = value.match(/^(\d{4})(?:-(0[1-9]|1[0-2]))?$/);
   const year = match?.[1] ?? '';
   const month = match?.[2] ?? '';
 
@@ -32,13 +32,13 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
     <div className="space-y-1">
       <div className="flex gap-2">
         <select
-          aria-label={}
+          aria-label={`${label} year`}
           className={selectClass}
           value={year}
           disabled={disabled}
           onChange={(event) => {
             const nextYear = event.target.value;
-            onChange(nextYear ? (month ?  : nextYear) : '');
+            onChange(nextYear ? (month ? `${nextYear}-${month}` : nextYear) : '');
           }}
         >
           <option value="">Year</option>
@@ -49,11 +49,11 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
           ))}
         </select>
         <select
-          aria-label={}
+          aria-label={`${label} month`}
           className={selectClass}
           value={month}
           disabled={disabled || !year}
-          onChange={(event) => onChange(event.target.value ?  : year)}
+          onChange={(event) => onChange(event.target.value ? `${year}-${event.target.value}` : year)}
         >
           <option value="">Month</option>
           {MONTHS.map((name, index) => (
@@ -64,7 +64,7 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
         </select>
       </div>
       {value && !match && (
-        <p className="text-xs text-amber-600">Saved as “{value}”. Pick a month and year to standardise it.</p>
+        <p className="text-xs text-amber-600">Saved as “{value}”. Pick a year and month to standardise it.</p>
       )}
     </div>
   );

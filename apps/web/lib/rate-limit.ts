@@ -11,7 +11,9 @@ export function rateLimit(key: string, limit: number, windowMs: number): { ok: b
   if (!current || current.resetAt <= now) {
     windows.set(key, { count: 1, resetAt: now + windowMs });
     if (windows.size > 10_000) {
-      for (const [k, w] of windows) if (w.resetAt <= now) windows.delete(k);
+      windows.forEach((w, k) => {
+        if (w.resetAt <= now) windows.delete(k);
+      });
     }
     return { ok: true, retryAfter: 0 };
   }
