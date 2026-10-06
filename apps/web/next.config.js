@@ -14,7 +14,6 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: 'loose',
-    webpackBuildWorker: true,
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

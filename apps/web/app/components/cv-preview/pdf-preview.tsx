@@ -44,6 +44,9 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
+    // Measure immediately: ResizeObserver callbacks can be deferred (e.g. in background tabs),
+    // which would leave the preview stuck on "Rendering preview…".
+    setWidth(Math.floor(element.getBoundingClientRect().width));
     const observer = new ResizeObserver(([entry]) => setWidth(Math.floor(entry.contentRect.width)));
     observer.observe(element);
     return () => observer.disconnect();

@@ -8,5 +8,4 @@ export { cn } from './lib/utils.mjs';
 import 'class-variance-authority/types';
 import 'react';
 import 'class-variance-authority';
-import 'react/jsx-runtime';
 import 'clsx';

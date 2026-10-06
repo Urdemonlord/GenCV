@@ -1,0 +1,8 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "react/no-forward-ref": "off",
+    "@next/next/no-html-link-for-pages": "off"
+  }
+}

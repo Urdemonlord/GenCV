@@ -24,7 +24,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | # | Milestone | Isi utama | Ukuran | Status |
 |---|---|---|---|---|
 | 0 | Output harus benar |PDF/DOCX baru, bug wizard, dependency | – | Selesai (PR) |
-| 0.5 | Next 15 + React 19 | Upgrade framework, tutup advisory | Sedang | Belum |
+| 0.5 | Next 15 + React 19 | Upgrade framework, tutup advisory | Sedang | Selesai (PR) |
 | T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Belum |
 | R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Belum |
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Belum |
@@ -79,14 +79,13 @@ Sudah diverifikasi dengan `tsc`, `next build`, dan tes di production server loka
 
 Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word asli, dan HP sungguhan.
 
-## 0.5. Next 15 + React 19
+## 0.5. Next 15 + React 19 (selesai)
 
-`packages/ui` mendeklarasikan `react@^18` sebagai dependency biasa. Kalau app naik ke React 19 tanpa mengubah ini, npm memasang dua versi React dan hooks rusak.
-
-- [ ] Pindahkan `react` dan `react-dom` di `packages/ui` ke `peerDependencies`
-- [ ] Upgrade `next@15.5.x`, `react@19`, `@types/react@19`, `next-themes@0.4`, `eslint-config-next@15`
-- [ ] Sesuaikan `next.config.js`, rebuild `dist`, perbaiki type error
-- [ ] Tes regresi penuh, lalu pastikan `npm audit` bersih dari advisory Next
+- [x] `react`/`react-dom` di `packages/ui` jadi `peerDependencies`; `overrides` di root memastikan hanya satu React (19.3)
+- [x] `next@15.5.27`, `react@19`, `@types/react@19`, `next-themes@0.4`, `eslint-config-next@15`
+- [x] `next.config.js` disesuaikan, `dist` paket di-rebuild, type error diperbaiki (mis. `CardTitle`)
+- [x] Semua advisory Next tertutup. Sisa 9 advisory (5 high, 4 moderate) ada di tooling Tailwind 3 (`braces`, `postcss-selector-parser`) dan `uuid` milik SDK Google; ditangani saat upgrade Tailwind/SDK.
+- [x] Preview kini mengukur lebar container langsung saat mount, tidak hanya menunggu `ResizeObserver`
 
 ## T. Jaring pengaman
 

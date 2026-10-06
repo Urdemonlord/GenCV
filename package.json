@@ -13,13 +13,24 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "build:packages": "turbo run build --filter='./packages/*'"
+    "build:packages": "turbo run build --filter=@cv-generator/types --filter=@cv-generator/lib-ai --filter=@cv-generator/ui --filter=@cv-generator/utils"
   },
   "devDependencies": {
     "@types/node": "^20.6.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "concurrently": "^9.2.0",
+    "eslint-config-next": "15.5.27",
+    "next": "15.5.27",
     "turbo": "^2.5.4",
     "typescript": "^5.2.2"
+  },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "postcss": "^8.5.29"
   },
   "workspaces": [
     "apps/*",
