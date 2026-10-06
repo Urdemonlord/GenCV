@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { Field, Input } from '@/components/ds';
-import { requestAi } from '@/lib/ai-client';
-import { toBulletList } from '@/lib/cv/format';
 import { parseList } from '@/lib/cv/normalize';
 import { newId, type Project } from '@/lib/cv/schema';
+import { BulletAssist } from '../ai/bullet-assist';
 import { BulletEditor } from '../fields/bullet-editor';
 import { MonthYearInput } from '../fields/month-year-input';
-import { AddButton, AiButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
+import { AddButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
 
 const blank = (): Project => ({
   id: newId('proj'),
@@ -22,29 +21,9 @@ const blank = (): Project => ({
 });
 
 export function ProjectsSection({ cv, update }: SectionProps) {
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   // Raw text of the technologies field while editing, so typing ", " is not swallowed.
   const [techDrafts, setTechDrafts] = useState<Record<string, string>>({});
   const patch = (id: string, value: Partial<Project>) => patchItem(update, 'projects', id, value);
-
-  const generate = async (project: Project) => {
-    setBusyId(project.id);
-    setErrors((e) => ({ ...e, [project.id]: '' }));
-    try {
-      const text = await requestAi({
-        type: 'project',
-        projectName: project.name,
-        technologies: project.technologies,
-        text: project.bullets.filter((b) => b.trim()).join('\n'),
-      });
-      patch(project.id, { bullets: toBulletList(text) });
-    } catch (err) {
-      setErrors((e) => ({ ...e, [project.id]: err instanceof Error ? err.message : 'Gagal membuat deskripsi.' }));
-    } finally {
-      setBusyId(null);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -95,10 +74,7 @@ export function ProjectsSection({ cv, update }: SectionProps) {
               onChange={(bullets) => patch(project.id, { bullets })}
               placeholder="Apa yang dibuat, peranmu, dan hasilnya"
             />
-            <AiButton busy={busyId === project.id} disabled={!project.name.trim()} onClick={() => generate(project)}>
-              {project.bullets.some((b) => b.trim()) ? 'Perbaiki dengan AI' : 'Buat draf dengan AI'}
-            </AiButton>
-            {errors[project.id] && <p className="text-sm text-destructive">{errors[project.id]}</p>}
+            <BulletAssist cv={cv} update={update} section="projects" itemId={project.id} hint="Apa yang kamu bangun, peranmu, dan hasilnya." />
           </div>
         </ItemPanel>
       ))}

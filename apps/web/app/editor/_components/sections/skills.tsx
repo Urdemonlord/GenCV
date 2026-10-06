@@ -3,7 +3,8 @@
 import { useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
 import { Button, Chip, Field, Input, Select } from '@/components/ds';
-import { requestAi } from '@/lib/ai-client';
+import { aiContext, requestAi } from '@/lib/ai-client';
+import { aiErrorMessage } from '../ai/suggestions';
 import { parseList } from '@/lib/cv/normalize';
 import { newId, SKILL_CATEGORIES, type Skill } from '@/lib/cv/schema';
 import { AiButton, SectionIntro, type SectionProps } from './shared';
@@ -15,7 +16,7 @@ export function SkillsSection({ cv, update }: SectionProps) {
   const [category, setCategory] = useState<Skill['category']>('Technical');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<{ name: string; category: Skill['category'] }[]>([]);
   const has = (skillName: string) => cv.skills.some((s) => s.name.toLowerCase() === skillName.toLowerCase());
 
   const add = (skillName: string, skillCategory: Skill['category'] = category) => {
@@ -35,16 +36,22 @@ export function SkillsSection({ cv, update }: SectionProps) {
     setName('');
   };
 
+  const context = aiContext(cv);
+
   const suggest = async () => {
     setBusy(true);
     setError('');
     try {
-      const role = cv.personalInfo.headline || cv.experience[0]?.position;
-      if (!role) throw new Error('Isi profesi/jabatan di Informasi Pribadi dulu supaya saran relevan.');
-      const text = await requestAi({ type: 'skills', role, experienceLevel: cv.experienceLevel });
-      setSuggestions(parseList(text.replace(/\n/g, ',')).filter((s) => !has(s)).slice(0, 12));
+      const output = await requestAi('skills', {
+        ...context,
+        skills: cv.skills.map((s) => s.name),
+        background: [...cv.experience.map((e) => e.position), ...cv.projects.map((p) => p.name)].filter(Boolean).slice(0, 12),
+      });
+      const fresh = output.skills.filter((s) => !has(s.name));
+      setSuggestions(fresh);
+      if (fresh.length === 0) setError('AI tidak punya saran tambahan.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal mengambil saran.');
+      setError(aiErrorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -106,8 +113,12 @@ export function SkillsSection({ cv, update }: SectionProps) {
 
       <section className="space-y-3 rounded-xl border border-border p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm text-muted-foreground">Saran AI berdasarkan profesi kamu. Pilih hanya yang benar-benar kamu kuasai.</p>
-          <AiButton busy={busy} onClick={suggest}>
+          <p className="text-sm text-muted-foreground">
+            {context.role
+              ? `Saran AI untuk ${context.role}. Pilih hanya yang benar-benar kamu kuasai.`
+              : 'Isi headline di Informasi pribadi dulu supaya saran AI relevan.'}
+          </p>
+          <AiButton busy={busy} disabled={!context.role} onClick={suggest}>
             Sarankan keahlian
           </AiButton>
         </div>
@@ -115,16 +126,16 @@ export function SkillsSection({ cv, update }: SectionProps) {
         {suggestions.length > 0 && (
           <ul className="flex flex-wrap gap-2" aria-label="Saran keahlian">
             {suggestions.map((s) => (
-              <li key={s}>
+              <li key={s.name}>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    add(s, 'Technical');
-                    setSuggestions((list) => list.filter((x) => x !== s));
+                    add(s.name, s.category);
+                    setSuggestions((list) => list.filter((x) => x.name !== s.name));
                   }}
                 >
-                  + {s}
+                  + {s.name}
                 </Button>
               </li>
             ))}

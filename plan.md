@@ -33,7 +33,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Selesai (PR) |
 | R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Selesai (PR) |
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Selesai (PR) |
-| R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Belum |
+| R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Selesai (PR) |
 | C | Bersih-bersih repo | Scaffold root, `dist/`, `.d.ts` palsu, README | Sedang | Belum |
 
 Kenapa urutannya begini:
@@ -234,21 +234,21 @@ Deterministik, tanpa AI, berjalan di browser.
 
 ## R7. Dashboard multi-CV
 
-- [ ] Banyak CV per perangkat: buat, duplikat ("sesuaikan untuk lowongan lain"), ganti nama, hapus
-- [ ] Migrasi otomatis dari key lama `cv-data`
-- [ ] Tiap CV menyimpan job description dan hasil Job Match sendiri
+- [x] Banyak CV per perangkat: buat, duplikat ("sesuaikan untuk lowongan lain"), ganti nama, hapus
+- [x] Migrasi otomatis dari key lama `cv-data`
+- [x] Tiap CV menyimpan job description dan hasil Job Match sendiri
 
 ## R8. AI Assistant
 
-- [ ] Satu modul AI di server (`@google/genai`) dengan output JSON sesuai schema v2. `packages/lib-ai` dan integrasi lain dihapus.
-- [ ] Prompt:
+- [x] Satu modul AI di server (`@google/genai`) dengan output JSON sesuai schema v2. `packages/lib-ai` dan integrasi lain dihapus.
+- [x] Prompt:
   - Pakai action verb, tanpa kata ganti
   - Tidak boleh menambah fakta; pakai placeholder untuk metrik
   - Ada parameter bahasa output (en-US, en-GB, id)
-- [ ] Keyword yang belum ada dari Job Match hanya disarankan kalau user mengonfirmasi memang punya pengalaman itu
-- [ ] UI copilot: saran per bullet dan per ringkasan, tampilan sebelum/sesudah, terima atau tolak. Isi CV tidak ditimpa otomatis.
-- [ ] Role diambil dari headline, bukan hardcode "Software Developer"
-- [ ] Keamanan dan privasi:
+- [x] Keyword yang belum ada dari Job Match hanya disarankan kalau user mengonfirmasi memang punya pengalaman itu
+- [x] UI copilot: saran per bullet dan per ringkasan, tampilan sebelum/sesudah, terima atau tolak. Isi CV tidak ditimpa otomatis.
+- [x] Role diambil dari headline, bukan hardcode "Software Developer"
+- [x] Keamanan dan privasi:
   - Rate limit, batas panjang input, dan Turnstile di `/api/ai`
   - Berhenti me-log isi CV
   - Kebijakan privasi yang menjelaskan data dikirim ke Google; pakai Gemini tier berbayar

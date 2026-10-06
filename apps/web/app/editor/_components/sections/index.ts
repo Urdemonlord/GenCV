@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Languages,
   Settings2,
+  Sparkles,
   Target,
   TextQuote,
   User,
@@ -14,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { CV } from '@/lib/cv/schema';
+import { AiAssistantSection } from './ai-assistant';
 import { EducationSection } from './education';
 import { ExperienceSection } from './experience';
 import { AdditionalSection, CertificationsSection, LanguagesSection } from './extras';
@@ -80,5 +82,14 @@ export const EDITOR_SECTIONS: EditorSection[] = [
     component: JobMatchSection,
     optional: true,
     isComplete: (cv) => filled(cv.jobDescription),
+  },
+  {
+    group: 'tools',
+    id: 'ai-assistant',
+    label: 'AI Assistant',
+    icon: Sparkles,
+    component: AiAssistantSection,
+    optional: true,
+    isComplete: () => false,
   },
 ];
