@@ -260,6 +260,19 @@ Deterministik, tanpa AI, berjalan di browser.
 - [x] Tulis ulang README; ESLint CLI (`eslint . --max-warnings 0`) dan lint aktif saat build
 - [x] Uji visual tanpa screenshot piksel: snapshot posisi teks PDF per template (`lib/cv/pdf/__snapshots__`) dan smoke test Playwright (landing → editor, ekspor PDF, dashboard)
 
+## L. Kelengkapan rilis
+
+Checklist 20 poin "siap rilis" (disetujui 6 Oktober 2026: Vercel Web Analytics tanpa cookie banner, kontak admin@meowlabs.id, pengelola Meowlabs).
+
+- [x] Halaman 404, title + description + canonical per halaman, `noindex` untuk editor dan dashboard
+- [x] Favicon set (SVG, ICO, apple-icon, manifest + ikon maskable), `robots.txt`, `sitemap.xml`; Open Graph sudah ada
+- [x] CTA di atas fold (sudah ada) dan CTA menempel di bawah untuk mobile
+- [x] Skeleton loading untuk editor dan dashboard; state error form sudah ada
+- [x] Pengganti halaman "terima kasih": panel langkah berikutnya setelah ekspor PDF/DOCX (termasuk peringatan placeholder)
+- [x] `/syarat`, `/privasi` diperbarui (analitik, cookie, hak user), kontak di footer dan halaman legal
+- [x] Vercel Web Analytics tanpa cookie, query string dibuang; tanpa cookie banner karena hanya localStorage yang diperlukan
+- [x] Gambar dioptimasi `next/image` (AVIF/WebP, `sizes` per tampilan); alt text dijaga ESLint
+
 ## Sengaja belum dibuat
 
 - **Akun dan sinkronisasi cloud (Masuk), Harga/pembayaran, Blog.** Semuanya butuh backend, autentikasi, dan payment. Sampai siap, menunya tidak ditampilkan.

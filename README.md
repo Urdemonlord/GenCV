@@ -52,12 +52,13 @@ npx vitest run -u lib/cv/pdf/templates.snapshot.test.tsx
 | `GEMINI_API_KEY` | Untuk AI | Key dari project Gemini API **berbayar**. Kebijakan privasi bergantung pada ketentuan tier berbayar. |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Disarankan | Rate limit `/api/ai` yang dibagi semua instance. Tanpa ini, limit hanya per instance. |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Opsional | Verifikasi Cloudflare Turnstile di `/api/ai`. Pasang keduanya atau tidak sama sekali. |
-| `NEXT_PUBLIC_APP_URL` | Opsional | URL publik, untuk metadata. |
+| `NEXT_PUBLIC_APP_URL` | Disarankan | Domain publik untuk canonical URL, sitemap, dan Open Graph. Di Vercel, tanpa ini dipakai domain produksi project. |
 
 ## Deploy (Vercel)
 
 - Root directory: `apps/web`. PDF dan DOCX dibuat di browser, jadi tidak butuh Chromium di server.
 - Isi environment variable di atas di dashboard Vercel.
+- Aktifkan **Web Analytics** di tab Analytics project Vercel. Script-nya sudah terpasang; tanpa cookie, dan query string (id CV) dibuang sebelum dikirim.
 
 ## Struktur
 

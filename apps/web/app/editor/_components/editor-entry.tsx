@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { emptyCV } from '@/lib/cv/schema';
 import { createDocument, listDocuments } from '@/lib/cv/storage';
 import { toTemplateId } from '@/lib/cv/templates';
+import { EditorSkeleton } from './editor-skeleton';
 
 /**
  * `/editor` without an id: open the most recent CV, or start a new one (also when asked to,
@@ -27,9 +28,5 @@ export function EditorEntry({ createNew, template }: { createNew: boolean; templ
     router.replace(`/editor?id=${encodeURIComponent(id)}`);
   }, [createNew, router, template]);
 
-  return (
-    <p className="grid h-dvh place-items-center text-sm text-muted-foreground" role="status">
-      Membuka editor…
-    </p>
-  );
+  return <EditorSkeleton />;
 }

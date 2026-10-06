@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { SiteFooter } from '../components/landing/sections';
-import { SiteHeader } from '../components/landing/site-header';
+import { OPERATOR, pageMetadata } from '@/lib/seo';
+import { LegalPage, type LegalSection } from '../components/legal-page';
 
-export const metadata: Metadata = {
-  title: 'Kebijakan privasi · GenCV',
-  description: 'Di mana data CV kamu disimpan dan apa yang dikirim saat memakai fitur AI.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Kebijakan privasi',
+  description: 'Di mana data CV kamu disimpan, apa yang dikirim saat memakai fitur AI, dan data teknis yang dicatat.',
+  path: '/privasi',
+});
 
-const SECTIONS = [
+const SECTIONS: LegalSection[] = [
   {
     title: 'CV kamu disimpan di perangkatmu',
     body: (
@@ -52,12 +53,47 @@ const SECTIONS = [
     ),
   },
   {
-    title: 'Data teknis',
+    title: 'Statistik kunjungan',
+    body: (
+      <>
+        <p>
+          Untuk mengetahui halaman mana yang dipakai, GenCV memakai Vercel Web Analytics, yang tidak memakai cookie. Yang dicatat:
+          halaman yang dibuka (tanpa parameter di URL), situs perujuk, negara, serta jenis perangkat, sistem operasi, dan browser.
+          Isi CV tidak pernah ikut dikirim.
+        </p>
+        <p>
+          Pengunjung tidak diidentifikasi secara pribadi: kunjungan dihitung dengan kode acak yang berganti setiap hari. Rinciannya
+          ada di{' '}
+          <a href="https://vercel.com/docs/analytics/privacy-policy" className="underline hover:text-foreground" rel="noopener noreferrer" target="_blank">
+            kebijakan privasi Vercel Web Analytics
+          </a>
+          .
+        </p>
+      </>
+    ),
+  },
+  {
+    title: 'Data teknis dan cookie',
+    body: (
+      <>
+        <p>
+          Untuk membatasi jumlah permintaan AI, server mencatat alamat IP kamu bersama hitungan permintaan selama paling lama satu
+          hari. Jika verifikasi keamanan Cloudflare Turnstile aktif, Cloudflare memproses sinyal dari browser untuk membedakan
+          manusia dari bot.
+        </p>
+        <p>
+          GenCV tidak memakai cookie pelacak atau iklan. Satu-satunya penyimpanan di browser adalah localStorage untuk menyimpan
+          CV kamu, dan itu diperlukan agar aplikasi berfungsi, jadi tidak ada banner persetujuan cookie.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: 'Hak kamu',
     body: (
       <p>
-        Untuk membatasi jumlah permintaan AI, server mencatat alamat IP kamu bersama hitungan permintaan selama paling lama satu hari.
-        Jika verifikasi keamanan Cloudflare Turnstile aktif, Cloudflare memproses sinyal dari browser untuk membedakan manusia dari bot.
-        GenCV tidak memakai cookie pelacak atau analitik.
+        Karena CV tidak disimpan di server, kamu memegang kendali penuh: lihat, ubah, ekspor (JSON), atau hapus kapan saja dari
+        perangkatmu. Untuk pertanyaan soal data teknis di atas, hubungi kontak di bawah.
       </p>
     ),
   },
@@ -65,21 +101,11 @@ const SECTIONS = [
 
 export default function PrivacyPage() {
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-3xl font-bold tracking-tight">Kebijakan privasi</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Terakhir diperbarui 6 Oktober 2026</p>
-        <div className="mt-8 space-y-10">
-          {SECTIONS.map((section) => (
-            <section key={section.title}>
-              <h2 className="text-xl font-semibold">{section.title}</h2>
-              <div className="mt-3 space-y-3 leading-relaxed text-muted-foreground">{section.body}</div>
-            </section>
-          ))}
-        </div>
-      </main>
-      <SiteFooter />
-    </>
+    <LegalPage
+      title="Kebijakan privasi"
+      updated="6 Oktober 2026"
+      intro={<p>Kebijakan ini menjelaskan data apa yang diproses GenCV, layanan milik {OPERATOR}, dan ke mana data itu pergi.</p>}
+      sections={SECTIONS}
+    />
   );
 }
