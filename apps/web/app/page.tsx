@@ -1,27 +1,21 @@
-import Header from './components/header';
-import Hero from './components/hero';
-import SocialProof from './components/social-proof';
-import Features from './components/features';
-import TemplatePreview from './components/template-preview';
-import Process from './components/process';
-import FAQ from './components/faq';
-import CTA from './components/cta';
-import Footer from './components/footer';
+import { Features } from './components/landing/features';
+import { Hero } from './components/landing/hero';
+import { Faq, FinalCta, HowItWorks, SiteFooter, TemplatesShowcase } from './components/landing/sections';
+import { SiteHeader } from './components/landing/site-header';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
+    <>
+      <SiteHeader />
+      <main>
         <Hero />
-        <SocialProof />
         <Features />
-        <TemplatePreview />
-        <Process />
-        <FAQ />
-        <CTA />
+        <TemplatesShowcase />
+        <HowItWorks />
+        <Faq />
+        <FinalCta />
       </main>
-      <Footer />
-    </div>
+      <SiteFooter />
+    </>
   );
 }

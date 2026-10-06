@@ -132,22 +132,37 @@ function createStyles(theme: Theme) {
 
 type Styles = ReturnType<typeof createStyles>;
 
-function ContactLine({ contacts, color, linkColor }: { contacts: ContactItem[]; color: string; linkColor: string }) {
+/**
+ * Each contact is its own text block in a wrapping row, so a long line breaks between
+ * items. As one paragraph, react-pdf could break inside it and insert a stray hyphen.
+ */
+function ContactLine({
+  contacts,
+  color,
+  linkColor,
+  centered,
+}: {
+  contacts: ContactItem[];
+  color: string;
+  linkColor: string;
+  centered?: boolean;
+}) {
+  const text = { color, fontSize: 9.5, lineHeight: LINE_HEIGHT };
   return (
-    <Text style={{ color, fontSize: 9.5, lineHeight: LINE_HEIGHT }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: centered ? 'center' : 'flex-start' }}>
       {contacts.map((contact, index) => (
-        <Text key={`${contact.text}-${index}`}>
-          {index > 0 ? '  |  ' : ''}
+        <View key={`${contact.text}-${index}`} style={{ flexDirection: 'row' }} wrap={false}>
+          {index > 0 ? <Text style={[text, { marginHorizontal: 6 }]}>|</Text> : null}
           {contact.href ? (
-            <Link src={contact.href} style={{ color: linkColor, textDecoration: 'none' }}>
+            <Link src={contact.href} style={[text, { color: linkColor, textDecoration: 'none' }]}>
               {contact.text}
             </Link>
           ) : (
-            contact.text
+            <Text style={text}>{contact.text}</Text>
           )}
-        </Text>
+        </View>
       ))}
-    </Text>
+    </View>
   );
 }
 
@@ -183,7 +198,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
       ) : null}
       {view.contacts.length > 0 ? (
         <View style={[s.contacts, { alignItems: centered ? 'center' : 'flex-start' }]}>
-          <ContactLine contacts={view.contacts} color={theme.muted} linkColor={theme.muted} />
+          <ContactLine contacts={view.contacts} color={theme.muted} linkColor={theme.muted} centered={centered} />
         </View>
       ) : null}
       </View>

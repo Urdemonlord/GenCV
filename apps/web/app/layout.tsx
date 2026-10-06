@@ -14,26 +14,17 @@ const baseUrl =
   process.env.NEXT_PUBLIC_APP_URL?.trim() ||
   'http://localhost:3000';
 
+const title = 'GenCV · Buat CV profesional yang ramah ATS';
+const description =
+  'Workspace CV gratis: template ramah ATS, analisis ATS yang bisa dijelaskan, Job Match per lowongan, dan ekspor PDF/DOCX. Data tersimpan di perangkatmu.';
+
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: 'Create Professional CVs in Minutes',
-  description:
-    'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
-  keywords:
-    'CV generator, resume builder, AI resume, professional CV, job application',
-  openGraph: {
-    title: 'Create Professional CVs in Minutes',
-    description:
-      'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
-    type: 'website',
-    url: '/',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'Create Professional CVs in Minutes',
-    description:
-      'Create professional CVs in minutes with AI-powered enhancements and ATS-friendly templates.',
-  },
+  title,
+  description,
+  keywords: ['CV ATS', 'buat CV', 'CV generator', 'resume builder', 'contoh CV', 'Job Match', 'CV bahasa Inggris'],
+  openGraph: { title, description, type: 'website', url: '/', locale: 'id_ID', siteName: 'GenCV' },
+  twitter: { card: 'summary_large_image', title, description },
 };
 
 export const viewport: Viewport = {
@@ -48,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={fontSans.variable}>
+    <html lang="id" className={fontSans.variable}>
       <body className="min-h-screen font-sans">
         {children}
         <Toaster />
