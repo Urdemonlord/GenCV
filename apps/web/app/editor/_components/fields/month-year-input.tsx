@@ -1,9 +1,9 @@
 'use client';
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
 const selectClass =
-  'h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50';
+  'h-10 min-w-0 flex-1 rounded-lg border border-input bg-background/60 px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50';
 
 interface MonthYearInputProps {
   /** "YYYY-MM", "YYYY" or "" */
@@ -32,7 +32,7 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
     <div className="space-y-1">
       <div className="flex gap-2">
         <select
-          aria-label={`${label} year`}
+          aria-label={`${label}, tahun`}
           className={selectClass}
           value={year}
           disabled={disabled}
@@ -41,7 +41,7 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
             onChange(nextYear ? (month ? `${nextYear}-${month}` : nextYear) : '');
           }}
         >
-          <option value="">Year</option>
+          <option value="">Tahun</option>
           {years.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -49,13 +49,13 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
           ))}
         </select>
         <select
-          aria-label={`${label} month`}
+          aria-label={`${label}, bulan`}
           className={selectClass}
           value={month}
           disabled={disabled || !year}
           onChange={(event) => onChange(event.target.value ? `${year}-${event.target.value}` : year)}
         >
-          <option value="">Month</option>
+          <option value="">Bulan</option>
           {MONTHS.map((name, index) => (
             <option key={name} value={String(index + 1).padStart(2, '0')}>
               {name}
@@ -64,7 +64,7 @@ export function MonthYearInput({ value, onChange, label, disabled }: MonthYearIn
         </select>
       </div>
       {value && !match && (
-        <p className="text-xs text-warning">Saved as “{value}”. Pick a year and month to standardise it.</p>
+        <p className="text-xs text-warning">Tersimpan sebagai “{value}”. Pilih tahun dan bulan agar formatnya standar.</p>
       )}
     </div>
   );

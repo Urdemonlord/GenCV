@@ -14,7 +14,7 @@ export default function CTA() {
           size="lg"
           className="mt-8 bg-surface text-brand-accent-soft hover:bg-accent"
         >
-          <Link href="/builder">Get Started</Link>
+          <Link href="/editor">Get Started</Link>
         </Button>
       </div>
     </section>

@@ -8,7 +8,7 @@ export default function Footer() {
         <Link href="/templates" className="hover:underline">
           Templates
         </Link>
-        <Link href="/builder" className="hover:underline">
+        <Link href="/editor" className="hover:underline">
           Get Started
         </Link>
       </div>

@@ -10,7 +10,7 @@ export default function Header() {
           Templates
         </Link>
         <Button asChild size="sm">
-          <Link href="/builder">Get Started</Link>
+          <Link href="/editor">Get Started</Link>
         </Button>
       </nav>
     </header>

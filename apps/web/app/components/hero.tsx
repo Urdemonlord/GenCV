@@ -12,7 +12,7 @@ export default function Hero() {
       </p>
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
         <Button asChild size="lg">
-          <Link href="/builder">Start Creating CV</Link>
+          <Link href="/editor">Start Creating CV</Link>
         </Button>
         <Button asChild variant="outline" size="lg">
           <Link href="/templates">View Templates</Link>

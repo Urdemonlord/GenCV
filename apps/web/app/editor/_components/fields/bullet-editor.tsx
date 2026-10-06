@@ -38,20 +38,20 @@ export function BulletEditor({ label, bullets, onChange, placeholder }: BulletEd
             rows={2}
           />
           <div className="flex flex-col">
-            <Button variant="ghost" size="icon" className="size-7" aria-label="Move up" disabled={index === 0} onClick={() => move(index, -1)}>
+            <Button variant="ghost" size="icon" className="size-7" aria-label="Naikkan" disabled={index === 0} onClick={() => move(index, -1)}>
               <ArrowUp />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="size-7"
-              aria-label="Move down"
+              aria-label="Turunkan"
               disabled={index === bullets.length - 1}
               onClick={() => move(index, 1)}
             >
               <ArrowDown />
             </Button>
-            <Button variant="ghost" size="icon" className="size-7" aria-label="Delete bullet" onClick={() => remove(index)}>
+            <Button variant="ghost" size="icon" className="size-7" aria-label="Hapus poin" onClick={() => remove(index)}>
               <Trash2 />
             </Button>
           </div>
@@ -59,7 +59,7 @@ export function BulletEditor({ label, bullets, onChange, placeholder }: BulletEd
       ))}
       <Button variant="outline" size="sm" onClick={() => onChange([...bullets, ''])}>
         <Plus aria-hidden="true" />
-        Add bullet
+        Tambah poin
       </Button>
     </fieldset>
   );

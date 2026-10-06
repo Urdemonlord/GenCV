@@ -43,15 +43,15 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
     setError('');
     const request = ++latestRequest.current;
     if (!file) return;
-    if (!['image/jpeg', 'image/png'].includes(file.type)) return setError('Use a JPG or PNG image.');
-    if (file.size > MAX_BYTES) return setError('The image must be 2 MB or smaller.');
+    if (!['image/jpeg', 'image/png'].includes(file.type)) return setError('Gunakan gambar JPG atau PNG.');
+    if (file.size > MAX_BYTES) return setError('Ukuran gambar maksimal 2 MB.');
     try {
       const converted = await toSquareJpeg(file);
       if (request !== latestRequest.current) return;
       // Default to showing the first upload; a replacement keeps the user's choice.
       onChange(photo ? { photo: converted } : { photo: converted, showPhoto: !disabledReason });
     } catch {
-      if (request === latestRequest.current) setError('This image could not be read.');
+      if (request === latestRequest.current) setError('Gambar ini tidak bisa dibaca.');
     }
   };
 
@@ -60,7 +60,7 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
       <div className="size-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface-raised">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element -- local data URL
-          <img src={photo} alt="Profile photo" className="size-full object-cover" />
+          <img src={photo} alt="Foto profil" className="size-full object-cover" />
         ) : (
           <ImageUp aria-hidden="true" className="m-auto mt-6 size-7 text-muted-foreground" />
         )}
@@ -69,7 +69,7 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>
             <label htmlFor={inputId} className="cursor-pointer">
-              {photo ? 'Change photo' : 'Upload photo'}
+              {photo ? 'Ganti foto' : 'Unggah foto'}
             </label>
           </Button>
           {photo && (
@@ -78,7 +78,7 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
                 onChange({ photo: '', showPhoto: false });
               }}>
               <Trash2 aria-hidden="true" />
-              Remove
+              Hapus
             </Button>
           )}
         </div>
@@ -100,10 +100,10 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
               disabled={Boolean(disabledReason)}
               onChange={(event) => onChange({ showPhoto: event.target.checked })}
             />
-            Show photo on CV
+            Tampilkan foto di CV
           </label>
         )}
-        <p className="text-xs text-muted-foreground">{disabledReason ?? 'JPG or PNG, max 2 MB. Optional; ATS ignores photos.'}</p>
+        <p className="text-xs text-muted-foreground">{disabledReason ?? 'JPG atau PNG, maks. 2 MB. Opsional; ATS tidak membaca foto.'}</p>
         {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     </div>

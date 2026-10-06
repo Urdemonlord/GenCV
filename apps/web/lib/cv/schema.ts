@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TEMPLATE_IDS } from './templates';
 
 /**
  * CV data model v2: the single source of truth for the editor and every exporter.
@@ -30,6 +31,7 @@ export const settingsSchema = z.object({
   region: z.enum(CV_REGIONS).catch('id'),
   /** Photos are common in Indonesia but avoided for US applications and ignored by ATS. */
   showPhoto: z.boolean().catch(false),
+  template: z.enum(TEMPLATE_IDS).catch('modern'),
 });
 
 export const personalInfoSchema = z.object({
@@ -111,6 +113,8 @@ export const additionalSchema = z.object({
 
 export const cvSchema = z.object({
   version: z.literal(2).catch(2),
+  /** Document name shown in the editor (e.g. "CV Data Analyst – Tokopedia"); not printed on the CV. */
+  title: text,
   settings: settingsSchema.catch(() => settingsSchema.parse({})),
   experienceLevel: z.enum(['fresh', 'professional']).catch('professional'),
   personalInfo: personalInfoSchema.catch(() => personalInfoSchema.parse({})),
