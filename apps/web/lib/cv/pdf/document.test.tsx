@@ -81,10 +81,10 @@ describe('v2 sections and settings', () => {
       return { width: Math.round(width), height: Math.round(height), images: ops.fnArray.filter((fn) => fn === pdfjs.OPS.paintImageXObject).length };
     };
 
-    const us = await pageSize(await renderToBuffer(<CvDocument view={buildCvView(full({ region: 'us', showPhoto: true }, photo))} template="modern" />));
+    const us = await pageSize(await renderToBuffer(<CvDocument view={buildCvView(full({ region: 'us', showPhoto: true }, photo))} template="professional" />));
     expect(us).toEqual({ width: 612, height: 792, images: 0 });
 
-    const id = await pageSize(await renderToBuffer(<CvDocument view={buildCvView(full({ region: 'id', showPhoto: true }, photo))} template="modern" />));
+    const id = await pageSize(await renderToBuffer(<CvDocument view={buildCvView(full({ region: 'id', showPhoto: true }, photo))} template="professional" />));
     expect(id).toEqual({ width: 595, height: 842, images: 1 });
   });
 });

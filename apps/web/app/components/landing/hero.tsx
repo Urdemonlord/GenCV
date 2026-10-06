@@ -53,8 +53,8 @@ export function Hero() {
         <div className="relative mx-auto w-full max-w-lg" aria-label="Contoh hasil GenCV" role="group">
           <div className="rotate-1 overflow-hidden rounded-lg shadow-2xl shadow-black/50 ring-1 ring-white/10">
             <Image
-              src="/previews/modern.webp"
-              alt="Contoh CV Arya Pratama, Software Engineer, dengan template Modern"
+              src="/previews/professional.webp"
+              alt="Contoh CV Arya Pratama, Software Engineer, dengan template Professional"
               width={893}
               height={1263}
               priority

@@ -31,7 +31,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Selesai (PR) |
 | R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Selesai (PR) |
 | R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Selesai (PR) |
-| R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Belum |
+| R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Selesai (PR) |
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Belum |
 | R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Belum |
 | C | Bersih-bersih repo | Scaffold root, `dist/`, `.d.ts` palsu, README | Sedang | Belum |
@@ -225,12 +225,12 @@ Deterministik, tanpa AI, berjalan di browser.
 - [x] Menu: Beranda, Template, Fitur. Masuk, Harga, dan Blog disembunyikan sampai fiturnya ada.
 - [x] Section social proof palsu dihapus; metadata SEO dan gambar OG diperbarui
 
-## R6. Template & galeri
+## R6. Template & galeri (selesai)
 
-- [ ] 6 template: Professional, Minimal, Executive, Tech, Academic, Creative. Tiga template yang ada dipetakan ke nama baru.
-- [ ] Halaman `/templates` dengan thumbnail asli hasil render, plus filter berdasarkan role dan region
-- [ ] Label ATS kualitatif berdasarkan properti nyata (satu kolom, tanpa foto, teks asli), tanpa persentase karangan
-- [ ] "Direkomendasikan untuk kamu" berbasis aturan, dari headline dan preset region
+- [x] 6 template: Professional, Minimal, Executive, Tech, Academic, Creative. Tiga template yang ada dipetakan ke nama baru.
+- [x] Halaman `/templates` dengan thumbnail asli hasil render, plus filter berdasarkan role dan region
+- [x] Label ATS kualitatif berdasarkan properti nyata (satu kolom, tanpa foto, teks asli), tanpa persentase karangan
+- [x] "Direkomendasikan untuk kamu" berbasis aturan, dari headline dan preset region
 
 ## R7. Dashboard multi-CV
 

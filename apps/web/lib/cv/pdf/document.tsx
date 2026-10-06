@@ -1,6 +1,6 @@
 import { Document, Image, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Fragment, type ReactNode } from 'react';
-import type { ContactItem, CvView, EntryView, SectionView } from '../format';
+import { orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from '../format';
 import type { TemplateId } from '../templates';
 
 interface Theme {
@@ -16,33 +16,12 @@ interface Theme {
 // All templates are single-column with real text and standard headings so ATS parsers
 // read them in order; they differ only in typography and accents.
 const THEMES: Record<TemplateId, Theme> = {
-  modern: {
-    font: 'Inter',
-    accent: '#1d4ed8',
-    text: '#111827',
-    muted: '#4b5563',
-    rule: '#bfdbfe',
-    header: 'left',
-    heading: 'underline',
-  },
-  classic: {
-    font: 'Source Serif 4',
-    accent: '#111827',
-    text: '#111827',
-    muted: '#374151',
-    rule: '#111827',
-    header: 'center',
-    heading: 'rule',
-  },
-  creative: {
-    font: 'Inter',
-    accent: '#6d28d9',
-    text: '#1f2937',
-    muted: '#4b5563',
-    rule: '#ddd6fe',
-    header: 'band',
-    heading: 'bar',
-  },
+  professional: { font: 'Inter', accent: '#1d4ed8', text: '#111827', muted: '#4b5563', rule: '#bfdbfe', header: 'left', heading: 'underline' },
+  minimal: { font: 'Inter', accent: '#374151', text: '#111827', muted: '#4b5563', rule: '#d1d5db', header: 'left', heading: 'underline' },
+  executive: { font: 'Source Serif 4', accent: '#111827', text: '#111827', muted: '#374151', rule: '#111827', header: 'center', heading: 'rule' },
+  tech: { font: 'Inter', accent: '#0f766e', text: '#111827', muted: '#4b5563', rule: '#99f6e4', header: 'left', heading: 'bar' },
+  academic: { font: 'Source Serif 4', accent: '#1e3a8a', text: '#111827', muted: '#374151', rule: '#1e3a8a', header: 'left', heading: 'rule' },
+  creative: { font: 'Inter', accent: '#6d28d9', text: '#1f2937', muted: '#4b5563', rule: '#ddd6fe', header: 'band', heading: 'bar' },
 };
 
 const PAGE_X = 42;
@@ -324,7 +303,7 @@ export function CvDocument({ view, template }: { view: CvView; template: Templat
     >
       <Page size={view.paper} style={s.page}>
         <Header view={view} theme={theme} s={s} />
-        {view.sections.flatMap(sectionBlocks)}
+        {orderSectionsForTemplate(view.sections, template).flatMap(sectionBlocks)}
         <Text
           fixed
           style={s.pageNumber}

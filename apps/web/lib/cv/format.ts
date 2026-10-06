@@ -1,4 +1,5 @@
 import type { AdditionalKind, CV, CvLanguage } from './schema';
+import type { TemplateId } from './templates';
 
 const MONTHS: Record<CvLanguage, string[]> = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -388,4 +389,24 @@ export function buildCvView(cv: CV): CvView {
         .join(', '),
     },
   };
+}
+
+/** Sections a template lifts to the top (after the summary), in this order. */
+const TEMPLATE_PRIORITY: Partial<Record<TemplateId, SectionId[]>> = {
+  // Tech recruiters scan the stack first.
+  tech: ['skills'],
+  // Academic CVs lead with degrees and publications.
+  academic: ['education', 'publication', 'experience', 'projects', 'award'],
+};
+
+export function orderSectionsForTemplate(sections: SectionView[], template: TemplateId): SectionView[] {
+  const priority = TEMPLATE_PRIORITY[template];
+  if (!priority) return sections;
+  const rank = (section: SectionView) => {
+    if (section.id === 'summary') return -1;
+    const index = priority.indexOf(section.id);
+    return index === -1 ? priority.length : index;
+  };
+  // Array.prototype.sort is stable, so untouched sections keep their order.
+  return [...sections].sort((a, b) => rank(a) - rank(b));
 }
