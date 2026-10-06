@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { clientKey, rateLimit } from '@/lib/rate-limit';
+
+const MAX_INPUT_CHARS = 4000;
+const REQUESTS_PER_MINUTE = 10;
 
 // Gunakan runtime nodejs untuk memastikan SDK Google bekerja dengan benar
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  console.log('AI API request received:', request.method, request.url);
-  
+  const limit = rateLimit(clientKey(request.headers), REQUESTS_PER_MINUTE, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { success: false, error: 'Too many requests, please try again shortly.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfter) } }
+    );
+  }
+
   try {
     const data = await request.json();
-    console.log('Request body received:', data);
+    // CV text is personal data: never log it, and cap its size to bound AI cost.
+    if (JSON.stringify(data ?? {}).length > MAX_INPUT_CHARS) {
+      return NextResponse.json({ success: false, error: 'Input is too long.' }, { status: 413 });
+    }
     
     // Initialize Gemini API
     const apiKey = process.env.GEMINI_API_KEY;
@@ -98,7 +111,7 @@ export async function POST(request: NextRequest) {
         - Keep the tone confident and professional`;
     }
     
-    console.log('Sending prompt to Gemini:', { type: data.type, prompt: prompt.substring(0, 100) + '...' });
+    console.log('Sending prompt to Gemini:', { type: data.type });
     
     // Generate response using the new API
     const response = await ai.models.generateContent({

@@ -92,7 +92,10 @@ function normalizeProject(value: unknown): Project {
   const technologies =
     typeof item.technologies === 'string'
       ? parseList(item.technologies)
-      : asArray(item.technologies).filter((t): t is string => typeof t === 'string' && t.trim() !== '');
+      : asArray(item.technologies)
+          .filter((t): t is string => typeof t === 'string')
+          .map((t) => t.trim())
+          .filter(Boolean);
   return {
     id: asId(item.id, 'proj'),
     name: asString(item.name),
@@ -130,6 +133,10 @@ export function normalizeCVData(raw: unknown): CVData {
   };
 }
 
+const PERSONAL_FIELDS = ['fullName', 'email', 'phone', 'location', 'headline', 'linkedIn', 'website'];
+
+/** An import must contain at least one recognised personal field, so unrelated JSON never replaces the CV. */
 export function isCVDataLike(raw: unknown): boolean {
-  return Object.keys(asRecord(asRecord(raw).personalInfo)).length > 0;
+  const info = asRecord(asRecord(raw).personalInfo);
+  return PERSONAL_FIELDS.some((field) => asString(info[field]).trim() !== '');
 }
