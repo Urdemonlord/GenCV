@@ -1,20 +1,18 @@
 {
-  "name": "@cv-generator/web",
+  "name": "@gencv/web",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "previews": "vite-node --config vitest.config.ts scripts/render-previews.tsx"
   },
   "dependencies": {
-    "@cv-generator/types": "file:../../packages/types",
-    "@cv-generator/ui": "file:../../packages/ui",
-    "@cv-generator/utils": "file:../../packages/utils",
     "@google/genai": "^1.17.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
@@ -22,7 +20,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "docx": "^9.1.1",
-    "framer-motion": "^12.23.12",
     "lucide-react": "^0.446.0",
     "next": "15.5.27",
     "pdfjs-dist": "4.10.38",
@@ -33,6 +30,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^0.1.100",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^20.6.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

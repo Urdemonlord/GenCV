@@ -25,7 +25,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 |---|---|---|---|---|
 | 0 | Output harus benar |PDF/DOCX baru, bug wizard, dependency | – | Selesai (PR) |
 | 0.5 | Next 15 + React 19 | Upgrade framework, tutup advisory | Sedang | Selesai (PR) |
-| T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Sebagian (test lokal ada, CI belum) |
+| T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Selesai (CI di PR C) |
 | R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Selesai (PR) |
 | R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Selesai (PR) |
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Selesai (PR) |
@@ -34,7 +34,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R6 | Template & galeri | 6 template, halaman `/templates` | Sedang–besar | Selesai (PR) |
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Selesai (PR) |
 | R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Selesai (PR) |
-| C | Bersih-bersih repo | Scaffold root, `dist/`, `.d.ts` palsu, README | Sedang | Belum |
+| C | Bersih-bersih repo | Scaffold root, `dist/`, `.d.ts` palsu, README | Sedang | Selesai (PR) |
 
 Kenapa urutannya begini:
 
@@ -91,7 +91,7 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 
 - [ ] Unit test `format.ts` dan `normalize.ts`, plus fixture migrasi data lama
 - [x] Test ekstraksi teks PDF untuk tiap template (nama non-Latin, urutan baca, link). Set CV contoh yang lebih lengkap menyusul.
-- [ ] GitHub Actions: type-check, test, build
+- [x] GitHub Actions: lint, type-check, test, build, smoke test
 
 ## R1. Design system & app shell (selesai)
 
@@ -255,10 +255,10 @@ Deterministik, tanpa AI, berjalan di browser.
 
 ## C. Bersih-bersih repo
 
-- [ ] Hapus scaffold bolt.new di root: `app/`, `components/`, `hooks/`, `lib/`, `next.config.js`, `tailwind.config.ts`, `components.json`, `.bolt/`
-- [ ] Paket dipakai langsung dari source: hapus `dist/` yang di-commit dan `.d.ts` buatan tangan, termasuk `apps/web/declarations.d.ts`
-- [ ] Tulis ulang README dan aktifkan ESLint saat build
-- [ ] Visual regression dengan Playwright
+- [x] Hapus scaffold bolt.new di root: `app/`, `components/`, `hooks/`, `lib/`, `next.config.js`, `tailwind.config.ts`, `postcss.config.js`, `components.json`, `.bolt/`, `schemas/`, `turbo.json`, `tsconfig.json`
+- [x] Hapus `packages/` (types dan ui tidak dipakai; dua validator utils pindah ke `apps/web/lib/validation.ts`), termasuk `dist/` dan `apps/web/declarations.d.ts`. Repo jadi satu app Next.js di npm workspace, tanpa Turbo.
+- [x] Tulis ulang README; ESLint CLI (`eslint . --max-warnings 0`) dan lint aktif saat build
+- [x] Uji visual tanpa screenshot piksel: snapshot posisi teks PDF per template (`lib/cv/pdf/__snapshots__`) dan smoke test Playwright (landing → editor, ekspor PDF, dashboard)
 
 ## Sengaja belum dibuat
 

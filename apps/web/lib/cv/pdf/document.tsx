@@ -1,4 +1,5 @@
-import { Document, Image, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+// Renamed: lint's alt-text rule targets next/image, but react-pdf's Image draws a PDF image and has no alt.
+import { Document, Image as PdfImage, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Fragment, type ReactNode } from 'react';
 import { orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from '../format';
 import type { TemplateId } from '../templates';
@@ -158,7 +159,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
           </View>
         ) : null}
         </View>
-        {view.photo ? <Image src={view.photo} style={s.photo} /> : null}
+        {view.photo ? <PdfImage src={view.photo} style={s.photo} /> : null}
       </View>
     );
   }
@@ -167,7 +168,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
   const align = centered ? 'center' : 'left';
   return (
     <View style={centered ? [s.header, s.headerCentered] : [s.header, s.headerRow]}>
-      {centered && view.photo ? <Image src={view.photo} style={s.photoCentered} /> : null}
+      {centered && view.photo ? <PdfImage src={view.photo} style={s.photoCentered} /> : null}
       <View style={centered ? { alignItems: 'center' } : s.headerText}>
       {view.name ? <Text style={[s.name, { textAlign: align }]}>{view.name}</Text> : null}
       {view.headline ? (
@@ -181,7 +182,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
         </View>
       ) : null}
       </View>
-      {!centered && view.photo ? <Image src={view.photo} style={s.photo} /> : null}
+      {!centered && view.photo ? <PdfImage src={view.photo} style={s.photo} /> : null}
     </View>
   );
 }
