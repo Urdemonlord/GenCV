@@ -1,10 +1,27 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ds';
-import { TEMPLATE_IDS } from '@/lib/cv/templates';
+import { Button, Chip } from '@/components/ds';
+import { TEMPLATE_IDS, TEMPLATE_INFO, type TemplateId } from '@/lib/cv/templates';
 
-const TEMPLATE_NAMES = { modern: 'Modern', classic: 'Classic', creative: 'Creative' } as const;
+const FEATURED: TemplateId[] = ['professional', 'tech', 'creative'];
+
+export function TemplateCard({ id }: { id: TemplateId }) {
+  return (
+    <figure>
+      <div className="overflow-hidden rounded-lg ring-1 ring-white/10 transition-transform hover:-translate-y-1">
+        <Image src={`/previews/${id}.webp`} alt={`Contoh CV dengan template ${TEMPLATE_INFO[id].name}`} width={893} height={1263} className="h-auto w-full" />
+      </div>
+      <figcaption className="mt-3">
+        <span className="flex items-center gap-2 text-sm font-semibold">
+          {TEMPLATE_INFO[id].name}
+          <Chip tone="success">Ramah ATS</Chip>
+        </span>
+        <span className="mt-1 block text-sm text-muted-foreground">{TEMPLATE_INFO[id].description}</span>
+      </figcaption>
+    </figure>
+  );
+}
 
 export function TemplatesShowcase() {
   return (
@@ -18,18 +35,13 @@ export function TemplatesShowcase() {
             </p>
           </div>
           <Button asChild variant="outline">
-            <Link href="/templates">Semua template</Link>
+            <Link href="/templates">Semua {TEMPLATE_IDS.length} template</Link>
           </Button>
         </div>
         <ul className="mt-10 grid gap-6 sm:grid-cols-3">
-          {TEMPLATE_IDS.map((id) => (
+          {FEATURED.map((id) => (
             <li key={id}>
-              <figure>
-                <div className="overflow-hidden rounded-lg ring-1 ring-white/10 transition-transform hover:-translate-y-1">
-                  <Image src={`/previews/${id}.webp`} alt={`Template ${TEMPLATE_NAMES[id]}`} width={893} height={1263} className="h-auto w-full" />
-                </div>
-                <figcaption className="mt-3 text-sm font-medium">{TEMPLATE_NAMES[id]}</figcaption>
-              </figure>
+              <TemplateCard id={id} />
             </li>
           ))}
         </ul>

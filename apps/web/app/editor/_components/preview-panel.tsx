@@ -6,18 +6,14 @@ import { cn } from '@/lib/cn';
 import type { CvAnalysis } from '@/lib/cv/analysis/analyze';
 import { buildCvView } from '@/lib/cv/format';
 import type { CV } from '@/lib/cv/schema';
-import { TEMPLATE_IDS, type TemplateId } from '@/lib/cv/templates';
+import { recommendTemplate, TEMPLATE_IDS, TEMPLATE_INFO } from '@/lib/cv/templates';
+import { Chip } from '@/components/ds';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
 import { AnalysisPanel } from './analysis-panel';
 import { PdfPreview } from './pdf-preview';
 
 export type PreviewTab = 'preview' | 'analysis' | 'template';
 
-const TEMPLATE_INFO: Record<TemplateId, { name: string; text: string; swatch: string }> = {
-  modern: { name: 'Modern', text: 'Sans-serif, aksen biru. Cocok untuk sebagian besar posisi.', swatch: 'border-t-4 border-t-blue-700' },
-  classic: { name: 'Classic', text: 'Serif, rata tengah. Formal untuk korporat, hukum, akademik.', swatch: 'border-t-2 border-t-gray-900' },
-  creative: { name: 'Creative', text: 'Header berwarna. Untuk desain, marketing, startup.', swatch: 'border-t-[18px] border-t-violet-700' },
-};
 
 interface PreviewPanelProps {
   cv: CV;
@@ -70,6 +66,7 @@ export function PreviewPanel({ cv, update, analysis, tab, onTabChange, onOpenJob
               Semua template satu kolom dengan teks asli, jadi tetap terbaca ATS. Bedanya hanya tampilan.
             </legend>
             {TEMPLATE_IDS.map((id) => {
+              const recommended = recommendTemplate(cv.personalInfo.headline, cv.experienceLevel);
               const selected = cv.settings.template === id;
               return (
                 <label
@@ -86,10 +83,14 @@ export function PreviewPanel({ cv, update, analysis, tab, onTabChange, onOpenJob
                     checked={selected}
                     onChange={() => update((p) => ({ ...p, settings: { ...p.settings, template: id } }))}
                   />
-                  <span aria-hidden="true" className={cn('h-16 w-12 shrink-0 rounded-sm border border-border bg-white', TEMPLATE_INFO[id].swatch)} />
+                  {/* eslint-disable-next-line @next/next/no-img-element -- static preview thumbnail */}
+                  <img src={`/previews/${id}.webp`} alt="" width={60} height={85} className="h-[85px] w-[60px] shrink-0 rounded-sm bg-white object-cover object-top ring-1 ring-border" />
                   <span>
-                    <span className="block font-semibold text-foreground">{TEMPLATE_INFO[id].name}</span>
-                    <span className="block text-sm text-muted-foreground">{TEMPLATE_INFO[id].text}</span>
+                    <span className="flex flex-wrap items-center gap-2 font-semibold text-foreground">
+                      {TEMPLATE_INFO[id].name}
+                      {id === recommended && <Chip tone="primary">Direkomendasikan</Chip>}
+                    </span>
+                    <span className="block text-sm text-muted-foreground">{TEMPLATE_INFO[id].description}</span>
                   </span>
                 </label>
               );

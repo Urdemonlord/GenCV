@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TEMPLATE_IDS } from './templates';
+import { toTemplateId } from './templates';
 
 /**
  * CV data model v2: the single source of truth for the editor and every exporter.
@@ -31,7 +31,8 @@ export const settingsSchema = z.object({
   region: z.enum(CV_REGIONS).catch('id'),
   /** Photos are common in Indonesia but avoided for US applications and ignored by ATS. */
   showPhoto: z.boolean().catch(false),
-  template: z.enum(TEMPLATE_IDS).catch('modern'),
+  // Maps the old 'modern'/'classic' ids and anything unknown to a current template.
+  template: z.unknown().transform(toTemplateId),
 });
 
 export const personalInfoSchema = z.object({

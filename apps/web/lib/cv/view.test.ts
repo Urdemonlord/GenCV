@@ -80,6 +80,6 @@ describe('v1 → v2 migration', () => {
     expect(cv.projects[0].bullets).toEqual(['Single line summary.']);
     expect(cv.skills.map((s) => s.name)).toEqual(['Go']);
     expect(cv.languages).toMatchObject([{ name: 'English', level: 'C2' }]);
-    expect(cv.settings).toEqual({ language: 'en', region: 'id', showPhoto: false, template: 'modern' });
+    expect(cv.settings).toEqual({ language: 'en', region: 'id', showPhoto: false, template: 'professional' });
   });
 });

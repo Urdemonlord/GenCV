@@ -12,7 +12,7 @@ import {
   TabStopType,
   TextRun,
 } from 'docx';
-import { buildCvView, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
+import { buildCvView, orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
 import type { CV } from './schema';
 import type { TemplateId } from './templates';
 
@@ -29,8 +29,11 @@ interface DocxTheme {
 }
 
 const THEMES: Record<TemplateId, DocxTheme> = {
-  modern: { font: 'Calibri', accent: '1D4ED8', muted: '4B5563', centered: false },
-  classic: { font: 'Georgia', accent: '111827', muted: '374151', centered: true },
+  professional: { font: 'Calibri', accent: '1D4ED8', muted: '4B5563', centered: false },
+  minimal: { font: 'Calibri', accent: '374151', muted: '4B5563', centered: false },
+  executive: { font: 'Georgia', accent: '111827', muted: '374151', centered: true },
+  tech: { font: 'Calibri', accent: '0F766E', muted: '4B5563', centered: false },
+  academic: { font: 'Georgia', accent: '1E3A8A', muted: '374151', centered: false },
   creative: { font: 'Calibri', accent: '6D28D9', muted: '4B5563', centered: false },
 };
 
@@ -188,7 +191,7 @@ export async function renderCvDocx(data: CV, template: TemplateId): Promise<Blob
             margin: { top: MARGIN.y, bottom: MARGIN.y, left: MARGIN.x, right: MARGIN.x },
           },
         },
-        children: [...headerParagraphs(view, theme), ...view.sections.flatMap((section) => sectionParagraphs(section, theme, contentWidth))],
+        children: [...headerParagraphs(view, theme), ...orderSectionsForTemplate(view.sections, template).flatMap((section) => sectionParagraphs(section, theme, contentWidth))],
       },
     ],
   });

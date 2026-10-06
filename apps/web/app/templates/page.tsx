@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { SiteFooter, TemplatesShowcase } from '../components/landing/sections';
+import { SiteFooter } from '../components/landing/sections';
 import { SiteHeader } from '../components/landing/site-header';
+import { TemplateGallery } from './template-gallery';
 
 export const metadata: Metadata = {
   title: 'Template CV ramah ATS · GenCV',
@@ -12,7 +13,7 @@ export default function TemplatesPage() {
     <>
       <SiteHeader />
       <main>
-        <TemplatesShowcase />
+        <TemplateGallery />
       </main>
       <SiteFooter />
     </>
