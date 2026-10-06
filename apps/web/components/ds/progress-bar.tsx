@@ -8,7 +8,7 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, label, tone = 'brand', className }: ProgressBarProps) {
-  const clamped = Math.max(0, Math.min(100, Math.round(value)));
+  const clamped = Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 0;
   return (
     <div
       role="progressbar"

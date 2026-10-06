@@ -58,7 +58,10 @@ describe.each(TEMPLATE_IDS)('%s template', (template) => {
     expect(text).toContain('Kubernetes-based');
     expect(text).not.toContain('[object Object]');
     // Most recent role is read before the older one.
-    expect(text.indexOf('Senior Data Analyst Mar 2021')).toBeLessThan(text.indexOf('Startup'));
+    const recent = text.indexOf('Senior Data Analyst Mar 2021');
+    const older = text.indexOf('Startup');
+    expect(recent).toBeGreaterThanOrEqual(0);
+    expect(older).toBeGreaterThan(recent);
     expect(links).toEqual(expect.arrayContaining(['mailto:anh@example.com', 'https://linkedin.com/in/anh']));
   });
 });

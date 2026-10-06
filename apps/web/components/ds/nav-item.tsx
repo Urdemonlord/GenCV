@@ -19,7 +19,7 @@ export function NavItem({ icon, active, trailing, className, children, ...props 
       )}
       {...props}
     >
-      {icon && <span className={active ? 'text-primary' : undefined}>{icon}</span>}
+      {icon && <span className={active ? 'text-primary-soft' : undefined}>{icon}</span>}
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {trailing}
     </button>

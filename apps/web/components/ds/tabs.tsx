@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 interface TabsProps<T extends string> {
@@ -8,13 +8,18 @@ interface TabsProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   label: string;
+  /**
+   * Id of the element whose content the tabs switch. With it the component is a real
+   * tablist (tabs reference the panel); without it, it is a segmented control of toggle
+   * buttons, which is the right semantics when the selection only changes a setting.
+   */
+  panelId?: string;
   className?: string;
 }
 
-/** Accessible tab list; arrow keys move between tabs. */
-export function Tabs<T extends string>({ tabs, value, onChange, label, className }: TabsProps<T>) {
-  const id = useId();
+export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, className }: TabsProps<T>) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const isTablist = Boolean(panelId);
 
   const onKeyDown = (event: KeyboardEvent, index: number) => {
     const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
@@ -26,7 +31,11 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, className
   };
 
   return (
-    <div role="tablist" aria-label={label} className={cn('inline-flex gap-1 rounded-lg bg-background/60 p-1', className)}>
+    <div
+      role={isTablist ? 'tablist' : 'group'}
+      aria-label={label}
+      className={cn('inline-flex gap-1 rounded-lg bg-background/60 p-1', className)}
+    >
       {tabs.map((tab, index) => {
         const selected = tab.value === value;
         return (
@@ -36,12 +45,11 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, className
               refs.current[index] = node;
             }}
             type="button"
-            role="tab"
-            id={`${id}-${tab.value}`}
-            aria-selected={selected}
-            tabIndex={selected ? 0 : -1}
+            {...(isTablist
+              ? { role: 'tab', 'aria-selected': selected, 'aria-controls': panelId, tabIndex: selected ? 0 : -1 }
+              : { 'aria-pressed': selected })}
             onClick={() => onChange(tab.value)}
-            onKeyDown={(event) => onKeyDown(event, index)}
+            onKeyDown={isTablist ? (event) => onKeyDown(event, index) : undefined}
             className={cn(
               'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
               selected ? 'bg-surface-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'

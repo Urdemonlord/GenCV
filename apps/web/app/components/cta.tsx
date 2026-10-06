@@ -12,7 +12,7 @@ export default function CTA() {
         <Button
           asChild
           size="lg"
-          className="mt-8 bg-surface text-brand-accent hover:bg-accent"
+          className="mt-8 bg-surface text-brand-accent-soft hover:bg-accent"
         >
           <Link href="/builder">Get Started</Link>
         </Button>

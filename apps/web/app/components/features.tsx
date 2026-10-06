@@ -37,7 +37,7 @@ export default function Features() {
           {features.map((feature, index) => (
             <Card key={index} className="text-center">
               <CardHeader>
-                <feature.icon className="w-10 h-10 mx-auto text-brand-accent" />
+                <feature.icon className="w-10 h-10 mx-auto text-brand-accent-soft" />
                 <CardTitle className="mt-4 text-xl">{feature.title}</CardTitle>
                 <CardDescription>{feature.description}</CardDescription>
               </CardHeader>

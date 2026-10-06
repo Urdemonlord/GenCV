@@ -17,7 +17,7 @@ export function PanelHeader({ title, description, icon, action, className }: Pan
   return (
     <header className={cn('flex items-start gap-3 p-4 sm:p-5', className)}>
       {icon && (
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary [&_svg]:size-4">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary-soft [&_svg]:size-4">
           {icon}
         </span>
       )}

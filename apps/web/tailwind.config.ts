@@ -24,7 +24,10 @@ const config: Config = {
           DEFAULT: 'hsl(var(--surface))',
           raised: 'hsl(var(--surface-raised))',
         },
-        'brand-accent': 'hsl(var(--brand-accent))',
+        'brand-accent': {
+          DEFAULT: 'hsl(var(--brand-accent))',
+          soft: 'hsl(var(--brand-accent-soft))',
+        },
         success: 'hsl(var(--success))',
         warning: 'hsl(var(--warning))',
         background: 'hsl(var(--background))',
@@ -39,6 +42,7 @@ const config: Config = {
         },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
+          soft: 'hsl(var(--primary-soft))',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
