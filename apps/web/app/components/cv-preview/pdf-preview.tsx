@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { CVData } from '@cv-generator/types';
+import type { CV } from '@/lib/cv/schema';
 import type { TemplateId } from '@/lib/cv/templates';
 
 type PdfJs = typeof import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -33,7 +33,7 @@ const RENDER_DELAY_MS = 400;
  * Renders the exact PDF that will be downloaded (react-pdf output drawn by pdf.js),
  * so page breaks and page count match the file. Works on mobile, unlike <iframe> PDFs.
  */
-export function PdfPreview({ data, template }: { data: CVData; template: TemplateId }) {
+export function PdfPreview({ data, template }: { data: CV; template: TemplateId }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -143,7 +143,7 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
       ) : (
         pageCount > 0 && (
           <p className="text-xs text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · A4 · exactly what you will download
+            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · {data.settings.region === 'us' ? 'US Letter' : 'A4'} · exactly what you will download
           </p>
         )
       )}

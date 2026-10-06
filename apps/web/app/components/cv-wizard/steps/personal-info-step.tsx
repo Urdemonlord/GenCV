@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Briefcase, Mail, Phone, MapPin, Linkedin, Globe, Plus, X } from 'lucide-react';
-import { CVData, Skill } from '@cv-generator/types';
+import { User, Briefcase, Mail, Phone, MapPin, Linkedin, Globe, Github, Plus, X } from 'lucide-react';
+import { CV, Skill } from '@/lib/cv/schema';
 import { Button, Input, Card, CardContent, Badge } from '@cv-generator/ui';
 import { validateEmail, validatePhone, generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
+import { PhotoInput } from '../photo-input';
 
 export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isFirst }: StepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -18,7 +19,7 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
     'Communication', 'Team Leadership', 'Problem Solving', 'Project Management'
   ];
 
-  const handleChange = (field: keyof CVData['personalInfo'], value: string) => {
+  const handleChange = (field: keyof CV['personalInfo'], value: string) => {
     onDataChange((previous) => ({
       ...previous,
       personalInfo: {
@@ -212,7 +213,35 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 placeholder="johndoe.com"
               />
             </div>
-          </div>        </CardContent>
+
+            <div>
+              <label htmlFor="cv-github" className="block text-sm font-medium mb-1">
+                <Github className="inline w-4 h-4 mr-1" />
+                GitHub / Portfolio (Optional)
+              </label>
+              <Input
+                id="cv-github"
+                value={cvData.personalInfo.github}
+                onChange={(e) => handleChange('github', e.target.value)}
+                placeholder="github.com/username"
+              />
+            </div>
+          </div>
+          <div className="border-t border-border pt-4">
+            <PhotoInput
+              photo={cvData.personalInfo.photo}
+              showPhoto={cvData.settings.showPhoto}
+              disabledReason={cvData.settings.region === 'us' ? 'Photos are left off CVs for US applications.' : undefined}
+              onChange={({ photo, showPhoto }) =>
+                onDataChange((previous) => ({
+                  ...previous,
+                  personalInfo: photo === undefined ? previous.personalInfo : { ...previous.personalInfo, photo },
+                  settings: showPhoto === undefined ? previous.settings : { ...previous.settings, showPhoto },
+                }))
+              }
+            />
+          </div>
+        </CardContent>
       </Card>
 
       {/* Quick Skills Addition */}

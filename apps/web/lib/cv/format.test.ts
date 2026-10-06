@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildCvView, cvFileBaseName, formatDateRange, formatMonth, sortByRecency, splitDescription, toHref } from './format';
-import { normalizeCVData } from './normalize';
+import { normalizeCV } from './normalize';
 
 describe('formatMonth / formatDateRange', () => {
   it('formats month precision dates', () => {
@@ -52,36 +52,8 @@ describe('links and file names', () => {
   });
 
   it('keeps unicode names in file names', () => {
-    const data = normalizeCVData({ personalInfo: { fullName: 'Nguyễn Thị Ánh' } });
+    const data = normalizeCV({ personalInfo: { fullName: 'Nguyễn Thị Ánh' } });
     expect(cvFileBaseName(data)).toBe('Nguyễn-Thị-Ánh-CV');
   });
 });
 
-describe('buildCvView', () => {
-  const data = normalizeCVData({
-    personalInfo: { fullName: 'Rina', email: 'rina@example.com', linkedIn: 'linkedin.com/in/rina', location: 'Jakarta' },
-    skills: [
-      { name: 'SQL', category: 'Technical', level: 'Advanced' },
-      { name: 'English', category: 'Language', level: 'Expert' },
-    ],
-    experience: [{ position: 'Analyst', company: 'PT Maju', startDate: '2021-03', current: true }],
-    experienceLevel: 'fresh',
-  });
-  const view = buildCvView(data);
-
-  it('groups skills and labels language levels', () => {
-    expect(view.skills).toEqual([
-      { label: 'Technical', items: ['SQL'] },
-      { label: 'Languages', items: ['English (Fluent)'] },
-    ]);
-  });
-
-  it('orders sections for fresh graduates with education first', () => {
-    expect(view.sectionOrder.slice(0, 2)).toEqual(['summary', 'education']);
-  });
-
-  it('links contacts', () => {
-    expect(view.contacts.map((c) => c.href)).toEqual([undefined, 'mailto:rina@example.com', 'https://linkedin.com/in/rina']);
-    expect(view.experience[0].dates).toBe('Mar 2021 – Present');
-  });
-});

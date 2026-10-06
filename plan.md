@@ -27,7 +27,7 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | 0.5 | Next 15 + React 19 | Upgrade framework, tutup advisory | Sedang | Selesai (PR) |
 | T | Jaring pengaman | Unit test `lib/cv`, test ekstraksi PDF, CI | Kecil | Sebagian (test lokal ada, CI belum) |
 | R1 | Design system & shell | Token warna, font, komponen dasar | Sedang | Selesai (PR) |
-| R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Belum |
+| R2 | Model data v2 | Schema zod, bullets, section baru, bahasa CV, foto opsional | Besar | Selesai (PR) |
 | R3 | Editor workspace | Layout 4 kolom, form baru, preview, export | Besar | Belum |
 | R4 | Analisis ATS & Job Match | Skor dan keyword match tanpa AI | Sedang | Belum |
 | R5 | Landing page | Hero, section fitur, visual produk asli | Sedang | Belum |
@@ -122,22 +122,28 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 - [x] Hapus kelas lama (`glass-card`, `gradient-text`, dll.); semua halaman memakai token
 - Komponen ada di `apps/web/components/ds/`. Halaman yang ada baru dipindah ke token; layout editor (R3) dan landing (R5) memakai komponen ini.
 
-## R2. Model data v2
+## R2. Model data v2 (selesai)
 
-- [ ] Schema zod plus field `version`. Data v1 dimigrasi otomatis, dengan `normalizeCVData` sebagai dasarnya.
-- [ ] `experience` dan `projects` memakai `bullets[]`. Teks lama dipecah lewat `splitDescription`.
-- [ ] Section baru:
+- [x] Schema zod plus field `version`. Data v1 dimigrasi otomatis, dengan `normalizeCVData` sebagai dasarnya.
+- [x] `experience` dan `projects` memakai `bullets[]`. Teks lama dipecah lewat `splitDescription`.
+- [x] Section baru:
   - Sertifikasi: nama, penerbit, tanggal, URL kredensial
   - Bahasa: nama dan level CEFR A1–C2 / Native
   - Tambahan: penghargaan, volunteering, organisasi, publikasi
-- [ ] Kontak ditambah GitHub/portfolio
-- [ ] Pengaturan CV:
+- [x] Kontak ditambah GitHub/portfolio
+- [x] Pengaturan CV:
   - **Bahasa isi:** English atau Bahasa Indonesia. Heading dan kata waktu ikut berubah ("Present"/"Sekarang").
-  - **Preset region:** Indonesia, US, atau UK/EU. Preset menentukan ukuran kertas (Letter/A4), target jumlah halaman, dan aturan foto.
-- [ ] Foto opsional:
+  - **Preset region:** Indonesia (A4) atau US (Letter). Preset UK/EU belum ada (lihat catatan di bawah).
+- [x] Foto opsional:
   - Di-resize di browser ke ≤512 px; input JPG/PNG maksimal 2 MB
-  - Mati secara default untuk preset US dan UK/EU
-- [ ] PDF dan DOCX me-render semua section dan pengaturan baru
+  - Selalu disembunyikan untuk preset US; untuk Indonesia, upload pertama otomatis tampil dan bisa dimatikan
+- [x] PDF dan DOCX me-render semua section dan pengaturan baru
+
+Catatan:
+- Schema ada di `apps/web/lib/cv/schema.ts` (zod, app-local). `packages/types` hanya dipakai sebagai format input migrasi.
+- Region yang tersedia sekarang Indonesia dan US; UK/EU menyusul.
+- Judul section di template Classic tidak memakai letter spacing. Dengan kerning Source Serif, teksnya terekstrak terpotong ("SERTIFIK ASI").
+- zod menambah ~17 kB di first load `/builder`. Kalau perlu, bisa diganti `zod/mini`.
 
 ## R3. Editor workspace
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Calendar, GraduationCap, BookOpen } from 'lucide-react';
-import { CVData, Education } from '@cv-generator/types';
+import { CV, Education } from '@/lib/cv/schema';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@cv-generator/ui';
 import { generateId } from '@cv-generator/utils';
 import { StepProps } from '../types';
@@ -20,6 +20,8 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
       startDate: '',
       endDate: '',
       gpa: '',
+      location: '',
+      honors: '',
     };
 
     onDataChange((previous) => ({
@@ -130,6 +132,26 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
                       value={edu.gpa || ''}
                       onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
                       placeholder="3.8/4.0"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor={`${edu.id}-location`} className="block text-sm font-medium mb-1">Location (Optional)</label>
+                    <Input
+                      id={`${edu.id}-location`}
+                      value={edu.location}
+                      onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
+                      placeholder="City, Country"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor={`${edu.id}-honors`} className="block text-sm font-medium mb-1">Honors (Optional)</label>
+                    <Input
+                      id={`${edu.id}-honors`}
+                      value={edu.honors}
+                      onChange={(e) => updateEducation(edu.id, 'honors', e.target.value)}
+                      placeholder="Cum laude, Dean's List"
                     />
                   </div>
 
