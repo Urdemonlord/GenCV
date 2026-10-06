@@ -143,7 +143,7 @@ export function PdfPreview({ data, template }: { data: CV; template: TemplateId 
       ) : (
         pageCount > 0 && (
           <p className="text-xs text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · A4 · exactly what you will download
+            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · {data.settings.region === 'us' ? 'US Letter' : 'A4'} · exactly what you will download
           </p>
         )
       )}

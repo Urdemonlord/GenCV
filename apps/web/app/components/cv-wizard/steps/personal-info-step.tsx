@@ -215,11 +215,12 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="cv-github" className="block text-sm font-medium mb-1">
                 <Github className="inline w-4 h-4 mr-1" />
                 GitHub / Portfolio (Optional)
               </label>
               <Input
+                id="cv-github"
                 value={cvData.personalInfo.github}
                 onChange={(e) => handleChange('github', e.target.value)}
                 placeholder="github.com/username"

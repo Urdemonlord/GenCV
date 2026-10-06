@@ -89,7 +89,8 @@ export function ExperienceLevelStep({ cvData, onDataChange, onNext }: StepProps)
               value={cvData.settings.region}
               onChange={(event) => {
                 const region = event.target.value as CvRegion;
-                updateSettings(region === 'us' ? { region, showPhoto: false } : { region });
+                // Keep the photo preference: the exporters already leave photos off US CVs.
+                updateSettings({ region });
               }}
             >
               <option value="id">Indonesia</option>

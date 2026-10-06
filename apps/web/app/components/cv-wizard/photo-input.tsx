@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { ImageUp, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ds';
 
@@ -17,6 +17,9 @@ async function toSquareJpeg(file: File): Promise<string> {
   canvas.height = size;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas is not supported');
+  // JPEG has no alpha: paint white first so transparent PNGs don't turn black.
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, size, size);
   context.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, size, size);
   bitmap.close();
   return canvas.toDataURL('image/jpeg', 0.85);
@@ -33,16 +36,22 @@ interface PhotoInputProps {
 export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: PhotoInputProps) {
   const inputId = useId();
   const [error, setError] = useState('');
+  // Conversions are async; only the most recent selection (or removal) may win.
+  const latestRequest = useRef(0);
 
   const handleFile = async (file: File | undefined) => {
     setError('');
+    const request = ++latestRequest.current;
     if (!file) return;
     if (!['image/jpeg', 'image/png'].includes(file.type)) return setError('Use a JPG or PNG image.');
     if (file.size > MAX_BYTES) return setError('The image must be 2 MB or smaller.');
     try {
-      onChange({ photo: await toSquareJpeg(file), showPhoto: !disabledReason });
+      const converted = await toSquareJpeg(file);
+      if (request !== latestRequest.current) return;
+      // Default to showing the first upload; a replacement keeps the user's choice.
+      onChange(photo ? { photo: converted } : { photo: converted, showPhoto: !disabledReason });
     } catch {
-      setError('This image could not be read.');
+      if (request === latestRequest.current) setError('This image could not be read.');
     }
   };
 
@@ -64,7 +73,10 @@ export function PhotoInput({ photo, showPhoto, disabledReason, onChange }: Photo
             </label>
           </Button>
           {photo && (
-            <Button variant="ghost" size="sm" onClick={() => onChange({ photo: '', showPhoto: false })}>
+            <Button variant="ghost" size="sm" onClick={() => {
+                latestRequest.current += 1;
+                onChange({ photo: '', showPhoto: false });
+              }}>
               <Trash2 aria-hidden="true" />
               Remove
             </Button>

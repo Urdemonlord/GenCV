@@ -133,10 +133,10 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 - [x] Kontak ditambah GitHub/portfolio
 - [x] Pengaturan CV:
   - **Bahasa isi:** English atau Bahasa Indonesia. Heading dan kata waktu ikut berubah ("Present"/"Sekarang").
-  - **Preset region:** Indonesia, US, atau UK/EU. Preset menentukan ukuran kertas (Letter/A4), target jumlah halaman, dan aturan foto.
+  - **Preset region:** Indonesia (A4) atau US (Letter). Preset UK/EU belum ada (lihat catatan di bawah).
 - [x] Foto opsional:
   - Di-resize di browser ke ≤512 px; input JPG/PNG maksimal 2 MB
-  - Mati secara default untuk preset US dan UK/EU
+  - Selalu disembunyikan untuk preset US; untuk Indonesia, upload pertama otomatis tampil dan bisa dimatikan
 - [x] PDF dan DOCX me-render semua section dan pengaturan baru
 
 Catatan:

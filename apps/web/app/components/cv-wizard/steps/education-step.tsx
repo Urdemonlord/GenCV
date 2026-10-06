@@ -136,8 +136,9 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Location (Optional)</label>
+                    <label htmlFor={`${edu.id}-location`} className="block text-sm font-medium mb-1">Location (Optional)</label>
                     <Input
+                      id={`${edu.id}-location`}
                       value={edu.location}
                       onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
                       placeholder="City, Country"
@@ -145,8 +146,9 @@ export function EducationStep({ cvData, onDataChange, onNext, onPrevious, isFirs
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Honors (Optional)</label>
+                    <label htmlFor={`${edu.id}-honors`} className="block text-sm font-medium mb-1">Honors (Optional)</label>
                     <Input
+                      id={`${edu.id}-honors`}
                       value={edu.honors}
                       onChange={(e) => updateEducation(edu.id, 'honors', e.target.value)}
                       placeholder="Cum laude, Dean's List"
