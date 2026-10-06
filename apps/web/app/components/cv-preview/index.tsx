@@ -7,6 +7,7 @@ import { Button, Card, CardContent, Progress } from '@cv-generator/ui';
 import { calculateCVScore } from '@cv-generator/utils';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCvPdf } from '@/lib/cv/download';
+import { buildCvView } from '@/lib/cv/format';
 import { toTemplateId } from '@/lib/cv/templates';
 import { PdfPreview } from './pdf-preview';
 
@@ -21,7 +22,11 @@ export function CVPreview({ cvData, template }: CVPreviewProps) {
   const [downloading, setDownloading] = useState(false);
   const { toast } = useToast();
   const cvScore = calculateCVScore(cvData);
-  const hasContent = cvData.personalInfo.fullName.trim() !== '';
+  // Preview anything the user has entered, not only CVs that already have a name.
+  const view = buildCvView(cvData);
+  const hasContent = Boolean(
+    view.name || view.summary || view.experience.length || view.education.length || view.skills.length || view.projects.length
+  );
 
   const handleDownload = async () => {
     setDownloading(true);

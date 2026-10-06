@@ -64,7 +64,7 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
           .promise;
         try {
           const ratio = window.devicePixelRatio || 1;
-          const canvases: HTMLCanvasElement[] = [];
+          const pages: HTMLElement[] = [];
           for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber++) {
             const page = await doc.getPage(pageNumber);
             const viewport = page.getViewport({ scale: width / page.getViewport({ scale: 1 }).width });
@@ -74,7 +74,7 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
             canvas.style.width = `${Math.floor(viewport.width)}px`;
             canvas.style.height = `${Math.floor(viewport.height)}px`;
             canvas.className = 'block bg-white shadow-md ring-1 ring-black/5';
-            canvas.setAttribute('aria-label', `CV page ${pageNumber} of ${doc.numPages}`);
+            canvas.setAttribute('aria-hidden', 'true');
             const context = canvas.getContext('2d');
             if (!context) throw new Error('Canvas is not supported in this browser');
             await page.render({
@@ -83,10 +83,18 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
               transform: ratio === 1 ? undefined : [ratio, 0, 0, ratio, 0, 0],
             }).promise;
             if (cancelled) return;
-            canvases.push(canvas);
+            // The canvas is just pixels; screen readers get the page text instead.
+            const text = (await page.getTextContent()).items.map((item) => ('str' in item ? item.str : '')).join(' ');
+            const figure = document.createElement('figure');
+            figure.setAttribute('aria-label', `CV page ${pageNumber} of ${doc.numPages}`);
+            const caption = document.createElement('figcaption');
+            caption.className = 'sr-only';
+            caption.textContent = text;
+            figure.append(canvas, caption);
+            pages.push(figure);
           }
           // Swap all pages at once so the preview never flashes empty while typing.
-          pagesRef.current?.replaceChildren(...canvases);
+          pagesRef.current?.replaceChildren(...pages);
           setPageCount(doc.numPages);
           setError('');
         } finally {
@@ -95,6 +103,9 @@ export function PdfPreview({ data, template }: { data: CVData; template: Templat
       } catch (err) {
         if (cancelled) return;
         console.error('PDF preview failed:', err);
+        // Never leave an older render on screen: it would no longer match the data.
+        pagesRef.current?.replaceChildren();
+        setPageCount(0);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         if (!cancelled) setRendering(false);

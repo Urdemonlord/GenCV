@@ -124,11 +124,12 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="cv-headline" className="block text-sm font-medium mb-1">
                 <Briefcase className="inline w-4 h-4 mr-1" />
                 Professional Title (Optional)
               </label>
               <Input
+                id="cv-headline"
                 value={cvData.personalInfo.headline || ''}
                 onChange={(e) => handleChange('headline', e.target.value)}
                 placeholder="e.g. Data Analyst"
