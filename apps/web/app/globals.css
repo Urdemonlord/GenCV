@@ -5,7 +5,7 @@
 /*
  * GenCV design tokens (dark only). HSL channels so Tailwind can apply opacity.
  *   background #0B1020 · surface #111827 · border #253047 · text #F8FAFC · muted #94A3B8
- *   primary #6366F1 · accent #A855F7 · success #22C55E · warning #F59E0B · danger #EF4444
+ *   primary #4F46E5 (text on dark: #A5B4FC) · accent #A855F7 (text: #C084FC) · success #22C55E · warning #F59E0B · danger #EF4444
  * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
  */
 :root {
@@ -20,9 +20,12 @@
   --popover: var(--surface-raised);
   --popover-foreground: var(--foreground);
 
-  --primary: 239 84% 67%;
+  --primary: 243 75% 59%;
   --primary-foreground: 0 0% 100%;
   --brand-accent: 271 91% 65%;
+  /* Lighter variants for text on dark surfaces (WCAG AA: >= 4.5:1). */
+  --primary-soft: 230 94% 82%;
+  --brand-accent-soft: 270 95% 75%;
 
   --secondary: 222 33% 15%;
   --secondary-foreground: 210 40% 98%;
@@ -58,10 +61,11 @@
 
 @layer components {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-brand-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary-soft to-brand-accent-soft bg-clip-text text-transparent;
   }
+  /* Darker stops than the tokens so white labels stay above 4.5:1 across the gradient. */
   .bg-gradient-brand {
-    @apply bg-gradient-to-r from-primary to-brand-accent;
+    background-image: linear-gradient(to right, hsl(243 75% 59%), hsl(271 81% 56%));
   }
 }
 

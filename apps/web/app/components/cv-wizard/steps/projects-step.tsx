@@ -147,7 +147,7 @@ export function ProjectsStep({ cvData, onDataChange, onNext, onPrevious, isFirst
                       href={toHref(project.link)}
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="ml-2 text-primary hover:text-primary/80"
+                      className="ml-2 text-primary-soft hover:text-primary/80"
                     >
                       <ExternalLink className="w-4 h-4 inline" />
                     </a>

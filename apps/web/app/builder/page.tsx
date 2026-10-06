@@ -66,7 +66,7 @@ export default function BuilderPage() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <Link href="/" className="flex items-center gap-2 rounded-md text-xl font-bold tracking-tight">
-            <FileText className="size-5 text-primary" aria-hidden="true" />
+            <FileText className="size-5 text-primary-soft" aria-hidden="true" />
             <span>
               Gen<span className="text-gradient">CV</span>
             </span>
@@ -90,7 +90,7 @@ export default function BuilderPage() {
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           <Panel className="p-4 sm:p-6">
             <div className="mb-3 flex items-center gap-2 sm:mb-4">
-              <Sparkles className="size-5 text-primary" aria-hidden="true" />
+              <Sparkles className="size-5 text-primary-soft" aria-hidden="true" />
               <h2 className="text-lg font-semibold sm:text-xl">Create Your Professional CV</h2>
             </div>
             <p className="mb-4 text-sm text-muted-foreground sm:mb-6 sm:text-base">

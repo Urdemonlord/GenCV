@@ -180,7 +180,7 @@ export function ProfessionalSummaryStep({ cvData, onDataChange, onNext, onPrevio
               <li>• Include your career objectives</li>
             </ul>
             <div className="mt-3 p-3 bg-primary/15  rounded">
-              <p className="font-medium text-foreground/90  mb-1">Example:</p>              <p className="text-primary  text-xs italic">
+              <p className="font-medium text-foreground/90  mb-1">Example:</p>              <p className="text-primary-soft  text-xs italic">
                 &ldquo;Experienced software developer with 5+ years creating web applications using React, TypeScript, and Node.js. 
                 Passionate about building clean, maintainable code and optimizing application performance. 
                 Committed to delivering exceptional user experiences through innovative solutions.&rdquo;

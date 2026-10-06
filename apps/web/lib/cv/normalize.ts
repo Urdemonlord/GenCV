@@ -75,7 +75,13 @@ function migrate(raw: unknown): Rec {
       const item = asRecord(value);
       return {
         ...item,
-        technologies: typeof item.technologies === 'string' ? parseList(item.technologies) : item.technologies,
+        technologies:
+          typeof item.technologies === 'string'
+            ? parseList(item.technologies)
+            : asArray(item.technologies)
+                .filter((t): t is string => typeof t === 'string')
+                .map((t) => t.trim())
+                .filter(Boolean),
         startDate: normalizeMonth(item.startDate),
         endDate: normalizeMonth(item.endDate),
         bullets: toBullets(item),
@@ -103,6 +109,10 @@ export function normalizeCV(raw: unknown): CV {
   return cv;
 }
 
+const PERSONAL_FIELDS = ['fullName', 'email', 'phone', 'location', 'headline', 'linkedIn', 'website', 'github'];
+
+/** An import must contain at least one recognised personal field, so unrelated JSON never replaces the CV. */
 export function isCvLike(raw: unknown): boolean {
-  return Object.keys(asRecord(asRecord(raw).personalInfo)).length > 0;
+  const info = asRecord(asRecord(raw).personalInfo);
+  return PERSONAL_FIELDS.some((field) => asString(info[field]).trim() !== '');
 }

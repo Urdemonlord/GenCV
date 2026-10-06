@@ -28,7 +28,8 @@ interface FieldProps {
 export function Field({ label, hint, error, className, children }: FieldProps) {
   const id = useId();
   const messageId = `${id}-message`;
-  const message = error ?? hint;
+  // Treat falsy errors (e.g. `invalid && 'Required'`) as absent so the hint still shows.
+  const message = error || hint;
   return (
     <div className={cn('space-y-1.5', className)}>
       <label htmlFor={id} className="block text-sm font-medium text-foreground/90">

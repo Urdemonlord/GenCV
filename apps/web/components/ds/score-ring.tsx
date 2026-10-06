@@ -12,7 +12,7 @@ interface ScoreRingProps {
 /** Circular 0–100 score. Callers must pass a value computed from real data. */
 export function ScoreRing({ value, size = 96, label, caption, className }: ScoreRingProps) {
   const gradientId = useId();
-  const clamped = Math.max(0, Math.min(100, Math.round(value)));
+  const clamped = Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 0;
   const stroke = Math.max(6, size / 12);
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -42,7 +42,8 @@ export function ScoreRing({ value, size = 96, label, caption, className }: Score
           fill="none"
           stroke={`url(#${gradientId})`}
           strokeWidth={stroke}
-          strokeLinecap="round"
+          // A round cap on a zero-length arc would still paint a dot at 12 o'clock.
+          strokeLinecap={clamped === 0 ? 'butt' : 'round'}
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - clamped / 100)}
           className="transition-[stroke-dashoffset] duration-700"

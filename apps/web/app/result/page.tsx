@@ -122,21 +122,21 @@ export default function ResultPage() {
                 className={`border p-4 rounded cursor-pointer flex-shrink-0 ${selectedTemplate === 'modern' ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
                 onClick={() => setSelectedTemplate('modern')}
               >
-                <div className="h-20 w-32 bg-surface border border-border border-t-4 border-t-blue-700 rounded mb-2"></div>
+                <div className="h-20 w-32 bg-white border border-border border-t-4 border-t-blue-700 rounded mb-2"></div>
                 <p className="text-center text-sm">Modern</p>
               </div>
               <div
                 className={`border p-4 rounded cursor-pointer flex-shrink-0 ${selectedTemplate === 'classic' ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
                 onClick={() => setSelectedTemplate('classic')}
               >
-                <div className="h-20 w-32 bg-surface-raised border border-border rounded mb-2"></div>
+                <div className="h-20 w-32 bg-white border border-border border-t-2 border-t-gray-900 rounded mb-2"></div>
                 <p className="text-center text-sm">Classic</p>
               </div>
               <div
                 className={`border p-4 rounded cursor-pointer flex-shrink-0 ${selectedTemplate === 'creative' ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}
                 onClick={() => setSelectedTemplate('creative')}
               >
-                <div className="h-20 w-32 bg-surface border border-border border-t-[24px] border-t-violet-700 rounded mb-2"></div>
+                <div className="h-20 w-32 bg-white border border-border border-t-[24px] border-t-violet-700 rounded mb-2"></div>
                 <p className="text-center text-sm">Creative</p>
               </div>
             </div>
