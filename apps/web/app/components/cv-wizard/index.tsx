@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { CVData } from '@cv-generator/types';
 import { StepIndicator } from './step-indicator';
+import type { CVDataUpdate } from './types';
 import { ExperienceLevelStep } from './steps/experience-level-step';
 import { PersonalInfoStep } from './steps/personal-info-step';
 import { ProfessionalSummaryStep } from './steps/professional-summary-step';
@@ -13,7 +13,7 @@ import { ProjectsStep } from './steps/projects-step';
 
 interface CVWizardProps {
   cvData: CVData;
-  onDataChange: (data: CVData) => void;
+  onDataChange: (update: CVDataUpdate) => void;
   currentStep: number;
   onStepChange: (step: number) => void;
 }

@@ -27,9 +27,7 @@
   ],
   "dependencies": {
     "@google/genai": "^1.17.0",
-    "axios": "^1.10.0",
     "framer-motion": "^12.18.1",
-    "pdfkit": "^0.17.2",
     "tailwindcss-animate": "^1.0.7"
   }
 }

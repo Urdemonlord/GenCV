@@ -33,7 +33,3 @@ declare module '@cv-generator/utils/server' {
 declare module '@cv-generator/utils/shared' {
   // Shared utilities
 }
-
-declare module 'pdfkit';
-declare module 'pdfkit/js/pdfkit.standalone.js';
-declare module 'puppeteer';

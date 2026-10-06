@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Linkedin, Globe, Plus, X } from 'lucide-react';
+import { User, Briefcase, Mail, Phone, MapPin, Linkedin, Globe, Plus, X } from 'lucide-react';
 import { CVData, Skill } from '@cv-generator/types';
 import { Button, Input, Card, CardContent, Badge } from '@cv-generator/ui';
 import { validateEmail, validatePhone, generateId } from '@cv-generator/utils';
@@ -19,13 +19,13 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
   ];
 
   const handleChange = (field: keyof CVData['personalInfo'], value: string) => {
-    onDataChange({
-      ...cvData,
+    onDataChange((previous) => ({
+      ...previous,
       personalInfo: {
-        ...cvData.personalInfo,
+        ...previous.personalInfo,
         [field]: value,
       },
-    });
+    }));
 
     // Clear error when user starts typing
     if (errors[field]) {
@@ -44,10 +44,10 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
       category: 'Technical',
     };
 
-    onDataChange({
-      ...cvData,
-      skills: [...cvData.skills, skill],
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      skills: [...previous.skills, skill],
+    }));
   };
 
   const addCustomSkill = () => {
@@ -58,10 +58,10 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
   };
 
   const removeSkill = (skillId: string) => {
-    onDataChange({
-      ...cvData,
-      skills: cvData.skills.filter(skill => skill.id !== skillId),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      skills: previous.skills.filter((skill) => skill.id !== skillId),
+    }));
   };
 
   const validateForm = () => {
@@ -80,7 +80,7 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
     if (!cvData.personalInfo.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!validatePhone(cvData.personalInfo.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
+      newErrors.phone = 'Please enter a valid phone number, e.g. +62 812 3456 7890';
     }
     
     if (!cvData.personalInfo.location.trim()) {
@@ -124,6 +124,19 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
             </div>
 
             <div>
+              <label htmlFor="cv-headline" className="block text-sm font-medium mb-1">
+                <Briefcase className="inline w-4 h-4 mr-1" />
+                Professional Title (Optional)
+              </label>
+              <Input
+                id="cv-headline"
+                value={cvData.personalInfo.headline || ''}
+                onChange={(e) => handleChange('headline', e.target.value)}
+                placeholder="e.g. Data Analyst"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-1">
                 <Mail className="inline w-4 h-4 mr-1" />
                 Email *
@@ -147,10 +160,19 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
                 type="tel"
                 value={cvData.personalInfo.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                placeholder="+1 (555) 123-4567"
+                placeholder="+62 812 3456 7890"
                 className={errors.phone ? 'border-red-500' : ''}
               />
-              {errors.phone && <span className="text-red-500 text-xs">{errors.phone}</span>}
+              {errors.phone ? (
+                <span className="text-red-500 text-xs">{errors.phone}</span>
+              ) : (
+                cvData.personalInfo.phone.trim() &&
+                !cvData.personalInfo.phone.trim().startsWith('+') && (
+                  <span className="text-amber-600 text-xs">
+                    Tip: add your country code (e.g. +62) so international recruiters can reach you.
+                  </span>
+                )
+              )}
             </div>
 
             <div>
@@ -161,7 +183,7 @@ export function PersonalInfoStep({ cvData, onDataChange, onNext, onPrevious, isF
               <Input
                 value={cvData.personalInfo.location}
                 onChange={(e) => handleChange('location', e.target.value)}
-                placeholder="New York, NY"
+                placeholder="City, Country"
                 className={errors.location ? 'border-red-500' : ''}
               />
               {errors.location && <span className="text-red-500 text-xs">{errors.location}</span>}

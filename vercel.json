@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run build",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
-  "installCommand": "npm install && cd apps/web && npm install puppeteer-core @sparticuz/chromium"
+  "installCommand": "npm install"
 }

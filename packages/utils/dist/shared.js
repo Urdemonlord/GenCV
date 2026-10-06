@@ -45,8 +45,9 @@ var validateEmail = (email) => {
   return re.test(email);
 };
 var validatePhone = (phone) => {
-  const re = /^[\+]?[1-9][\d]{0,15}$/;
-  return re.test(phone.replace(/[\s\-\(\)]/g, ""));
+  const value = phone.trim();
+  const digits = value.replace(/[\s\-().\/]/g, "");
+  return value.startsWith("+") ? /^\+[1-9]\d{7,14}$/.test(digits) : /^\d{6,15}$/.test(digits);
 };
 var calculateCVScore = (cvData) => {
   const scores = {

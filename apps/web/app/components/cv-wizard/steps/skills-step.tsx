@@ -25,19 +25,19 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
       category: newSkill.category,
     };
 
-    onDataChange({
-      ...cvData,
-      skills: [...cvData.skills, skill],
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      skills: [...previous.skills, skill],
+    }));
 
     setNewSkill({ name: '', level: 'Intermediate', category: 'Technical' });
   };
 
   const deleteSkill = (id: string) => {
-    onDataChange({
-      ...cvData,
-      skills: cvData.skills.filter(skill => skill.id !== id),
-    });
+    onDataChange((previous) => ({
+      ...previous,
+      skills: previous.skills.filter((skill) => skill.id !== id),
+    }));
   };
 
   const suggestSkills = async () => {
@@ -62,24 +62,22 @@ export function SkillsStep({ cvData, onDataChange, onNext, onPrevious, isFirst }
       const result = await response.json();
 
       if (result.success && result.data) {
-        const suggestedSkills = result.data.split(',').map((skill: string) => skill.trim());
-        const newSkills: Skill[] = suggestedSkills
-          .filter((skillName: string) => 
-            skillName && !cvData.skills.some(existing => 
-              existing.name.toLowerCase() === skillName.toLowerCase()
+        const suggestedSkills: string[] = result.data.split(',').map((skill: string) => skill.trim());
+        onDataChange((previous) => {
+          const newSkills: Skill[] = suggestedSkills
+            .filter(
+              (skillName) =>
+                skillName &&
+                !previous.skills.some((existing) => existing.name.toLowerCase() === skillName.toLowerCase())
             )
-          )
-          .slice(0, 8) // Limit to 8 suggestions
-          .map((skillName: string) => ({
-            id: generateId(),
-            name: skillName,
-            level: 'Intermediate' as const,
-            category: 'Technical' as const,
-          }));
-
-        onDataChange({
-          ...cvData,
-          skills: [...cvData.skills, ...newSkills],
+            .slice(0, 8) // Limit to 8 suggestions
+            .map((skillName) => ({
+              id: generateId(),
+              name: skillName,
+              level: 'Intermediate' as const,
+              category: 'Technical' as const,
+            }));
+          return { ...previous, skills: [...previous.skills, ...newSkills] };
         });
       }
     } catch (error) {

@@ -1,0 +1,312 @@
+import { Document, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Fragment, type ReactNode } from 'react';
+import { SECTION_TITLES, type ContactItem, type CvView, type EntryView, type SectionId } from '../format';
+import type { TemplateId } from '../templates';
+
+interface Theme {
+  font: string;
+  accent: string;
+  text: string;
+  muted: string;
+  rule: string;
+  header: 'left' | 'center' | 'band';
+  heading: 'underline' | 'rule' | 'bar';
+}
+
+// All templates are single-column with real text and standard headings so ATS parsers
+// read them in order; they differ only in typography and accents.
+const THEMES: Record<TemplateId, Theme> = {
+  modern: {
+    font: 'Inter',
+    accent: '#1d4ed8',
+    text: '#111827',
+    muted: '#4b5563',
+    rule: '#bfdbfe',
+    header: 'left',
+    heading: 'underline',
+  },
+  classic: {
+    font: 'Source Serif 4',
+    accent: '#111827',
+    text: '#111827',
+    muted: '#374151',
+    rule: '#111827',
+    header: 'center',
+    heading: 'rule',
+  },
+  creative: {
+    font: 'Inter',
+    accent: '#6d28d9',
+    text: '#1f2937',
+    muted: '#4b5563',
+    rule: '#ddd6fe',
+    header: 'band',
+    heading: 'bar',
+  },
+};
+
+const PAGE_X = 42;
+const PAGE_TOP = 36;
+// react-pdf 4.9 resolves a unitless lineHeight against the node's *own* fontSize (default 18,
+// not the inherited one), and an inherited lineHeight hides `render` text such as page
+// numbers. So every text style below sets fontSize and lineHeight together.
+const LINE_HEIGHT = 1.4;
+const BODY_SIZE = 10;
+
+function createStyles(theme: Theme) {
+  return StyleSheet.create({
+    page: {
+      paddingTop: PAGE_TOP,
+      paddingBottom: 44,
+      paddingHorizontal: PAGE_X,
+      fontFamily: theme.font,
+      fontSize: BODY_SIZE,
+      color: theme.text,
+    },
+    header: { marginBottom: 4 },
+    headerCentered: {
+      alignItems: 'center',
+      paddingBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.rule,
+    },
+    band: {
+      marginTop: -PAGE_TOP,
+      marginHorizontal: -PAGE_X,
+      marginBottom: 6,
+      paddingHorizontal: PAGE_X,
+      paddingTop: 26,
+      paddingBottom: 20,
+      backgroundColor: theme.accent,
+    },
+    name: { fontSize: 22, fontWeight: 700, lineHeight: 1.15 },
+    headline: { fontSize: 11.5, marginTop: 3, lineHeight: LINE_HEIGHT },
+    contacts: { marginTop: 6 },
+    body: { fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
+    sectionStart: { marginTop: 12 },
+    entryStart: { marginTop: 7 },
+    sectionTitleBlock: {
+      marginBottom: 6,
+      paddingBottom: 2,
+      borderBottomWidth: theme.heading === 'rule' ? 1 : 0.75,
+      borderBottomColor: theme.rule,
+    },
+    sectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+    sectionTitleBar: { width: 3, height: 11, marginRight: 6, backgroundColor: theme.accent },
+    sectionTitle: {
+      fontSize: 10.5,
+      fontWeight: 700,
+      lineHeight: LINE_HEIGHT,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+      color: theme.heading === 'rule' ? theme.text : theme.accent,
+    },
+    paragraph: { marginTop: 2, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
+    entryHeader: { flexDirection: 'row', justifyContent: 'space-between' },
+    entryTitle: { flex: 1, fontSize: 10.5, fontWeight: 600, lineHeight: LINE_HEIGHT },
+    entryDates: { marginLeft: 12, fontSize: 9.5, color: theme.muted, lineHeight: LINE_HEIGHT },
+    entrySubtitle: { fontSize: 9.5, color: theme.muted, lineHeight: LINE_HEIGHT },
+    entryLink: { fontSize: 9.5, color: theme.accent, textDecoration: 'none', lineHeight: LINE_HEIGHT },
+    bullet: { flexDirection: 'row', marginTop: 2 },
+    bulletMark: { width: 10, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
+    bulletText: { flex: 1, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
+    skillLine: { marginBottom: 2, fontSize: BODY_SIZE, lineHeight: LINE_HEIGHT },
+    skillLabel: { fontWeight: 600 },
+    pageNumber: {
+      position: 'absolute',
+      bottom: 20,
+      left: PAGE_X,
+      right: PAGE_X,
+      textAlign: 'right',
+      fontSize: 8,
+      color: theme.muted,
+    },
+  });
+}
+
+type Styles = ReturnType<typeof createStyles>;
+
+function ContactLine({ contacts, color, linkColor }: { contacts: ContactItem[]; color: string; linkColor: string }) {
+  return (
+    <Text style={{ color, fontSize: 9.5, lineHeight: LINE_HEIGHT }}>
+      {contacts.map((contact, index) => (
+        <Text key={`${contact.text}-${index}`}>
+          {index > 0 ? '  |  ' : ''}
+          {contact.href ? (
+            <Link src={contact.href} style={{ color: linkColor, textDecoration: 'none' }}>
+              {contact.text}
+            </Link>
+          ) : (
+            contact.text
+          )}
+        </Text>
+      ))}
+    </Text>
+  );
+}
+
+function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
+  if (theme.header === 'band') {
+    return (
+      <View style={s.band}>
+        {view.name ? <Text style={[s.name, { color: '#ffffff' }]}>{view.name}</Text> : null}
+        {view.headline ? <Text style={[s.headline, { color: '#ede9fe' }]}>{view.headline}</Text> : null}
+        {view.contacts.length > 0 ? (
+          <View style={s.contacts}>
+            <ContactLine contacts={view.contacts} color="#f5f3ff" linkColor="#ffffff" />
+          </View>
+        ) : null}
+      </View>
+    );
+  }
+
+  const centered = theme.header === 'center';
+  const align = centered ? 'center' : 'left';
+  return (
+    <View style={centered ? [s.header, s.headerCentered] : s.header}>
+      {view.name ? <Text style={[s.name, { textAlign: align }]}>{view.name}</Text> : null}
+      {view.headline ? (
+        <Text style={[s.headline, { textAlign: align, color: centered ? theme.muted : theme.accent }]}>
+          {view.headline}
+        </Text>
+      ) : null}
+      {view.contacts.length > 0 ? (
+        <View style={[s.contacts, { alignItems: centered ? 'center' : 'flex-start' }]}>
+          <ContactLine contacts={view.contacts} color={theme.muted} linkColor={theme.muted} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+
+function SectionTitle({ title, theme, s }: { title: string; theme: Theme; s: Styles }) {
+  if (theme.heading === 'bar') {
+    return (
+      <View style={s.sectionTitleRow}>
+        <View style={s.sectionTitleBar} />
+        <Text style={s.sectionTitle}>{title}</Text>
+      </View>
+    );
+  }
+  return (
+    <View style={s.sectionTitleBlock}>
+      <Text style={s.sectionTitle}>{title}</Text>
+    </View>
+  );
+}
+
+function EntryHeader({ entry, s }: { entry: EntryView; s: Styles }) {
+  return (
+    <>
+      <View style={s.entryHeader}>
+        <Text style={s.entryTitle}>{entry.title}</Text>
+        {entry.dates ? <Text style={s.entryDates}>{entry.dates}</Text> : null}
+      </View>
+      {entry.subtitle ? <Text style={s.entrySubtitle}>{entry.subtitle}</Text> : null}
+      {entry.link ? (
+        <Link src={entry.link.href} style={s.entryLink}>
+          {entry.link.text}
+        </Link>
+      ) : null}
+      {entry.details.map((detail) => (
+        <Text key={detail} style={s.entrySubtitle}>
+          {detail}
+        </Text>
+      ))}
+    </>
+  );
+}
+
+function Bullet({ text, s }: { text: string; s: Styles }) {
+  return (
+    <View style={s.bullet} wrap={false}>
+      <Text style={s.bulletMark}>•</Text>
+      <Text style={s.bulletText}>{text}</Text>
+    </View>
+  );
+}
+
+/**
+ * Page-break rules: a section heading always travels with the first entry, and an entry
+ * header always travels with its first line, so neither is stranded at the bottom of a
+ * page. Each "lead" is an unbreakable block; the remaining lines follow as siblings.
+ * (react-pdf's minPresenceAhead is ignored for first children, so it can't do this.)
+ */
+function leadBlock(key: string, style: Styles['sectionStart'], children: ReactNode) {
+  return (
+    <View key={key} wrap={false} style={style}>
+      {children}
+    </View>
+  );
+}
+
+function entryBlocks(entry: EntryView, key: string, s: Styles, heading: ReactNode): ReactNode[] {
+  const lines: ReactNode[] = [];
+  if (entry.intro) lines.push(<Text style={s.paragraph}>{entry.intro}</Text>);
+  for (const bullet of entry.bullets) lines.push(<Bullet text={bullet} s={s} />);
+  const [first, ...rest] = lines;
+
+  return [
+    leadBlock(
+      `${key}-lead`,
+      heading ? s.sectionStart : s.entryStart,
+      <>
+        {heading}
+        <EntryHeader entry={entry} s={s} />
+        {first}
+      </>
+    ),
+    ...rest.map((line, index) => <Fragment key={`${key}-${index}`}>{line}</Fragment>),
+  ];
+}
+
+export function CvDocument({ view, template }: { view: CvView; template: TemplateId }) {
+  const theme = THEMES[template];
+  const s = createStyles(theme);
+  const heading = (id: SectionId) => <SectionTitle title={SECTION_TITLES[id]} theme={theme} s={s} />;
+
+  const sectionBlocks = (id: SectionId): ReactNode[] => {
+    switch (id) {
+      case 'summary':
+        return view.summary ? [leadBlock(id, s.sectionStart, <>{heading(id)}<Text style={s.body}>{view.summary}</Text></>)] : [];
+      case 'skills': {
+        const lines = view.skills.map((group) => (
+          <Text key={group.label} style={s.skillLine}>
+            <Text style={s.skillLabel}>{group.label}: </Text>
+            {group.items.join(', ')}
+          </Text>
+        ));
+        if (lines.length === 0) return [];
+        const [first, ...rest] = lines;
+        return [leadBlock(id, s.sectionStart, <>{heading(id)}{first}</>), ...rest];
+      }
+      default:
+        return view[id].flatMap((entry, index) =>
+          entryBlocks(entry, `${id}-${index}`, s, index === 0 ? heading(id) : null)
+        );
+    }
+  };
+
+  return (
+    <Document
+      title={view.meta.title}
+      author={view.meta.author}
+      subject={view.meta.subject}
+      keywords={view.meta.keywords}
+      creator="GenCV"
+      producer="GenCV"
+      language="en"
+    >
+      <Page size="A4" style={s.page}>
+        <Header view={view} theme={theme} s={s} />
+        {view.sectionOrder.flatMap(sectionBlocks)}
+        <Text
+          fixed
+          style={s.pageNumber}
+          render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : '')}
+        />
+      </Page>
+    </Document>
+  );
+}
