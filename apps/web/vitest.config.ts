@@ -8,7 +8,7 @@ export default defineConfig({
   esbuild: { jsx: 'automatic' },
   test: {
     include: ['**/*.test.{ts,tsx}'],
-    exclude: ['node_modules/**', '.next/**'],
+    exclude: ['node_modules/**', '.next/**', 'e2e/**'],
     // Rendering real PDFs with embedded fonts takes a few seconds on cold start.
     testTimeout: 30_000,
   },

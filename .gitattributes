@@ -1,0 +1,2 @@
+# Layout snapshots are compared byte for byte; keep LF on every OS.
+apps/web/lib/cv/pdf/__snapshots__/*.txt text eol=lf

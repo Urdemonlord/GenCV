@@ -1,0 +1,34 @@
+--- page 1 ---
+  59  42 | Arya Pratama
+  76  42 | Software Engineer
+  96  42 | Semarang, Indonesia | +62 812 3456 7890 | arya.pratama@email.com | linkedin.com/in/aryapratama
+ 110  48 | | github.com/aryapratama
+ 140  42 | SUMMARY
+ 163  42 | Software engineer with 4 years of experience building web platforms in Go and TypeScript. Shipped payment
+ 177  42 | and logistics features used by thousands of merchants, with a focus on reliability and clean APIs.
+ 204  42 | EDUCATION
+ 226 469 | Aug 2017 – Jul 2021
+ 227  42 | Bachelor of Computer Science
+ 241  42 | Universitas Diponegoro · Semarang
+ 254  42 | GPA: 3.68/4.00
+ 281  42 | WORK EXPERIENCE
+ 303 471 | Feb 2023 – Present
+ 304  42 | Software Engineer
+ 318  42 | PT Kirim Cepat · Semarang, Indonesia
+ 334  42 | • Built a shipment-tracking service in Go and PostgreSQL handling 2M requests per day
+ 350  42 | • Cut API p95 latency by 45% by introducing Redis caching and query indexes
+ 366  42 | • Led migration of 6 services to Docker and CI/CD pipelines, reducing release time from 2 days to 2 hours
+ 386 469 | Jun 2021 – Jan 2023
+ 387  42 | Web Developer (Freelance)
+ 401  42 | Various clients · Remote
+ 417  42 | • Delivered 9 web applications in Next.js and TypeScript for small businesses
+ 433  42 | • Automated invoicing for a retail client, saving 15 hours of manual work per month
+ 449  42 | • Maintained client websites and handled hosting and domain setup
+ 475  42 | SKILLS
+ 498  42 | Technical : Go, TypeScript, PostgreSQL, Docker, Next.js, Redis
+ 527  42 | CERTIFICATIONS
+ 550 513 | Mar 2024
+ 551  42 | AWS Certified Cloud Practitioner
+ 564  42 | Amazon Web Services
+ 591  42 | LANGUAGES
+ 614  42 | Indonesian (Native), English (C1)

@@ -1,295 +1,75 @@
-# AI-Powered CV Generator
+# GenCV
 
-A modern, professional CV generator built with Turborepo monorepo architecture, featuring AI-powered content enhancement using Google Gemini.
+Workspace untuk membuat, mengoptimalkan, dan menyesuaikan CV dengan lowongan yang dituju. Hasilnya CV satu kolom yang ramah ATS, dalam bahasa Inggris atau Indonesia, untuk lamaran di Indonesia maupun ke luar negeri (format US).
 
-## 🚀 Features
+## Fitur
 
-- **Turborepo Monorepo**: Scalable architecture with shared packages
-- **AI-Powered Enhancement**: Intelligent content rewriting and suggestions using Google Gemini
-- **Step-by-Step Wizard**: Intuitive form flow with real-time validation
-- **Live Preview**: Real-time CV preview with completeness scoring
-- **Dark/Light Mode**: Beautiful themes with smooth transitions
-- **Local Storage**: Automatic draft saving and restoration
-- **Import/Export**: JSON-based data portability
-- **Responsive Design**: Works perfectly on all devices
-- **TypeScript**: Full type safety across the entire codebase
+- **Editor**: section standar (pengalaman, pendidikan, keahlian, proyek, sertifikasi, bahasa, dan lain-lain) dengan pratinjau PDF yang sama persis dengan hasil unduhan.
+- **Enam template** (Professional, Minimal, Executive, Tech, Academic, Creative). Semuanya satu kolom dengan teks asli.
+- **Ekspor** PDF dan DOCX, dibuat langsung di browser. Ada juga backup dan impor JSON.
+- **Analisis ATS** berbasis aturan yang bisa dijelaskan: kelengkapan, format, keterbacaan, kualitas konten.
+- **Job Match**: keyword dari deskripsi lowongan dibandingkan dengan isi CV.
+- **AI Assistant** (Gemini): saran per poin dan ringkasan dengan tampilan sebelum/sesudah. Saran baru masuk ke CV setelah diterima.
+- **Banyak CV per perangkat**: satu CV per lowongan, bisa diduplikat untuk lowongan lain.
 
-## 🏗️ Architecture
+## Prinsip produk
 
-```
-cv-generator-monorepo/
-├── apps/
-│   ├── web/          # Next.js 14 frontend application
-│   └── api/          # Express.js backend API
-├── packages/
-│   ├── types/        # Shared TypeScript types
-│   ├── utils/        # Shared utility functions
-│   └── ui/           # Shared UI components (shadcn/ui)
-└── turbo.json        # Turborepo configuration
-```
+- Setiap skor dihitung dari data user dan diberi label estimasi. Tidak ada klaim "pasti lolos ATS".
+- AI tidak boleh mengarang fakta. Angka yang tidak ada di teks asli diganti placeholder seperti `[X%]`, dan saran yang menyebut skill baru ditolak di server.
+- Data CV tersimpan di perangkat user (localStorage). Teks hanya dikirim ke server saat tombol AI ditekan; lihat `/privasi`.
 
-## 🛠️ Tech Stack
+## Menjalankan lokal
 
-### Frontend (apps/web)
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
-- **shadcn/ui** - Beautiful, accessible components
-- **Framer Motion** - Smooth animations
-- **React Hook Form** - Form management
-- **next-themes** - Dark/light mode support
-
-### Backend (apps/api)
-- **Express.js** - Web framework
-- **TypeScript** - Type-safe server development
-- **Google Gemini AI** - AI content enhancement
-- **Express Rate Limit** - API protection
-- **Helmet** - Security middleware
-- **CORS** - Cross-origin resource sharing
-
-### Shared Packages
-- **@cv-generator/types** - Shared TypeScript interfaces
-- **@cv-generator/utils** - Common utility functions
-- **@cv-generator/ui** - Reusable UI components
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18.18+ (required by Next.js 15; Node 20 LTS or newer recommended)
-- npm 10+
-- Google Gemini API key
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd cv-generator-monorepo
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   
-   **Backend (.env in apps/api/)**
-   ```bash
-   cp apps/api/.env.example apps/api/.env
-   ```
-   
-   Edit `apps/api/.env`:
-   ```env
-   PORT=3001
-   NODE_ENV=development
-   FRONTEND_URL=http://localhost:3000
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-
-   **Frontend (.env.local in apps/web/)**
-   ```bash
-   cp apps/web/.env.example apps/web/.env.local
-   ```
-   
-   Edit `apps/web/.env.local`:
-   ```env
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   GEMINI_API_KEY=your_gemini_key   # optional, only for AI suggestions
-   ```
-
-4. **Start development servers**
-   ```bash
-   npm run dev
-   ```
-
-   This will start:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-
-## 🔑 Getting Google Gemini API Key
-
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Sign in with your Google account
-3. Create a new API key
-4. Copy the key and add it to your `.env` file
-
-## 📖 Usage
-
-### Creating a CV
-
-1. **Experience Level**: Choose between Fresh Graduate or Professional
-2. **Personal Information**: Fill in contact details
-3. **Professional Summary**: Write or generate AI-enhanced summary
-4. **Work Experience**: Add positions with AI-enhanced descriptions
-5. **Education**: Add educational background
-6. **Skills**: Add skills with AI suggestions
-7. **Projects**: Showcase your work and contributions
-
-### AI Features
-
-- **Experience Enhancement**: Improve job descriptions with professional language
-- **Summary Generation**: Create compelling professional summaries
-- **Skills Suggestions**: Get relevant skill recommendations
-- **Content Optimization**: AI-powered content improvements
-
-### Data Management
-
-- **Auto-save**: Your progress is automatically saved to local storage
-- **Export**: Download your CV data as JSON
-- **Import**: Upload previously exported CV data
-- **Preview**: Real-time CV preview with completeness scoring
-
-## 🔧 Development
-
-### Available Scripts
+Butuh Node.js 18.18 atau lebih baru.
 
 ```bash
-# Development
-npm run dev          # Start all development servers
-npm run build        # Build all packages and apps
-npm run lint         # Lint all packages
-npm run type-check   # Type check all packages
-
-# Individual package commands
-npm run dev --workspace=@cv-generator/web    # Start frontend only
-npm run dev --workspace=@cv-generator/api    # Start backend only
+npm install
+cp apps/web/.env.example apps/web/.env.local   # opsional, hanya untuk fitur AI
+npm run dev                                     # http://localhost:3000
 ```
 
-### Project Structure
+Semua fitur selain AI berjalan tanpa env apa pun.
+
+| Perintah | Fungsi |
+| --- | --- |
+| `npm run dev` | Server development |
+| `npm run build` / `npm start` | Build dan jalankan versi produksi (lint ikut dicek) |
+| `npm test` | Unit test (Vitest), termasuk snapshot layout PDF semua template |
+| `npm run test:e2e` | Smoke test Playwright (jalankan `npm run build` dulu) |
+| `npm run lint` / `npm run type-check` | ESLint dan TypeScript |
+| `npm run previews -w @gencv/web` | Render ulang gambar template di `public/previews` |
+
+Setelah mengubah layout PDF dengan sengaja, perbarui snapshot-nya dari folder `apps/web`:
+
+```bash
+npx vitest run -u lib/cv/pdf/templates.snapshot.test.tsx
+```
+
+## Environment
+
+| Variabel | Wajib | Keterangan |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | Untuk AI | Key dari project Gemini API **berbayar**. Kebijakan privasi bergantung pada ketentuan tier berbayar. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Disarankan | Rate limit `/api/ai` yang dibagi semua instance. Tanpa ini, limit hanya per instance. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Opsional | Verifikasi Cloudflare Turnstile di `/api/ai`. Pasang keduanya atau tidak sama sekali. |
+| `NEXT_PUBLIC_APP_URL` | Opsional | URL publik, untuk metadata. |
+
+## Deploy (Vercel)
+
+- Root directory: `apps/web`. PDF dan DOCX dibuat di browser, jadi tidak butuh Chromium di server.
+- Isi environment variable di atas di dashboard Vercel.
+
+## Struktur
 
 ```
 apps/web/
-├── app/
-│   ├── components/
-│   │   ├── cv-wizard/     # Step-by-step form components
-│   │   ├── cv-preview/    # CV preview and scoring
-│   │   └── ui/            # UI components
-│   ├── providers/         # Theme and context providers
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── public/                # Static assets
-└── next.config.js         # Next.js configuration
-
-apps/api/
-├── src/
-│   ├── routes/            # API route handlers
-│   ├── middleware/        # Express middleware
-│   └── index.ts           # Server entry point
-└── .env.example           # Environment variables template
-
-packages/
-├── types/                 # Shared TypeScript types
-├── utils/                 # Utility functions
-└── ui/                    # UI component library
+  app/                Halaman (landing, editor, dashboard, templates, privasi) dan route /api/ai
+  components/ds/      Komponen design system
+  lib/cv/             Schema CV (zod), format, template PDF/DOCX, analisis ATS & Job Match, penyimpanan lokal
+  lib/ai/             Kontrak task AI, prompt, guard anti-mengarang, saran
+  e2e/                Smoke test Playwright
+  public/             Font (Inter, Source Serif 4) dan gambar template
+plan.md               Roadmap dan keputusan desain
 ```
 
-## 🔒 Security Features
-
-- **Rate Limiting**: API endpoints are rate-limited to prevent abuse
-- **Input Validation**: All user inputs are validated and sanitized
-- **CORS Protection**: Configured for secure cross-origin requests
-- **Helmet Security**: Security headers for Express.js
-- **Environment Variables**: Sensitive data stored securely
-
-## 🎨 Design System
-
-The application uses a comprehensive design system with:
-
-- **Color Palette**: Professional blue and purple gradients
-- **Typography**: Inter font with proper hierarchy
-- **Spacing**: 8px grid system
-- **Components**: Consistent shadcn/ui components
-- **Animations**: Smooth Framer Motion transitions
-- **Responsive**: Mobile-first design approach
-
-## 📱 Responsive Design
-
-- **Mobile**: Optimized for phones (320px+)
-- **Tablet**: Enhanced for tablets (768px+)
-- **Desktop**: Full experience (1024px+)
-- **Large Screens**: Optimized layouts (1440px+)
-
-## 🚀 Deployment
-
-### Frontend (Vercel/Netlify)
-1. Connect your repository
-2. Set environment variables
-3. Deploy with automatic builds
-
-### Backend (Railway/Heroku)
-1. Connect your repository
-2. Set environment variables including `GEMINI_API_KEY`
-3. Deploy with automatic builds
-
-### Environment Variables for Production
-```env
-# Backend
-NODE_ENV=production
-PORT=3001
-FRONTEND_URL=https://your-frontend-domain.com
-GEMINI_API_KEY=your_production_gemini_key
-
-# Frontend
-NEXT_PUBLIC_APP_URL=https://your-frontend-domain.com
-```
-
-### Deploy ke Vercel
-
-- Root directory: `apps/web`
-- Environment variable:
-  - `GEMINI_API_KEY`: hanya untuk fitur AI. Pakai key dari project Gemini API **berbayar**; kebijakan privasi (`/privasi`) menyatakan teks tidak dipakai Google untuk melatih model, dan itu hanya berlaku di tier berbayar.
-  - `UPSTASH_REDIS_REST_URL` dan `UPSTASH_REDIS_REST_TOKEN` (disarankan): rate limit AI yang dibagi semua instance. Tanpa ini, limit hanya per instance.
-  - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` dan `TURNSTILE_SECRET_KEY` (opsional): verifikasi Cloudflare Turnstile di `/api/ai`.
-- AI hanya dipanggil lewat route `/api/ai` milik aplikasi ini; tidak ada backend AI terpisah.
-- PDF dan DOCX dibuat di browser (react-pdf + docx), jadi tidak perlu Chromium/Puppeteer di server.
-
-## Troubleshooting
-- Preview PDF kosong: cek console browser; font dimuat dari `/fonts`.
-- Fitur AI gagal: pastikan `GEMINI_API_KEY` terpasang.
-
-## Keamanan
-- Semua API dilindungi rate limit dan API key
-- Semua response dilengkapi security headers
-- Tidak ada CORS karena satu domain
-- Input divalidasi di API route
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## �️ Troubleshooting
-
-### Schema Validation Errors
-
-If you encounter schema validation errors in configuration files, see the [schema validation fix documentation](docs/schema-validation-fix.md).
-
-## �📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
-- [Google Gemini](https://ai.google.dev/) for AI capabilities
-- [Turborepo](https://turbo.build/) for monorepo tooling
-- [Next.js](https://nextjs.org/) for the React framework
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-
-## 📞 Support
-
-If you have any questions or need help, please:
-
-1. Check the [documentation](README.md) and [technical guides](docs/)
-2. Review the [schema validation fix](docs/schema-validation-fix.md) if you encounter config errors
-3. Search [existing issues](../../issues)
-4. Create a [new issue](../../issues/new)
-
----
-
-Built with ❤️ using modern web technologies and AI-powered enhancement.
+CI (GitHub Actions) menjalankan lint, type-check, unit test, build, dan smoke test di setiap PR.

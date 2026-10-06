@@ -160,7 +160,8 @@ export function CvList() {
         <ul className="mt-10 grid gap-4 md:grid-cols-2">
           {items.map((item) => {
             const title = displayTitle(item);
-            const subtitle = [item.name, item.headline].filter(Boolean).join(' · ');
+            // The title falls back to the headline or name; don't repeat it underneath.
+            const subtitle = [item.name, item.headline].filter((part) => part && part !== title).join(' · ');
             return (
               <li key={item.id} className="flex flex-col rounded-xl border border-border bg-surface p-5">
                 {renaming === item.id ? (

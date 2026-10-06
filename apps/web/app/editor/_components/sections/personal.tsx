@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { validateEmail, validatePhone } from '@cv-generator/utils';
 import { Field, Input } from '@/components/ds';
 import type { CV } from '@/lib/cv/schema';
+import { validateEmail, validatePhone } from '@/lib/validation';
 import { PhotoInput } from '../fields/photo-input';
 import { SectionIntro, type SectionProps } from './shared';
 
