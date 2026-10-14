@@ -25,6 +25,90 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: 'job-match-cocokkan-cv-dengan-lowongan',
+    title: 'Job Match: Cara Membaca Kecocokan CV dengan Lowongan',
+    description:
+      'Job Match menunjukkan keahlian mana dari lowongan yang belum disebut di CV. Ini cara kerjanya, kenapa hasilnya bisa dijelaskan, dan batasnya.',
+    datePublished: '2026-10-14',
+    keywords: ['job match', 'kecocokan cv lowongan', 'keyword cv', 'cv sesuai lowongan', 'ats keyword'],
+    sections: [
+      {
+        heading: 'Apa yang sebenarnya dibandingkan',
+        paragraphs: [
+          'Job Match membandingkan dua teks: isi CV kamu, dan deskripsi lowongan yang kamu tempelkan. Dari keduanya, alat ini mencari keahlian yang dikenal, lalu menunjukkan mana yang sudah kamu sebut dan mana yang belum.',
+          'Yang membuat hasilnya bisa dijelaskan adalah daftar istilahnya terbatas dan terbuka. Alat ini tidak menebak relevansi dari kemiripan makna, dan tidak memakai model bahasa. Kalau sebuah keahlian muncul di daftar, ia dikenali. Kalau tidak ada di daftar, ia tidak dihitung.',
+          'Konsekuensinya penting untuk kamu tahu: Job Match hanya mengenali keahlian yang memang ada di daftarnya. Bidang yang sangat khusus mungkin belum tercakup.',
+        ],
+        bullets: [
+          'Yang dibandingkan: teks CV kamu dan deskripsi lowongan.',
+          'Pencocokan memakai daftar istilah tetap, bukan tebakan model.',
+          'Keahlian di luar daftar tidak akan muncul di hasil.',
+        ],
+      },
+      {
+        heading: 'Pencocokan utuh, bukan potongan kata',
+        paragraphs: [
+          'Satu hal yang sering salah pada pencocokan sederhana: istilah pendek ikut cocok di dalam istilah panjang. Contoh klasiknya java dan javascript. Kalau pencocokan dilakukan dengan mencari potongan teks, java akan dianggap ada di dalam javascript, dan hasilnya salah.',
+          'Karena itu pencocokan di sini menuntut batas kata. Java hanya cocok kalau yang tertulis memang java, bukan javascript. Hal yang sama berlaku untuk sql dan nosql, serta react dan react native.',
+          'Ada satu perilaku lagi yang perlu kamu tahu. Kalau lowongan menyebut dua istilah yang saling mencakup, hanya yang lebih spesifik yang dihitung. Lowongan yang menyebut react dan react native akan menghasilkan satu keyword, yaitu react native. Tujuannya supaya satu keahlian tidak dihitung dua kali dan menurunkan skormu tanpa alasan.',
+        ],
+      },
+      {
+        heading: 'Istilah yang setara digabung',
+        paragraphs: [
+          'Lowongan jarang memakai satu ejaan saja. Ada yang menulis k8s, ada yang menulis kubernetes. Ada yang menulis reactjs, ada yang menulis react. Ada yang menulis postgres, ada yang menulis postgresql.',
+          'Sebelum dibandingkan, kedua teks diseragamkan lebih dulu. Jadi k8s di CV tetap dianggap cocok dengan kubernetes di lowongan, dan sebaliknya. Tanpa langkah ini, kamu akan melihat keyword yang sebenarnya sudah kamu kuasai muncul sebagai belum disebut.',
+        ],
+        bullets: [
+          'k8s setara kubernetes.',
+          'reactjs dan react.js setara react.',
+          'node dan nodejs setara node.js.',
+          'postgres setara postgresql.',
+          'ci/cd setara continuous integration.',
+          'amazon web services setara aws.',
+        ],
+      },
+      {
+        heading: 'Di mana saja di CV keyword dicari',
+        paragraphs: [
+          'Keahlian tidak harus ada di bagian keahlian. Pencarian mencakup seluruh bagian yang dibaca mesin: profesi di bawah nama, ringkasan profesional, posisi dan nama perusahaan, seluruh poin pencapaian di pengalaman, proyek beserta teknologinya, pendidikan, sertifikasi, bahasa, dan bagian tambahan.',
+          'Ini sering menyelamatkan. Kamu mungkin menyebut docker hanya di dalam poin pencapaian, bukan di daftar keahlian. Itu tetap terhitung.',
+        ],
+      },
+      {
+        heading: 'Cara menghitung skornya',
+        paragraphs: [
+          'Skor Job Match adalah jumlah keyword yang cocok dibagi jumlah keyword yang ditemukan di lowongan, dikali seratus. Sederhana dan bisa kamu hitung sendiri.',
+          'Kalau lowongan memuat enam keahlian yang dikenali dan CV kamu menyebut tiga di antaranya, skornya 50. Kalau menyebut semuanya, skornya 100. Kalau tidak menyebut satu pun, skornya 0.',
+          'Ada satu kondisi yang perlu dipahami: kalau kamu belum menempelkan deskripsi lowongan, komponen ini tidak dihitung sama sekali. Skor total tetap bisa keluar dari empat komponen lain. Begitu juga kalau lowongan tidak memuat satu pun keahlian yang dikenali, maka tidak ada yang bisa dibandingkan dan komponen ini dilewati.',
+        ],
+      },
+      {
+        heading: 'Bobotnya dalam skor keseluruhan',
+        paragraphs: [
+          'Job Match menyumbang 15 persen dari skor keseluruhan. Sisanya: kelengkapan 25 persen, kualitas konten 25 persen, keterbacaan 20 persen, dan format 15 persen.',
+          'Angka itu menjelaskan prioritas. Memperbaiki Job Match dari 0 ke 100 paling banyak menaikkan skor keseluruhan sekitar 15 poin. CV yang lengkap dan poin pencapaiannya jelas tetap lebih menentukan, dan itu memang seharusnya begitu: keahlian yang disebut tanpa bukti tidak banyak menolong.',
+        ],
+      },
+      {
+        heading: 'Cara memakai hasilnya tanpa berbohong',
+        paragraphs: [
+          'Saran yang muncul saat ada keyword belum disebut selalu berbunyi sama: tambahkan hanya jika memang kamu kuasai. Ini bukan kalimat basa-basi.',
+          'Menambahkan keahlian yang tidak kamu punya akan terlihat saat wawancara, dan itu jauh lebih merugikan daripada skor yang rendah. Yang lebih berguna adalah memakai daftar itu sebagai bahan berpikir: apakah kamu pernah memakai alat itu di proyek yang belum kamu tulis? Apakah ada pengalaman yang relevan tapi belum masuk CV?',
+          'Kalau setelah ditelusuri memang belum pernah, tidak apa-apa. Lowongan tidak mengharapkan setiap syarat terpenuhi. Yang penting CV kamu jujur dan bagian yang memang kamu kuasai terlihat jelas.',
+        ],
+      },
+      {
+        heading: 'Yang tidak bisa dilakukan Job Match',
+        paragraphs: [
+          'Job Match tidak tahu apakah kamu akan dipanggil wawancara. Ia hanya membandingkan teks. Banyak hal yang menentukan hasil lamaran tidak ada di dalam CV: portofolio, rujukan, waktu melamar, jumlah pelamar, dan kecocokan dengan tim.',
+          'Ia juga tidak membaca deskripsi lowongan sebagai manusia. Kalau lowongan menulis keahlian dengan istilah yang tidak ada di daftar, istilah itu tidak akan muncul di hasil meskipun penting. Jadi perlakukan hasilnya sebagai petunjuk, bukan daftar lengkap syarat.',
+          'Dan seperti alat lain, ia tidak bisa menjamin apa pun soal seleksi. Yang bisa ia lakukan cuma satu: menunjukkan bagian mana dari CV kamu yang belum menyebut keahlian yang diminta lowongan.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'arti-skor-ats',
     title: 'Arti Skor ATS: Apa yang Benar-Benar Dihitung dan Apa yang Tidak',
     description:
