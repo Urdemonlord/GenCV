@@ -4,10 +4,10 @@ import { Hero } from './components/landing/hero';
 import { MobileCta } from './components/landing/mobile-cta';
 import { Faq, FinalCta, HowItWorks, SiteFooter, TemplatesShowcase } from './components/landing/sections';
 import { SiteHeader } from './components/landing/site-header';
-import { landingStructuredData } from '@/lib/seo';
+import { FEED_ALTERNATES, landingStructuredData } from '@/lib/seo';
 
 // Title and description come from the layout defaults.
-export const metadata: Metadata = { alternates: { canonical: '/' } };
+export const metadata: Metadata = { alternates: { canonical: '/', ...FEED_ALTERNATES } };
 
 export default function LandingPage() {
   return (

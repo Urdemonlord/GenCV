@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import { SITE_DESCRIPTION, SITE_URL } from '@/lib/seo';
+import { FEED_ALTERNATES, SITE_DESCRIPTION, SITE_URL } from '@/lib/seo';
 import { Analytics } from './components/analytics';
 import { Toaster } from './components/ui/toaster';
 
@@ -22,8 +22,9 @@ export const metadata: Metadata = {
   description,
   applicationName: 'GenCV',
   keywords: ['CV ATS', 'buat CV', 'CV generator', 'resume builder', 'contoh CV', 'Job Match', 'CV bahasa Inggris'],
-  // Lets feed readers and browsers discover the feed from any page.
-  alternates: { types: { 'application/rss+xml': '/feed.xml' } },
+  // Lets feed readers and browsers discover the feed. Pages that set `canonical` must spread
+  // FEED_ALTERNATES too, because Next.js replaces the object rather than merging it.
+  alternates: { ...FEED_ALTERNATES },
   openGraph: { title, description, type: 'website', url: '/', locale: 'id_ID', siteName: 'GenCV' },
   twitter: { card: 'summary_large_image', title, description },
 };

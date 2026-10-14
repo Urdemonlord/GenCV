@@ -10,6 +10,15 @@ export const SITE_URL = (
 export const CONTACT_EMAIL = 'admin@meowlabs.id';
 export const OPERATOR = 'Meowlabs';
 
+/**
+ * Feed autodiscovery for `<link rel="alternate">`.
+ *
+ * Next.js REPLACES the whole `alternates` object at the page level instead of merging it with
+ * the layout's, so declaring `types` only in the layout is silently discarded by any page that
+ * sets `canonical`. Every place that builds `alternates` must spread this in.
+ */
+export const FEED_ALTERNATES = { types: { 'application/rss+xml': '/feed.xml' } } as const;
+
 /** Public pages listed in the sitemap; private workspace pages are never indexed. */
 export const PUBLIC_PATHS = ['/', '/templates', '/artikel', '/privasi', '/syarat'] as const;
 
@@ -174,7 +183,7 @@ export function pageMetadata({
   return {
     title,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: path, ...FEED_ALTERNATES },
     openGraph: { title: fullTitle, description, url: path, type: 'website', locale: 'id_ID', siteName: 'GenCV' },
     twitter: { card: 'summary_large_image', title: fullTitle, description },
     robots: index ? undefined : { index: false, follow: false },
