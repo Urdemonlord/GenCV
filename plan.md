@@ -1,7 +1,6 @@
 # Rencana GenCV: dari CV Generator ke Career Workspace
 
-Terakhir diperbarui: 6 Oktober 2026
-Branch Fase 0: `fix/phase-0-cv-output`
+Terakhir diperbarui: 14 Oktober 2026
 
 ## Tujuan
 
@@ -35,6 +34,8 @@ Satu baris tabel = satu PR, dikerjakan berurutan.
 | R7 | Dashboard multi-CV | Satu CV per lowongan, disimpan lokal | Sedang | Selesai (PR) |
 | R8 | AI Assistant | Satu modul AI, saran sebelum/sesudah | Besar | Selesai (PR) |
 | C | Bersih-bersih repo | Scaffold root, `dist/`, `.d.ts` palsu, README | Sedang | Selesai (PR) |
+| L | Kelengkapan rilis | SEO, ikon, legal, analitik, CTA mobile | Sedang | Selesai (PR #43) |
+| B | Blog & SEO konten | 5 artikel, `/artikel`, RSS `/feed.xml`, JSON-LD | Sedang | Selesai (PR #46–#51) |
 
 Kenapa urutannya begini:
 
@@ -89,7 +90,7 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 
 ## T. Jaring pengaman
 
-- [ ] Unit test `format.ts` dan `normalize.ts`, plus fixture migrasi data lama
+- [x] Unit test `format.ts` dan `normalize.ts` (`format.test.ts`, `normalize.test.ts`), plus fixture migrasi data lama
 - [x] Test ekstraksi teks PDF untuk tiap template (nama non-Latin, urutan baca, link). Set CV contoh yang lebih lengkap menyusul.
 - [x] GitHub Actions: lint, type-check, test, build, smoke test
 
@@ -222,7 +223,7 @@ Deterministik, tanpa AI, berjalan di browser.
   11. Footer
 - [x] Visual hero memakai output produk asli. CV dirender dari template sungguhan lewat script build menjadi gambar WebP, supaya landing tidak perlu memuat react-pdf. Kartu skor dihitung dengan engine R4 dari data contoh.
 - [x] Contoh AI sebelum/sesudah memakai placeholder, bukan angka karangan
-- [x] Menu: Beranda, Template, Fitur. Masuk, Harga, dan Blog disembunyikan sampai fiturnya ada.
+- [x] Menu: Beranda, Template, Artikel, Fitur, FAQ, CV saya. Masuk dan Harga disembunyikan sampai fiturnya ada.
 - [x] Section social proof palsu dihapus; metadata SEO dan gambar OG diperbarui
 
 ## R6. Template & galeri (selesai)
@@ -273,9 +274,28 @@ Checklist 20 poin "siap rilis" (disetujui 6 Oktober 2026: Vercel Web Analytics t
 - [x] Vercel Web Analytics tanpa cookie, query string dibuang; tanpa cookie banner karena hanya localStorage yang diperlukan
 - [x] Gambar dioptimasi `next/image` (AVIF/WebP, `sizes` per tampilan); alt text dijaga ESLint
 
+## B. Blog & SEO konten (selesai, PR #46–#51)
+
+Artikel ditulis sebagai data di `apps/web/lib/blog/posts.ts`, bukan MDX: tanpa dependency baru dan tanpa parser markdown, jadi tidak ada permukaan XSS. Isinya mengikuti aturan yang benar-benar dipakai engine R4 supaya artikel dan fitur tidak saling bertentangan.
+
+- [x] Lima artikel: cara membuat CV ramah ATS, arti skor ATS, Job Match, bahasa Inggris A4 vs US Letter, contoh CV fresh graduate
+- [x] Halaman `/artikel` (daftar) dan `/artikel/[slug]` (artikel), dengan `readingMinutes`, meta description, dan canonical
+- [x] Structured data per artikel (BlogPosting) dan daftar (Blog); og:image khusus untuk `/artikel`, tiap artikel, dan `/templates`
+- [x] RSS feed di `/feed.xml` plus autodiscovery `<link rel="alternate">` di `lib/seo.ts`
+- [x] Unit test: `posts.test.ts` (slug unik/URL-safe, urutan terbaru dulu, tanggal ISO, panjang description) dan `feed.test.ts` (escaping XML, format tanggal RSS)
+- [x] Menu "Artikel" di header; `/artikel` masuk `sitemap.ts` dan `PUBLIC_PATHS`
+
+## Sisa pekerjaan (belum dikerjakan)
+
+- **Preset region UK/EU.** Sekarang baru `id` dan `us` (`CV_REGIONS` di `lib/cv/schema.ts`). Menambah preset berarti menyiapkan format tanggal, panjang halaman, dan aturan foto per region.
+- **Upgrade Tailwind 3 → 4.** Menutup advisory `braces` dan `postcss-selector-parser`.
+- **Upgrade SDK Google (`@google/genai`).** Menutup advisory `uuid` yang dibawa SDK.
+- **`zod` → `zod/mini` (opsional).** Memangkas ~17 kB first-load di `/editor`.
+- **Masuk/sinkronisasi cloud dan Harga/pembayaran.** Butuh backend, autentikasi, dan payment; lihat "Sengaja belum dibuat".
+
 ## Sengaja belum dibuat
 
-- **Akun dan sinkronisasi cloud (Masuk), Harga/pembayaran, Blog.** Semuanya butuh backend, autentikasi, dan payment. Sampai siap, menunya tidak ditampilkan.
+- **Akun dan sinkronisasi cloud (Masuk), Harga/pembayaran.** Semuanya butuh backend, autentikasi, dan payment. Sampai siap, menunya tidak ditampilkan. (Blog sudah dibuat di milestone B.)
 
 ## Catatan terhadap mockup
 
@@ -298,12 +318,12 @@ Semuanya sudah ditangani di `apps/web/lib/cv/pdf/document.tsx`.
 
 ## Keputusan (disetujui 6 Oktober 2026)
 
-1. Urutan roadmap: 0 → 0.5 → T → R1 → R2 → R3 → R4 → R5 → R6 → R7 → R8 → C
+1. Urutan roadmap: 0 → 0.5 → T → R1 → R2 → R3 → R4 → R5 → R6 → R7 → R8 → C → L → B
 2. Fase 0 di-commit dan dibuka PR
 3. Foto opsional, mati default untuk preset internasional
 4. Contoh AI di landing memakai placeholder
 5. Copy "lolos ATS" diganti "ramah ATS"
-6. Masuk, Harga, dan Blog disembunyikan sampai fiturnya ada
+6. Masuk dan Harga disembunyikan sampai fiturnya ada (Blog dibuka di milestone B)
 7. Tema gelap saja
 8. UI berbahasa Indonesia; isi CV bisa English atau Bahasa Indonesia
 9. Preset region prioritas: **Indonesia + US** (UK/EU menyusul)
