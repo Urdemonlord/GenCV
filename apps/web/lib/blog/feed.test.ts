@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildFeed, escapeXml, FEED_PATH, rssDate } from './feed';
 import { allPosts, type Post } from './posts';
-import { SITE_URL } from '../seo';
+import { FEED_ALTERNATES, pageMetadata, SITE_URL } from '../seo';
 
 const post = (over: Partial<Post> = {}): Post => ({
   slug: 'contoh',
@@ -98,5 +98,24 @@ describe('buildFeed', () => {
     expect(real.match(/<item>/g)?.length).toBe(allPosts().length);
     expect(real).not.toContain('Invalid Date');
     expect(real).not.toContain('undefined');
+  });
+});
+
+describe('feed autodiscovery', () => {
+  // Next.js REPLACES the whole `alternates` object at page level rather than merging it with the
+  // layout's. Declaring the feed type only in the layout is therefore discarded by every page
+  // that sets `canonical` — which is all of them. This regression test pins the merge.
+  it('exposes the feed type so pages can spread it', () => {
+    expect(FEED_ALTERNATES.types['application/rss+xml']).toBe(FEED_PATH);
+  });
+
+  it('keeps the feed link in metadata built by pageMetadata', () => {
+    const meta = pageMetadata({ title: 'Judul', description: 'Deskripsi.', path: '/templates' });
+    expect(meta.alternates?.types?.['application/rss+xml']).toBe(FEED_PATH);
+  });
+
+  it('keeps the canonical URL alongside the feed link', () => {
+    const meta = pageMetadata({ title: 'Judul', description: 'Deskripsi.', path: '/artikel' });
+    expect(meta.alternates?.canonical).toBe('/artikel');
   });
 });
