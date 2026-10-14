@@ -1,4 +1,5 @@
 import type { CV } from '../schema';
+import { REGION_PRESETS } from '../regions';
 import { hasPlaceholder } from '@/lib/ai/suggestions';
 import { matchKeywords, type KeywordMatch } from './keywords';
 import { ACTION_VERBS, BUZZWORDS, PRONOUNS, WEAK_OPENERS } from './lexicon';
@@ -84,17 +85,21 @@ function format(cv: CV): ScoreComponent {
     });
   }
 
+  const preset = REGION_PRESETS[cv.settings.region];
   const bulletCount = allBullets(cv).length;
-  if (cv.settings.region === 'us') {
-    check(bulletCount <= 18, {
+  if (preset.pageTarget === 1) {
+    check(bulletCount <= preset.maxBullets, {
       severity: 'warn',
-      message: `${bulletCount} poin pencapaian; untuk lamaran ke AS biasanya CV 1 halaman. Pilih poin yang paling relevan.`,
+      message: `${bulletCount} poin pencapaian; untuk lamaran ke ${preset.shortLabel} biasanya CV 1 halaman. Pilih poin yang paling relevan.`,
     });
   } else {
-    check(bulletCount <= 30, { severity: 'warn', message: `${bulletCount} poin pencapaian; usahakan CV maksimal 2 halaman.` });
+    check(bulletCount <= preset.maxBullets, {
+      severity: 'warn',
+      message: `${bulletCount} poin pencapaian; usahakan CV maksimal ${preset.pageTarget} halaman.`,
+    });
   }
 
-  check(!(cv.settings.showPhoto && cv.personalInfo.photo && cv.settings.region !== 'us'), {
+  check(!(cv.settings.showPhoto && cv.personalInfo.photo && !preset.allowPhoto), {
     severity: 'warn',
     message: 'Foto tidak dibaca ATS dan sebaiknya dihilangkan untuk lamaran ke perusahaan multinasional.',
   });

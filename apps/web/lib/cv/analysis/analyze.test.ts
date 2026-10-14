@@ -58,6 +58,18 @@ describe('analyzeCv', () => {
     expect(completeness.findings.map((f) => f.message)).toContain('Belum ada: Email.');
   });
 
+  it('applies the region page-length norm to the format score', () => {
+    const many = normalizeCV({
+      ...strong,
+      experience: [{ position: 'Dev', company: 'A', current: true, bullets: Array.from({ length: 22 }, (_, i) => `Shipped feature ${i} cutting cost by ${i}%`) }],
+    });
+    const us = analyzeCv(normalizeCV({ ...many, settings: { region: 'us' } })).components.find((c) => c.id === 'format')!;
+    const id = analyzeCv(normalizeCV({ ...many, settings: { region: 'id' } })).components.find((c) => c.id === 'format')!;
+    // 22 bullets is over the US one-page cap but within the Indonesian two-page cap.
+    expect(us.findings.some((f) => f.message.includes('1 halaman'))).toBe(true);
+    expect(id.findings.some((f) => f.message.includes('1 halaman'))).toBe(false);
+  });
+
   it('never returns NaN for an empty CV', () => {
     expect(Number.isFinite(analyzeCv(normalizeCV({})).overall)).toBe(true);
   });

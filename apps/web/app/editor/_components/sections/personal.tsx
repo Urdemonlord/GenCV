@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Field, Input } from '@/components/ds';
 import type { CV } from '@/lib/cv/schema';
+import { REGION_PRESETS } from '@/lib/cv/regions';
 import { validateEmail, validatePhone } from '@/lib/validation';
 import { PhotoInput } from '../fields/photo-input';
 import { SectionIntro, type SectionProps } from './shared';
@@ -66,7 +67,7 @@ export function PersonalSection({ cv, update }: SectionProps) {
         <PhotoInput
           photo={info.photo}
           showPhoto={cv.settings.showPhoto}
-          disabledReason={cv.settings.region === 'us' ? 'Foto tidak dicantumkan untuk lamaran ke Amerika Serikat.' : undefined}
+          disabledReason={REGION_PRESETS[cv.settings.region].allowPhoto ? undefined : REGION_PRESETS[cv.settings.region].photoNote}
           onChange={({ photo, showPhoto }) =>
             update((p) => ({
               ...p,

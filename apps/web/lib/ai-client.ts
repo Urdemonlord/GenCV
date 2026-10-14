@@ -6,7 +6,8 @@ export class AiError extends Error {}
 
 /** Output language for AI suggestions, following the CV's own language and region. */
 export function aiLanguageFor(cv: CV): AiLanguage {
-  return cv.settings.language === 'id' ? 'id' : 'en-US';
+  if (cv.settings.language === 'id') return 'id';
+  return cv.settings.region === 'uk' ? 'en-GB' : 'en-US';
 }
 
 /** Target role for prompts: the headline, else the most recent position. */
