@@ -11,6 +11,7 @@ Workspace untuk membuat, mengoptimalkan, dan menyesuaikan CV dengan lowongan yan
 - **Job Match**: keyword dari deskripsi lowongan dibandingkan dengan isi CV.
 - **AI Assistant** (Gemini): saran per poin dan ringkasan dengan tampilan sebelum/sesudah. Saran baru masuk ke CV setelah diterima.
 - **Banyak CV per perangkat**: satu CV per lowongan, bisa diduplikat untuk lowongan lain.
+- **Artikel** (`/artikel`): panduan CV yang isinya konsisten dengan aturan yang dipakai produk, plus RSS di `/feed.xml`.
 
 ## Prinsip produk
 
@@ -64,10 +65,11 @@ npx vitest run -u lib/cv/pdf/templates.snapshot.test.tsx
 
 ```
 apps/web/
-  app/                Halaman (landing, editor, dashboard, templates, privasi) dan route /api/ai
+  app/                Halaman (landing, editor, dashboard, templates, artikel, privasi) dan route /api/ai, /feed.xml
   components/ds/      Komponen design system
   lib/cv/             Schema CV (zod), format, template PDF/DOCX, analisis ATS & Job Match, penyimpanan lokal
   lib/ai/             Kontrak task AI, prompt, guard anti-mengarang, saran
+  lib/blog/           Data artikel dan pembangun RSS feed
   e2e/                Smoke test Playwright
   public/             Font (Inter, Source Serif 4) dan gambar template
 plan.md               Roadmap dan keputusan desain
