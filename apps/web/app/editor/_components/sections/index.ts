@@ -14,7 +14,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { AiAssistantSection } from './ai-assistant';
 import { EducationSection } from './education';
 import { ExperienceSection } from './experience';

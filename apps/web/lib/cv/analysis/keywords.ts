@@ -1,4 +1,4 @@
-import type { CV } from '../schema';
+import type { CV } from '../model';
 import { SKILL_TERMS, SYNONYMS } from './lexicon';
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

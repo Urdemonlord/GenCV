@@ -1,7 +1,7 @@
 'use client';
 
 import { Field, Input } from '@/components/ds';
-import { newId, type Education } from '@/lib/cv/schema';
+import { newId, type Education } from '@/lib/cv/model';
 import { MonthYearInput } from '../fields/month-year-input';
 import { AddButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
 

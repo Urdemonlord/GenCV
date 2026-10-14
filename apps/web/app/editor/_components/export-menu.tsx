@@ -6,7 +6,7 @@ import { Button } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCvDocx, downloadCvJson, downloadCvPdf, shareCvPdf } from '@/lib/cv/download';
 import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
 import { ExportSuccess } from './export-success';
 

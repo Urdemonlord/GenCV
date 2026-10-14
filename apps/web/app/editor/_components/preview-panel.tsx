@@ -6,7 +6,7 @@ import { Chip, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import type { CvAnalysis } from '@/lib/cv/analysis/analyze';
 import { buildCvView } from '@/lib/cv/format';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { recommendTemplate, TEMPLATE_IDS, TEMPLATE_INFO } from '@/lib/cv/templates';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
 import { AnalysisPanel } from './analysis-panel';

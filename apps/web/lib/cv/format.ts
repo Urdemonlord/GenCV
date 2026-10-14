@@ -1,4 +1,4 @@
-import type { AdditionalKind, CV, CvLanguage } from './schema';
+import type { AdditionalKind, CV, CvLanguage } from './model';
 import { REGION_PRESETS } from './regions';
 import type { TemplateId } from './templates';
 

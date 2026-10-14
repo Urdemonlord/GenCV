@@ -7,7 +7,7 @@ import { Button } from '@/components/ds';
 import { hasPlaceholder } from '@/lib/ai/suggestions';
 import { matchKeywords } from '@/lib/cv/analysis/keywords';
 import { downloadCvJson } from '@/lib/cv/download';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { duplicateDocument } from '@/lib/cv/storage';
 
 /**

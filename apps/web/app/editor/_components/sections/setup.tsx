@@ -3,8 +3,8 @@
 import { Briefcase, GraduationCap } from 'lucide-react';
 import { Field, Input, Select } from '@/components/ds';
 import { cn } from '@/lib/cn';
-import type { CvLanguage, CvRegion, CvSettings } from '@/lib/cv/schema';
-import { CV_REGIONS } from '@/lib/cv/schema';
+import type { CvLanguage, CvRegion, CvSettings } from '@/lib/cv/model';
+import { CV_REGIONS } from '@/lib/cv/model';
 import { REGION_PRESETS } from '@/lib/cv/regions';
 import { SectionIntro, type SectionProps } from './shared';
 

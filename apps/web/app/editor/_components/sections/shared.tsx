@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { Button, Panel } from '@/components/ds';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import type { CvUpdate } from '@/lib/cv/use-cv-document';
 
 export interface SectionProps {

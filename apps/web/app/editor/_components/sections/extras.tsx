@@ -9,7 +9,7 @@ import {
   type AdditionalKind,
   type Certification,
   type LanguageItem,
-} from '@/lib/cv/schema';
+} from '@/lib/cv/model';
 import { MonthYearInput } from '../fields/month-year-input';
 import { AddButton, FieldLabel, ItemPanel, SectionIntro, patchItem, removeItem, type SectionProps } from './shared';
 

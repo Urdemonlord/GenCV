@@ -13,7 +13,7 @@ import {
   TextRun,
 } from 'docx';
 import { buildCvView, orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
-import type { CV } from './schema';
+import type { CV } from './model';
 import type { TemplateId } from './templates';
 
 // Page sizes in twentieths of a point.

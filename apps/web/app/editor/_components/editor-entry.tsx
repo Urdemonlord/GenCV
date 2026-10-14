@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { emptyCV } from '@/lib/cv/schema';
+import { emptyCV } from '@/lib/cv/model';
 import { createDocument, listDocuments } from '@/lib/cv/storage';
 import { toTemplateId } from '@/lib/cv/templates';
 import { EditorSkeleton } from './editor-skeleton';
