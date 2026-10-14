@@ -19,6 +19,9 @@ export function useCvDocument(id: string) {
   const [status, setStatus] = useState<CvDocumentStatus>('loading');
   const [saveError, setSaveError] = useState(false);
   const loaded = useRef<CV | null>(null);
+  // The newest edit that has not reached storage yet. Navigating away would otherwise cancel
+  // the debounce below and silently drop it.
+  const pending = useRef<CV | null>(null);
 
   useEffect(() => {
     try {
@@ -38,10 +41,12 @@ export function useCvDocument(id: string) {
 
   useEffect(() => {
     if (status !== 'ready' || cv === loaded.current) return;
+    pending.current = cv;
     const timer = setTimeout(() => {
       try {
         setSavedAt(saveDocument(id, cv));
         setSaveError(false);
+        pending.current = null;
       } catch {
         // Usually a full quota (e.g. a large photo); the edit stays in memory.
         setSaveError(true);
@@ -49,6 +54,28 @@ export function useCvDocument(id: string) {
     }, 400);
     return () => clearTimeout(timer);
   }, [cv, id, status]);
+
+  // The debounce above is cancelled on unmount, so the newest edit would be dropped when the
+  // user navigates away or closes the tab. Flush it on both.
+  useEffect(() => {
+    const flush = () => {
+      const latest = pending.current;
+      if (!latest) return;
+      pending.current = null;
+      try {
+        saveDocument(id, latest);
+      } catch {
+        // Storage unavailable or full; there is no UI left to report it on.
+      }
+    };
+    // `pagehide` also covers closing the tab and entering the back/forward cache, where React
+    // never unmounts the editor.
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      flush();
+    };
+  }, [id]);
 
   /** Prefer the updater form: async callbacks would otherwise overwrite newer edits. */
   const update = useCallback((next: CvUpdate) => {
