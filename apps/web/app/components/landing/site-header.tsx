@@ -5,6 +5,7 @@ import { Button } from '@/components/ds';
 const NAV = [
   { href: '/', label: 'Beranda' },
   { href: '/templates', label: 'Template' },
+  { href: '/artikel', label: 'Artikel' },
   { href: '/#fitur', label: 'Fitur' },
   { href: '/#faq', label: 'FAQ' },
   { href: '/dashboard', label: 'CV saya' },

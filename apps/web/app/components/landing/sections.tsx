@@ -144,6 +144,7 @@ export function FinalCta() {
 const FOOTER_LINKS = [
   { href: '/editor', label: 'Editor' },
   { href: '/templates', label: 'Template' },
+  { href: '/artikel', label: 'Artikel' },
   { href: '/#faq', label: 'FAQ' },
   { href: '/privasi', label: 'Privasi' },
   { href: '/syarat', label: 'Syarat' },

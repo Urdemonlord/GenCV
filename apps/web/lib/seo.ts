@@ -11,7 +11,7 @@ export const CONTACT_EMAIL = 'admin@meowlabs.id';
 export const OPERATOR = 'Meowlabs';
 
 /** Public pages listed in the sitemap; private workspace pages are never indexed. */
-export const PUBLIC_PATHS = ['/', '/templates', '/privasi', '/syarat'] as const;
+export const PUBLIC_PATHS = ['/', '/templates', '/artikel', '/privasi', '/syarat'] as const;
 
 /** The one-line promise, reused by the layout metadata and the structured data below. */
 export const SITE_DESCRIPTION =
@@ -91,6 +91,68 @@ export function landingStructuredData() {
   };
 
   return { '@context': 'https://schema.org', '@graph': [organization, application, howTo] };
+}
+
+/**
+ * Structured data for one blog post. Google still supports `Article` / `BlogPosting`
+ * (unlike `FAQPage`, which was deprecated on 2026-05-07).
+ */
+export function postStructuredData({
+  title,
+  description,
+  slug,
+  datePublished,
+  keywords,
+}: {
+  title: string;
+  description: string;
+  slug: string;
+  datePublished: string;
+  keywords: string[];
+}) {
+  const url = `${SITE_URL}/artikel/${slug}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${url}/#post`,
+    headline: title,
+    description,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    datePublished,
+    dateModified: datePublished,
+    inLanguage: 'id-ID',
+    keywords: keywords.join(', '),
+    // The author is the product team, not a named person: inventing a byline would be a fake claim.
+    author: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
+    publisher: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
+  };
+}
+
+/**
+ * Structured data for the blog index: the list itself plus a `Blog` node.
+ */
+export function blogStructuredData(
+  posts: { title: string; slug: string; datePublished: string }[],
+) {
+  const blogUrl = `${SITE_URL}/artikel`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': `${blogUrl}/#blog`,
+    name: 'Artikel GenCV',
+    description:
+      'Panduan praktis menyusun CV: format ramah ATS, aturan lamaran luar negeri, dan cara menulis pengalaman.',
+    url: blogUrl,
+    inLanguage: 'id-ID',
+    publisher: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      url: `${blogUrl}/${post.slug}`,
+      datePublished: post.datePublished,
+    })),
+  };
 }
 
 /**
