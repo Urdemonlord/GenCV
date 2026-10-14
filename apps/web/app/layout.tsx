@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import { SITE_URL } from '@/lib/seo';
+import { SITE_DESCRIPTION, SITE_URL } from '@/lib/seo';
 import { Analytics } from './components/analytics';
 import { Toaster } from './components/ui/toaster';
 
@@ -14,8 +14,7 @@ const fontSans = Plus_Jakarta_Sans({
 
 const title = 'GenCV · Buat CV profesional yang ramah ATS';
 /** Shown on every page that has no description of its own. */
-const description =
-  'Workspace CV gratis: template ramah ATS, analisis ATS yang bisa dijelaskan, Job Match per lowongan, dan ekspor PDF/DOCX. Data tersimpan di perangkatmu.';
+const description = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
