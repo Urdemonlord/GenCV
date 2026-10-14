@@ -184,7 +184,7 @@ export function CvList() {
                       autoFocus
                       onBlur={(e) => rename(item.id, e.target.value)}
                       onKeyDown={(e) => e.key === 'Escape' && setRenaming(null)}
-                      className="w-full rounded-md border border-input bg-background px-2 py-1 text-lg font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="w-full rounded-md border border-input bg-background px-2 py-1 text-lg font-semibold focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                     />
                   </form>
                 ) : (

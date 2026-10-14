@@ -8,7 +8,7 @@ import { Toaster } from './components/ui/toaster';
 // Self-hosted at build time by next/font (no runtime request to Google).
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
-  variable: '--font-sans',
+  variable: '--font-jakarta',
   display: 'swap',
 });
 

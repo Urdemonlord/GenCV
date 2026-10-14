@@ -133,7 +133,7 @@ export function PdfPreview({ data, template }: { data: CV; template: TemplateId 
           </div>
         )}
         {rendering && pageCount > 0 && (
-          <div className="absolute right-2 top-2 flex items-center gap-1 rounded bg-surface/90 px-2 py-1 text-xs text-muted-foreground shadow">
+          <div className="absolute right-2 top-2 flex items-center gap-1 rounded bg-surface/90 px-2 py-1 text-xs text-muted-foreground shadow-sm">
             <Loader2 className="h-3 w-3 animate-spin" />
             Updating…
           </div>

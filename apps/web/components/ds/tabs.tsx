@@ -52,7 +52,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, 
             onKeyDown={isTablist ? (event) => onKeyDown(event, index) : undefined}
             className={cn(
               'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              selected ? 'bg-surface-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              selected ? 'bg-surface-raised text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {tab.label}

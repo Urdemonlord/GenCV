@@ -1,13 +1,81 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 /*
- * GenCV design tokens (dark only). HSL channels so Tailwind can apply opacity.
+ * GenCV design tokens (dark only), Tailwind v4.
+ * Raw HSL channel values live in :root; @theme maps them to utilities.
  *   background #0B1020 · surface #111827 · border #253047 · text #F8FAFC · muted #94A3B8
  *   primary #4F46E5 (text on dark: #A5B4FC) · accent #A855F7 (text: #C084FC) · success #22C55E · warning #F59E0B · danger #EF4444
  * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
  */
+@theme {
+  /* --font-jakarta is injected by next/font on <html>. */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --color-surface: hsl(var(--surface));
+  --color-surface-raised: hsl(var(--surface-raised));
+  --color-brand-accent: hsl(var(--brand-accent));
+  --color-brand-accent-soft: hsl(var(--brand-accent-soft));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-soft: hsl(var(--primary-soft));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Kept from the v3 config: sm/md/lg are derived from --radius, not the v4 defaults. */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-in: slide-in 0.3s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-in {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
 :root {
   color-scheme: dark;
 
@@ -55,13 +123,21 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-hidden ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
 @layer components {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-soft to-brand-accent-soft bg-clip-text text-transparent;
+    /* Plain gradient (not bg-linear-to-r) so it stays sRGB, matching v3 exactly. */
+    background-image: linear-gradient(
+      to right,
+      hsl(var(--primary-soft)),
+      hsl(var(--brand-accent-soft))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   /* Darker stops than the tokens so white labels stay above 4.5:1 across the gradient. */
   .bg-gradient-brand {
