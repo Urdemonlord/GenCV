@@ -13,7 +13,7 @@
     "previews": "vite-node --config vitest.config.mts scripts/render-previews.tsx"
   },
   "dependencies": {
-    "@google/genai": "^1.17.0",
+    "@google/genai": "^2.29.1",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
     "@react-pdf/renderer": "^4.9.0",
