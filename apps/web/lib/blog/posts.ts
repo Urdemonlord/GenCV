@@ -25,6 +25,93 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: 'arti-skor-ats',
+    title: 'Arti Skor ATS: Apa yang Benar-Benar Dihitung dan Apa yang Tidak',
+    description:
+      'Skor ATS itu estimasi dari aturan yang bisa dilihat, bukan ramalan. Ini arti tiap komponen, cara membacanya, dan batas yang perlu kamu tahu.',
+    datePublished: '2026-10-14',
+    keywords: ['skor ats', 'cek skor cv', 'analisis cv', 'nilai cv ats', 'ats score'],
+    sections: [
+      {
+        heading: 'Skor ATS bukan ramalan, tapi perhitungan',
+        paragraphs: [
+          'Banyak alat menampilkan satu angka besar lalu menyebutnya skor ATS, tanpa menjelaskan dari mana angka itu datang. Di GenCV, angka itu dihitung dari aturan tetap yang bisa kamu periksa sendiri. Tidak ada model yang menebak, tidak ada data perusahaan mana pun yang dipakai.',
+          'Perbedaan ini penting. Kalau skor berasal dari aturan yang terbuka, kamu bisa menilai apakah sarannya masuk akal untuk situasi kamu. Kalau skor berasal dari kotak hitam, satu-satunya cara mempercayainya adalah percaya begitu saja.',
+        ],
+        bullets: [
+          'Skornya estimasi dari aturan, bukan prediksi hasil lamaran.',
+          'Tiap temuan punya alasan yang bisa dibaca, bukan cuma angka.',
+          'Tidak ada data pelamar atau perusahaan yang terlibat.',
+        ],
+      },
+      {
+        heading: 'Lima komponen dan bobotnya',
+        paragraphs: [
+          'Skor total adalah rata-rata berbobot dari lima komponen. Bobotnya berbeda karena tidak semua bagian sama pentingnya untuk terbaca mesin maupun manusia.',
+          'Kelengkapan dan kualitas konten masing-masing berbobot 25 persen, keterbacaan 20 persen, lalu format dan struktur 15 persen, dan kecocokan keyword 15 persen.',
+          'Komponen kecocokan keyword hanya muncul kalau kamu menempelkan deskripsi lowongan. Tanpa lowongan, bobotnya dibagi ke komponen lain, jadi skornya tetap bisa dihitung.',
+        ],
+        bullets: [
+          'Kelengkapan 25 persen: bagian utama CV sudah terisi atau belum.',
+          'Kualitas konten 25 persen: poin pencapaian diawali kata kerja aktif dan memuat angka.',
+          'Keterbacaan 20 persen: panjang poin dan ringkasan masih nyaman dibaca.',
+          'Format dan struktur 15 persen: tanggal lengkap, satu kolom, judul bagian standar.',
+          'Kecocokan keyword 15 persen: keahlian di lowongan yang sudah kamu sebut.',
+        ],
+      },
+      {
+        heading: 'Kelengkapan: sembilan hal yang diperiksa',
+        paragraphs: [
+          'Komponen kelengkapan memeriksa sembilan bagian: nama lengkap, email, nomor telepon, lokasi, profesi di bawah nama, ringkasan profesional, pengalaman atau proyek, pendidikan, dan minimal lima keahlian.',
+          'Bagian yang belum ada muncul sebagai temuan dengan tingkat issue, bukan sekadar peringatan. Artinya bagian itu memang kosong dan biasanya yang paling cepat menaikkan skor kalau diisi.',
+        ],
+      },
+      {
+        heading: 'Kualitas konten: kata kerja, angka, dan klise',
+        paragraphs: [
+          'Di komponen ini, setiap poin pencapaian diberi nilai dari dua hal. Enam puluh persen dari apakah poin itu dibuka kata kerja aktif, dan empat puluh persen dari apakah poin itu memuat angka.',
+          'Kalau poin dibuka frasa tugas seperti bertanggung jawab atas, nilainya hilang. Kalau poin tidak memuat angka sama sekali, sebagian nilainya juga hilang. Tapi ada pengecualian penting: angka yang masih berupa placeholder seperti [X%] belum dihitung sebagai angka, karena itu belum data asli.',
+          'Selain itu, alat ini menandai klise seperti pekerja keras atau mampu bekerja di bawah tekanan, dan memberi peringatan kalau satu kata kerja yang sama membuka empat poin atau lebih.',
+        ],
+        bullets: [
+          'Awali dengan kata kerja aktif: membangun, menurunkan, mengotomatisasi.',
+          'Sebutkan angka kalau kamu punya. Kalau tidak punya, jangan mengarang.',
+          'Hindari klise sifat, tunjukkan buktinya lewat pencapaian.',
+          'Variasikan kata kerja pembuka supaya tidak monoton.',
+        ],
+      },
+      {
+        heading: 'Keterbacaan: batas yang dipakai',
+        paragraphs: [
+          'Poin pencapaian yang lebih dari 35 kata ditandai terlalu panjang, dan yang kurang dari 4 kata ditandai terlalu singkat. Kata ganti orang pertama seperti saya juga ditandai, karena CV lazimnya ditulis tanpa subjek.',
+          'Ringkasan profesional diberi batas berbeda: kalau lebih dari 90 kata, muncul saran untuk memangkasnya ke kisaran 40 sampai 80 kata.',
+        ],
+      },
+      {
+        heading: 'Format dan struktur: dua aturan yang sering terlewat',
+        paragraphs: [
+          'Setiap pengalaman harus punya tanggal mulai dan tanggal selesai yang lengkap. Ini bukan formalitas: sistem pelacak pelamar memakai tanggal untuk menghitung lama pengalaman, dan tanggal yang kosong membuat datanya dianggap tidak lengkap.',
+          'Jumlah poin pencapaian juga dibatasi sesuai negara tujuan. Untuk lamaran ke Amerika Serikat, batasnya 18 poin karena CV di sana lazimnya satu halaman. Untuk format A4, batasnya 30 poin. Foto tidak dihitung untuk lamaran ke perusahaan multinasional, karena sistem tidak membacanya.',
+        ],
+      },
+      {
+        heading: 'Cara membaca angkanya tanpa terjebak mengejar skor',
+        paragraphs: [
+          'Skor dipecah jadi empat label: 85 ke atas sangat baik, 70 ke atas baik, 50 ke atas cukup, dan di bawah 50 perlu perbaikan. Label ini untuk memberi gambaran cepat, bukan target yang harus dikejar sampai angka tertentu.',
+          'Yang lebih berguna adalah membaca temuan, bukan angkanya. Satu temuan bertingkat issue biasanya menurunkan skor lebih besar daripada lima temuan bertingkat peringatan. Perbaiki yang issue dulu, baru yang peringatan.',
+          'Ingat juga bahwa skor tinggi tidak berarti kamu akan dipanggil wawancara. Yang dinilai di sini adalah seberapa rapi CV kamu terbaca dan seberapa jelas pencapaianmu ditulis. Keputusan merekrut tetap ada di tangan manusia, dan itu dipengaruhi banyak hal yang tidak ada di dalam CV.',
+        ],
+      },
+      {
+        heading: 'Yang tidak bisa dijamin skor mana pun',
+        paragraphs: [
+          'Tidak ada alat, jasa, atau orang yang bisa menjamin CV kamu lolos sistem pelacak pelamar. Setiap perusahaan memakai sistem dan pengaturan yang berbeda, dan banyak di antaranya menyesuaikan filternya sendiri. Sebagian bahkan tidak memakai penyaringan otomatis sama sekali.',
+          'Karena itu, waspadai layanan yang menampilkan persentase kelulusan atau jaminan lolos. Angka seperti itu tidak bisa diukur dari luar, jadi nilainya tidak bisa diverifikasi. Yang bisa kamu pegang adalah aturan yang jelas: apakah CV kamu terbaca, apakah pencapaianmu ditulis dengan bukti, dan apakah keahlian yang diminta sudah kamu sebut.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'cara-membuat-cv-ramah-ats',
     title: 'Cara Membuat CV yang Ramah ATS (dan Cara Mengujinya Sendiri)',
     description:
