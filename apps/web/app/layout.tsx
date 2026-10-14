@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description,
   applicationName: 'GenCV',
   keywords: ['CV ATS', 'buat CV', 'CV generator', 'resume builder', 'contoh CV', 'Job Match', 'CV bahasa Inggris'],
+  // Lets feed readers and browsers discover the feed from any page.
+  alternates: { types: { 'application/rss+xml': '/feed.xml' } },
   openGraph: { title, description, type: 'website', url: '/', locale: 'id_ID', siteName: 'GenCV' },
   twitter: { card: 'summary_large_image', title, description },
 };
