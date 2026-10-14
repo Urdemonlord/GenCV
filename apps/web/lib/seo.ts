@@ -13,6 +13,86 @@ export const OPERATOR = 'Meowlabs';
 /** Public pages listed in the sitemap; private workspace pages are never indexed. */
 export const PUBLIC_PATHS = ['/', '/templates', '/privasi', '/syarat'] as const;
 
+/** The one-line promise, reused by the layout metadata and the structured data below. */
+export const SITE_DESCRIPTION =
+  'Workspace CV gratis: template ramah ATS, analisis ATS yang bisa dijelaskan, Job Match per lowongan, dan ekspor PDF/DOCX. Data tersimpan di perangkatmu.';
+
+/** Public feature list. Only claims the product can actually make: no ATS pass rate, no user counts. */
+export const SITE_FEATURES = [
+  'Enam template ramah ATS, semuanya satu kolom dengan teks asli',
+  'Analisis ATS dari aturan yang bisa dijelaskan, lengkap dengan alasan tiap temuan',
+  'Job Match: bandingkan CV dengan deskripsi lowongan dan lihat keyword yang belum ada',
+  'Asisten AI yang tidak menambahkan angka atau pengalaman yang tidak kamu berikan',
+  'Ekspor PDF dan DOCX, keduanya dibuat di browser',
+  'Ukuran kertas A4 atau US Letter, dengan aturan berbeda untuk lamaran ke Amerika Serikat',
+  'Data CV tersimpan di perangkatmu, tanpa akun',
+] as const;
+
+/**
+ * Structured data for the landing page.
+ *
+ * Deliberately absent: `aggregateRating` and `review`. There is no collected rating behind them,
+ * and the product's own rule is that every number shown must come from real user data.
+ * `FAQPage` is also left out: Google deprecated FAQ rich results on 2026-05-07, so that markup
+ * would no longer change how the page appears in Search.
+ */
+export function landingStructuredData() {
+  const organization = {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'GenCV',
+    url: SITE_URL,
+    parentOrganization: { '@type': 'Organization', name: OPERATOR, url: 'https://www.meowlabs.id' },
+    email: CONTACT_EMAIL,
+  };
+
+  const application = {
+    '@type': 'SoftwareApplication',
+    '@id': `${SITE_URL}/#application`,
+    name: 'GenCV',
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Resume builder',
+    operatingSystem: 'Web browser',
+    inLanguage: 'id-ID',
+    isAccessibleForFree: true,
+    featureList: SITE_FEATURES,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'IDR' },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+  };
+
+  const howTo = {
+    '@type': 'HowTo',
+    '@id': `${SITE_URL}/#howto`,
+    name: 'Cara membuat CV ramah ATS dengan GenCV',
+    description:
+      'Tiga langkah: susun isi CV per bagian, perbaiki temuan Analisis ATS dan tutup keyword yang kurang, lalu unduh PDF atau DOCX.',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Susun',
+        text: 'Isi data per bagian: pengalaman sebagai poin pencapaian, pendidikan, keahlian, sertifikasi, dan bahasa.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Optimalkan',
+        text: 'Perbaiki temuan dari Analisis ATS dan tutup keyword yang kurang lewat Job Match, sesuai yang memang kamu kuasai.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Lamar',
+        text: 'Unduh PDF atau DOCX dengan ukuran kertas yang sesuai (A4 atau US Letter) dan kirim lamaranmu.',
+      },
+    ],
+  };
+
+  return { '@context': 'https://schema.org', '@graph': [organization, application, howTo] };
+}
+
 /**
  * Per-page title, description, canonical URL and social cards. `title` goes through the
  * layout's "%s · GenCV" template; social cards need the full title themselves.
