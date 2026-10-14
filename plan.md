@@ -85,7 +85,7 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 - [x] `react`/`react-dom` di `packages/ui` jadi `peerDependencies`; `overrides` di root memastikan hanya satu React (19.3)
 - [x] `next@15.5.27`, `react@19`, `@types/react@19`, `next-themes@0.4`, `eslint-config-next@15`
 - [x] `next.config.js` disesuaikan, `dist` paket di-rebuild, type error diperbaiki (mis. `CardTitle`)
-- [x] Semua advisory Next tertutup. Sisa 9 advisory (5 high, 4 moderate) ada di tooling Tailwind 3 (`braces`, `postcss-selector-parser`) dan `uuid` milik SDK Google; ditangani saat upgrade Tailwind/SDK.
+- [x] Semua advisory Next tertutup. Advisory produksi sudah dibereskan menyeluruh: Tailwind 3 → 4 menutup `braces`/`postcss-selector-parser`, `@google/genai` 2 menutup `uuid`, dan vitest 4 menutup `tinypool`/`@vitest/mocker`. Sisa 5 advisory `braces` hanya lewat `eslint-config-next` (tooling lint, dev-only) dan belum punya versi perbaikan.
 - [x] Preview kini mengukur lebar container langsung saat mount, tidak hanya menunggu `ResizeObserver`
 
 ## T. Jaring pengaman
@@ -287,10 +287,9 @@ Artikel ditulis sebagai data di `apps/web/lib/blog/posts.ts`, bukan MDX: tanpa d
 
 ## Sisa pekerjaan (belum dikerjakan)
 
-- **Upgrade Tailwind 3 → 4.** Menutup advisory `braces` dan `postcss-selector-parser`.
-- **Upgrade SDK Google (`@google/genai`).** Menutup advisory `uuid` yang dibawa SDK.
 - **`zod` → `zod/mini` (opsional).** Memangkas ~17 kB first-load di `/editor`.
 - **Masuk/sinkronisasi cloud dan Harga/pembayaran.** Butuh backend, autentikasi, dan payment; lihat "Sengaja belum dibuat".
+- **`braces` (known issue, tidak bisa ditutup).** Hanya lewat `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch`, yaitu tooling lint (dev-only, bukan runtime). `braces` belum punya versi perbaikan, dan `@next/eslint-plugin-next` terbaru masih memin `fast-glob 3.3.1`. `npm audit fix --force` menyarankan downgrade Next ke 14 — salah arah, jangan diikuti. Tunggu rilis upstream.
 
 ## Sengaja belum dibuat
 
