@@ -1,4 +1,5 @@
 import type { AdditionalKind, CV, CvLanguage } from './schema';
+import { REGION_PRESETS } from './regions';
 import type { TemplateId } from './templates';
 
 const MONTHS: Record<CvLanguage, string[]> = {
@@ -369,11 +370,11 @@ export function buildCvView(cv: CV): CvView {
 
   return {
     language,
-    paper: region === 'us' ? 'LETTER' : 'A4',
+    paper: REGION_PRESETS[region].paper,
     name,
     headline,
-    // Photos are discouraged for US applications, so the setting is ignored there.
-    photo: showPhoto && region !== 'us' ? info.photo : '',
+    // Photos are ignored where the region's conventions discourage them.
+    photo: showPhoto && REGION_PRESETS[region].allowPhoto ? info.photo : '',
     contacts,
     sections: SECTION_ORDER[cv.experienceLevel]
       .map(sectionFor)

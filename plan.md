@@ -134,15 +134,15 @@ Yang belum bisa diuji: fitur AI (butuh `GEMINI_API_KEY`), DOCX di Microsoft Word
 - [x] Kontak ditambah GitHub/portfolio
 - [x] Pengaturan CV:
   - **Bahasa isi:** English atau Bahasa Indonesia. Heading dan kata waktu ikut berubah ("Present"/"Sekarang").
-  - **Preset region:** Indonesia (A4) atau US (Letter). Preset UK/EU belum ada (lihat catatan di bawah).
+  - **Preset region:** Indonesia (A4), US (Letter), UK (A4), EU (A4). Aturan per region dipusatkan di `lib/cv/regions.ts` (`REGION_PRESETS`).
 - [x] Foto opsional:
   - Di-resize di browser ke ≤512 px; input JPG/PNG maksimal 2 MB
-  - Selalu disembunyikan untuk preset US; untuk Indonesia, upload pertama otomatis tampil dan bisa dimatikan
+  - Selalu disembunyikan untuk preset US, UK, dan EU; untuk Indonesia, upload pertama otomatis tampil dan bisa dimatikan
 - [x] PDF dan DOCX me-render semua section dan pengaturan baru
 
 Catatan:
 - Schema ada di `apps/web/lib/cv/schema.ts` (zod, app-local). `packages/types` hanya dipakai sebagai format input migrasi.
-- Region yang tersedia sekarang Indonesia dan US; UK/EU menyusul.
+- Region yang tersedia: Indonesia, US, UK, dan EU. Kertas, aturan foto, dan batas poin per region ada di `REGION_PRESETS`.
 - Judul section di template Classic tidak memakai letter spacing. Dengan kerning Source Serif, teksnya terekstrak terpotong ("SERTIFIK ASI").
 - zod menambah ~17 kB di first load `/builder`. Kalau perlu, bisa diganti `zod/mini`.
 
@@ -287,7 +287,6 @@ Artikel ditulis sebagai data di `apps/web/lib/blog/posts.ts`, bukan MDX: tanpa d
 
 ## Sisa pekerjaan (belum dikerjakan)
 
-- **Preset region UK/EU.** Sekarang baru `id` dan `us` (`CV_REGIONS` di `lib/cv/schema.ts`). Menambah preset berarti menyiapkan format tanggal, panjang halaman, dan aturan foto per region.
 - **Upgrade Tailwind 3 → 4.** Menutup advisory `braces` dan `postcss-selector-parser`.
 - **Upgrade SDK Google (`@google/genai`).** Menutup advisory `uuid` yang dibawa SDK.
 - **`zod` → `zod/mini` (opsional).** Memangkas ~17 kB first-load di `/editor`.
@@ -326,4 +325,4 @@ Semuanya sudah ditangani di `apps/web/lib/cv/pdf/document.tsx`.
 6. Masuk dan Harga disembunyikan sampai fiturnya ada (Blog dibuka di milestone B)
 7. Tema gelap saja
 8. UI berbahasa Indonesia; isi CV bisa English atau Bahasa Indonesia
-9. Preset region prioritas: **Indonesia + US** (UK/EU menyusul)
+9. Preset region: **Indonesia, US, UK, EU** (semua aktif)

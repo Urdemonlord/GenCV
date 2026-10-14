@@ -8,7 +8,7 @@ import { toTemplateId } from './templates';
  */
 
 export const CV_LANGUAGES = ['en', 'id'] as const;
-export const CV_REGIONS = ['id', 'us'] as const;
+export const CV_REGIONS = ['id', 'us', 'uk', 'eu'] as const;
 export const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
 export const SKILL_CATEGORIES = ['Technical', 'Soft'] as const;
 export const LANGUAGE_LEVELS = ['Native', 'C2', 'C1', 'B2', 'B1', 'A2', 'A1'] as const;

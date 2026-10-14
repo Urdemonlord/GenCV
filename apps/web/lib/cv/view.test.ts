@@ -48,7 +48,7 @@ describe('buildCvView (v2)', () => {
     expect(view.language).toBe('id');
   });
 
-  it('uses Letter paper and never a photo for US applications', () => {
+  it('uses Letter paper for US and A4 elsewhere, and never a photo where photos are not used', () => {
     const us = buildCvView(normalizeCV({ ...base, settings: { region: 'us', showPhoto: true } }));
     expect(us.paper).toBe('LETTER');
     expect(us.photo).toBe('');
@@ -56,6 +56,12 @@ describe('buildCvView (v2)', () => {
     const id = buildCvView(normalizeCV({ ...base, settings: { region: 'id', showPhoto: true } }));
     expect(id.paper).toBe('A4');
     expect(id.photo).toMatch(/^data:image\/jpeg/);
+
+    for (const region of ['uk', 'eu'] as const) {
+      const view = buildCvView(normalizeCV({ ...base, settings: { region, showPhoto: true } }));
+      expect(view.paper).toBe('A4');
+      expect(view.photo).toBe('');
+    }
   });
 
   it('puts education first for fresh graduates', () => {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { CV } from '@/lib/cv/schema';
+import { REGION_PRESETS } from '@/lib/cv/regions';
 import type { TemplateId } from '@/lib/cv/templates';
 
 type PdfJs = typeof import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -143,7 +144,7 @@ export function PdfPreview({ data, template }: { data: CV; template: TemplateId 
       ) : (
         pageCount > 0 && (
           <p className="text-xs text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · {data.settings.region === 'us' ? 'US Letter' : 'A4'} · exactly what you will download
+            {pageCount} {pageCount === 1 ? 'page' : 'pages'} · {REGION_PRESETS[data.settings.region].paperLabel} · exactly what you will download
           </p>
         )
       )}

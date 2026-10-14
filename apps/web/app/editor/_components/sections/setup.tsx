@@ -4,6 +4,8 @@ import { Briefcase, GraduationCap } from 'lucide-react';
 import { Field, Input, Select } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import type { CvLanguage, CvRegion, CvSettings } from '@/lib/cv/schema';
+import { CV_REGIONS } from '@/lib/cv/schema';
+import { REGION_PRESETS } from '@/lib/cv/regions';
 import { SectionIntro, type SectionProps } from './shared';
 
 const LEVELS = [
@@ -66,18 +68,14 @@ export function SetupSection({ cv, update }: SectionProps) {
             </Select>
           )}
         </Field>
-        <Field
-          label="Melamar ke"
-          hint={
-            cv.settings.region === 'us'
-              ? 'Kertas US Letter, usahakan 1 halaman, tanpa foto.'
-              : 'Kertas A4; foto opsional untuk lamaran lokal.'
-          }
-        >
+        <Field label="Melamar ke" hint={REGION_PRESETS[cv.settings.region].hint}>
           {(control) => (
             <Select {...control} value={cv.settings.region} onChange={(e) => updateSettings({ region: e.target.value as CvRegion })}>
-              <option value="id">Indonesia</option>
-              <option value="us">Amerika Serikat</option>
+              {CV_REGIONS.map((region) => (
+                <option key={region} value={region}>
+                  {REGION_PRESETS[region].label}
+                </option>
+              ))}
             </Select>
           )}
         </Field>
