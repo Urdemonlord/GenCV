@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "previews": "vite-node --config vitest.config.ts scripts/render-previews.tsx"
+    "previews": "vite-node --config vitest.config.mts scripts/render-previews.tsx"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",
@@ -42,6 +42,7 @@
     "postcss": "^8.4.30",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2",
-    "vitest": "^3.2.7"
+    "vite-node": "^6.0.0",
+    "vitest": "^4.1.11"
   }
 }
