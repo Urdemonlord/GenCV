@@ -47,7 +47,7 @@ export function ExportSuccess({
     >
       <div className="flex items-start gap-2">
         <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
-        <h2 id="export-success-title" ref={headingRef} tabIndex={-1} className="flex-1 font-semibold outline-none">
+        <h2 id="export-success-title" ref={headingRef} tabIndex={-1} className="flex-1 font-semibold outline-hidden">
           {format} berhasil diunduh
         </h2>
         <button type="button" aria-label="Tutup" className="rounded p-0.5 text-muted-foreground hover:text-foreground" onClick={onClose}>
