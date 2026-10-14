@@ -144,7 +144,7 @@ Catatan:
 - Schema ada di `apps/web/lib/cv/schema.ts` (zod, app-local). `packages/types` hanya dipakai sebagai format input migrasi.
 - Region yang tersedia: Indonesia, US, UK, dan EU. Kertas, aturan foto, dan batas poin per region ada di `REGION_PRESETS`.
 - Judul section di template Classic tidak memakai letter spacing. Dengan kerning Source Serif, teksnya terekstrak terpotong ("SERTIFIK ASI").
-- zod menambah ~17 kB di first load `/builder`. Kalau perlu, bisa diganti `zod/mini`.
+- zod sempat menambah ~17 kB di first load `/editor`; sudah diatasi dengan mengeluarkan zod dari bundle klien sepenuhnya (lihat "Sisa pekerjaan").
 
 ## R3. Editor workspace (selesai)
 
@@ -287,7 +287,7 @@ Artikel ditulis sebagai data di `apps/web/lib/blog/posts.ts`, bukan MDX: tanpa d
 
 ## Sisa pekerjaan (belum dikerjakan)
 
-- **`zod` → `zod/mini` (opsional).** Memangkas ~17 kB first-load di `/editor`.
+- [x] zod dikeluarkan dari bundle klien. Nilai runtime pindah ke `lib/cv/model.ts`; koersi `localStorage` ditulis tangan di `normalize.ts` (`coerceCV`), dengan `schema.ts` sebagai oracle test-only yang dijaga test paritas. Initial load `/editor` turun ~15 kB gzip.
 - **Masuk/sinkronisasi cloud dan Harga/pembayaran.** Butuh backend, autentikasi, dan payment; lihat "Sengaja belum dibuat".
 - **`braces` (known issue, tidak bisa ditutup).** Hanya lewat `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch`, yaitu tooling lint (dev-only, bukan runtime). `braces` belum punya versi perbaikan, dan `@next/eslint-plugin-next` terbaru masih memin `fast-glob 3.3.1`. `npm audit fix --force` menyarankan downgrade Next ke 14 — salah arah, jangan diikuti. Tunggu rilis upstream.
 
