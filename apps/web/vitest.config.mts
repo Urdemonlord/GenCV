@@ -5,7 +5,8 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./', import.meta.url)) },
   },
-  esbuild: { jsx: 'automatic' },
+  // Vite 8 transforms with oxc (not esbuild), so JSX is configured here.
+  oxc: { jsx: { runtime: 'automatic' } },
   test: {
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules/**', '.next/**', 'e2e/**'],
