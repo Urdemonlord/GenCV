@@ -1,7 +1,7 @@
 'use client';
 
 import { Field, Input } from '@/components/ds';
-import { newId, type Experience } from '@/lib/cv/schema';
+import { newId, type Experience } from '@/lib/cv/model';
 import { BulletAssist } from '../ai/bullet-assist';
 import { BulletEditor } from '../fields/bullet-editor';
 import { MonthYearInput } from '../fields/month-year-input';

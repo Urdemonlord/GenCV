@@ -1,4 +1,4 @@
-import type { CvRegion } from './schema';
+import type { CvRegion } from './model';
 
 export interface RegionPreset {
   /** Shown in the "Melamar ke" dropdown. */

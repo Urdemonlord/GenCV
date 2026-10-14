@@ -1,4 +1,4 @@
-import type { CV } from '../schema';
+import type { CV } from '../model';
 import { REGION_PRESETS } from '../regions';
 import { hasPlaceholder } from '@/lib/ai/suggestions';
 import { matchKeywords, type KeywordMatch } from './keywords';

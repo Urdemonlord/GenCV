@@ -6,7 +6,7 @@ import { Button, Chip, Field, Input, Select } from '@/components/ds';
 import { aiContext, requestAi } from '@/lib/ai-client';
 import { aiErrorMessage } from '../ai/suggestions';
 import { parseList } from '@/lib/cv/normalize';
-import { newId, SKILL_CATEGORIES, type Skill } from '@/lib/cv/schema';
+import { newId, SKILL_CATEGORIES, type Skill } from '@/lib/cv/model';
 import { AiButton, SectionIntro, type SectionProps } from './shared';
 
 const CATEGORY_LABELS: Record<Skill['category'], string> = { Technical: 'Teknis', Soft: 'Soft skill' };

@@ -1,4 +1,4 @@
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { cvFileBaseName } from './format';
 import type { TemplateId } from './templates';
 

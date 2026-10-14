@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { emptyCV, type CV } from './schema';
+import { emptyCV, type CV } from './model';
 import { listDocuments, loadDocument, saveDocument } from './storage';
 
 export type CvUpdate = CV | ((previous: CV) => CV);

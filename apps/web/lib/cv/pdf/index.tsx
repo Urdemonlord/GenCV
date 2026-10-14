@@ -1,5 +1,5 @@
 import { pdf } from '@react-pdf/renderer';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { buildCvView } from '../format';
 import type { TemplateId } from '../templates';
 import { CvDocument } from './document';

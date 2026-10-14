@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { REGION_PRESETS } from '@/lib/cv/regions';
 import type { TemplateId } from '@/lib/cv/templates';
 

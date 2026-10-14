@@ -5,7 +5,7 @@ import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ds';
 import { AiError, aiContext, requestAi } from '@/lib/ai-client';
 import { applySuggestion, bulletSuggestions, hasPlaceholder, isStale, type BulletSection, type Suggestion } from '@/lib/ai/suggestions';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import type { SectionProps } from '../sections/shared';
 
 /** Pending suggestions for one part of the editor. */

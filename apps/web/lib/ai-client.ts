@@ -1,5 +1,5 @@
 import type { AiInput, AiLanguage, AiOutput, AiTask } from '@/lib/ai/tasks';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { getTurnstileToken } from '@/lib/turnstile-client';
 
 export class AiError extends Error {}

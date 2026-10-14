@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Field, Input } from '@/components/ds';
-import type { CV } from '@/lib/cv/schema';
+import type { CV } from '@/lib/cv/model';
 import { REGION_PRESETS } from '@/lib/cv/regions';
 import { validateEmail, validatePhone } from '@/lib/validation';
 import { PhotoInput } from '../fields/photo-input';

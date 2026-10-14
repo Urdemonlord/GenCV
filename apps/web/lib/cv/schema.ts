@@ -1,25 +1,27 @@
 import { z } from 'zod';
+import {
+  ADDITIONAL_KINDS,
+  CV_LANGUAGES,
+  CV_REGIONS,
+  EXPERIENCE_LEVELS,
+  LANGUAGE_LEVELS,
+  SKILL_CATEGORIES,
+  SKILL_LEVELS,
+  newId,
+} from './model';
 import { toTemplateId } from './templates';
 
 /**
- * CV data model v2: the single source of truth for the editor and every exporter.
- * Every field has a fallback (`catch`) so partial or older data never throws; the
- * v1 → v2 migration lives in normalize.ts.
+ * CV data model v2 as zod schemas.
+ *
+ * This module is the *oracle*, not the runtime. The browser never imports it: the editor
+ * gets its values and types from `model.ts`, and the untrusted-input coercion the client
+ * actually runs is hand-written in `normalize.ts`. Keeping zod out of the client bundle is
+ * worth ≈15 kB gzip on `/editor` and `/dashboard`.
+ *
+ * `normalize.test.ts` asserts that `normalizeCV` produces exactly what `cvSchema.parse`
+ * would, so the schema and the hand-written coercion cannot drift apart.
  */
-
-export const CV_LANGUAGES = ['en', 'id'] as const;
-export const CV_REGIONS = ['id', 'us', 'uk', 'eu'] as const;
-export const SKILL_LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
-export const SKILL_CATEGORIES = ['Technical', 'Soft'] as const;
-export const LANGUAGE_LEVELS = ['Native', 'C2', 'C1', 'B2', 'B1', 'A2', 'A1'] as const;
-export const ADDITIONAL_KINDS = ['award', 'organization', 'volunteer', 'publication'] as const;
-
-export type CvLanguage = (typeof CV_LANGUAGES)[number];
-export type CvRegion = (typeof CV_REGIONS)[number];
-export type AdditionalKind = (typeof ADDITIONAL_KINDS)[number];
-
-let idCounter = 0;
-export const newId = (prefix = 'item') => `${prefix}_${Date.now().toString(36)}_${(++idCounter).toString(36)}`;
 
 const text = z.string().catch('');
 const list = z.array(z.string()).catch([]);
@@ -117,7 +119,7 @@ export const cvSchema = z.object({
   /** Document name shown in the editor (e.g. "CV Data Analyst – Tokopedia"); not printed on the CV. */
   title: text,
   settings: settingsSchema.catch(() => settingsSchema.parse({})),
-  experienceLevel: z.enum(['fresh', 'professional']).catch('professional'),
+  experienceLevel: z.enum(EXPERIENCE_LEVELS).catch('professional'),
   personalInfo: personalInfoSchema.catch(() => personalInfoSchema.parse({})),
   professionalSummary: text,
   /** Pasted job ad this CV is tailored to; drives the keyword match. Never exported. */
@@ -135,6 +137,7 @@ export const cvSchema = z.object({
 
 export type CV = z.infer<typeof cvSchema>;
 export type CvSettings = CV['settings'];
+export type PersonalInfo = CV['personalInfo'];
 export type Experience = CV['experience'][number];
 export type Education = CV['education'][number];
 export type Skill = CV['skills'][number];
@@ -142,5 +145,3 @@ export type Project = CV['projects'][number];
 export type Certification = CV['certifications'][number];
 export type LanguageItem = CV['languages'][number];
 export type AdditionalItem = CV['additional'][number];
-
-export const emptyCV = (): CV => cvSchema.parse({});

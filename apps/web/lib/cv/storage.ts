@@ -1,5 +1,5 @@
 import { normalizeCV } from './normalize';
-import { emptyCV, newId, type CV } from './schema';
+import { emptyCV, newId, type CV } from './model';
 import type { TemplateId } from './templates';
 
 /**
