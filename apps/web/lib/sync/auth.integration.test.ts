@@ -182,15 +182,27 @@ describe.skipIf(!url)('Better Auth schema (integration)', () => {
   });
 
   it('enforces the composite primary key and the tombstone invariant on documents', async () => {
+    // Create the users here instead of reading whatever earlier tests left behind: run this
+    // test alone (`vitest -t`) and the tables are empty, so borrowed users would not exist.
+    const mkUser = (tag: string) => ({
+      id: `doc-user-${tag}-${Date.now()}`,
+      name: tag,
+      email: `docs-${tag}-${Date.now()}@example.com`,
+      emailVerified: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const a = mkUser('a');
+    const b = mkUser('b');
+    await db.insert(user).values([a, b]);
+
     // A device-generated id may repeat across users; the pair must not.
-    const [a] = await db.select().from(user).limit(1);
     await db.insert(documents).values({ userId: a.id, id: 'cv-1', updatedAt: 1, hash: 'h', body: { basics: {} } });
     await expect(
       db.insert(documents).values({ userId: a.id, id: 'cv-1', updatedAt: 2, hash: 'h2', body: { basics: {} } }),
     ).rejects.toThrow();
 
     // The same id under a DIFFERENT user is allowed — ids are only unique per user.
-    const [b] = await db.select().from(user).limit(2).then((rows) => [rows[1]]);
     await db.insert(documents).values({ userId: b.id, id: 'cv-1', updatedAt: 1, hash: 'h', body: { basics: {} } });
 
     // The tombstone invariant: a live document must carry a body, and a tombstone must not.
