@@ -10,11 +10,23 @@ export const DATABASE_URL_ENV = 'DATABASE_URL';
 /** Signing secret for session cookies. Must be >= 32 chars; generate with `openssl rand -base64 32`. */
 export const AUTH_SECRET_ENV = 'BETTER_AUTH_SECRET';
 
+/** Minimum length for the session signing secret. Short secrets are weak; reject them. */
+export const MIN_AUTH_SECRET_LENGTH = 32;
+
 /** Public origin, used for cookie/redirect correctness behind a proxy. */
 export const AUTH_URL_ENV = 'BETTER_AUTH_URL';
 
+/**
+ * True only when sync is fully and *safely* configured.
+ *
+ * The secret length is checked here rather than left to Better Auth: a short secret still
+ * "works", so a weak value would silently enable session signing instead of failing loudly.
+ * With this guard the route stays 503 until a proper secret is set.
+ */
 export function isSyncConfigured(): boolean {
-  return Boolean(process.env[DATABASE_URL_ENV]?.trim() && process.env[AUTH_SECRET_ENV]?.trim());
+  const databaseUrl = process.env[DATABASE_URL_ENV]?.trim();
+  const secret = process.env[AUTH_SECRET_ENV]?.trim();
+  return Boolean(databaseUrl && secret && secret.length >= MIN_AUTH_SECRET_LENGTH);
 }
 
 /** Origin for Better Auth. Falls back to the app URL, then to local dev. */

@@ -1,12 +1,15 @@
-import { bigint, boolean, index, jsonb, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { bigint, boolean, check, index, jsonb, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 
 /**
  * Drizzle schema for cloud sync: Better Auth's own tables (user/session/account/verification)
  * plus the CV documents. Column names are snake_case, matching Better Auth's defaults, so
  * the adapter needs no field mapping.
  *
- * The four auth tables follow Better Auth's documented Postgres shape. They are verified
- * against the real library by the sync integration test, which runs an actual sign-up.
+ * The four auth tables follow Better Auth's documented Postgres shape. They are NOT yet
+ * verified against the real library: that needs a running Postgres and an integration test
+ * doing a real sign-up, which is still to be added. Treat the column names as unverified
+ * until then.
  */
 
 export const user = pgTable('user', {
@@ -59,19 +62,30 @@ export const account = pgTable(
   (table) => [index('account_user_id_idx').on(table.userId)],
 );
 
-export const verification = pgTable('verification', {
-  id: text('id').primaryKey(),
-  identifier: text('identifier').notNull(),
-  value: text('value').notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }),
-  updatedAt: timestamp('updated_at', { withTimezone: true }),
-});
+export const verification = pgTable(
+  'verification',
+  {
+    id: text('id').primaryKey(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }),
+    updatedAt: timestamp('updated_at', { withTimezone: true }),
+  },
+  // Verification and password-reset lookups filter by identifier; without this they scan
+  // every token row.
+  (table) => [index('verification_identifier_idx').on(table.identifier)],
+);
 
 /**
  * One row per CV per user. The composite primary key is (user_id, id): document ids are
- * generated on the device, so they are only unique within a user, and scoping the key this
- * way makes cross-user writes impossible by construction rather than by a query filter.
+ * generated on the device, so they are only unique within a user.
+ *
+ * This key is a *uniqueness* constraint, NOT authorization. It stops two users from
+ * claiming the same id, but a write can still name another user's `user_id`. Every query
+ * must therefore be scoped to the authenticated user (`where eq(documents.userId, session.
+ * user.id)`) in the sync route. When the route lands, consider a row-level-security policy
+ * as a second line of defence.
  */
 export const documents = pgTable(
   'documents',
@@ -89,5 +103,11 @@ export const documents = pgTable(
     /** The CV body. NULL for a tombstone: the row only carries sync metadata. */
     body: jsonb('body'),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.id] }), index('documents_user_updated_idx').on(table.userId, table.updatedAt)],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.id] }),
+    index('documents_user_updated_idx').on(table.userId, table.updatedAt),
+    // `deleted` and `body IS NULL` are both tombstone markers, so they must not disagree:
+    // a half-written tombstone would sync as a live document with no content.
+    check('documents_tombstone_has_no_body', sql`${table.deleted} = (${table.body} IS NULL)`),
+  ],
 );

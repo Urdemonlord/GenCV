@@ -6,8 +6,13 @@
  * changed. That keeps a round cheap on a phone connection and makes the decision testable
  * without a server.
  *
- * Conflict rule: last write wins, using `updatedAt` (ms epoch) as the clock. Ties are
- * broken by `hash`, so two edits landing in the same millisecond still converge.
+ * Conflict rule: a strict total order, so both devices compute the same winner.
+ *  1. newer `updatedAt` (ms epoch) wins;
+ *  2. then the larger `hash`;
+ *  3. then a tombstone beats a live copy.
+ * Step 2 must compare, not merely notice a difference: with an inequality both devices
+ * would pick their own copy and the round would ping-pong forever. Step 3 exists because a
+ * live record and a tombstone can share a timestamp and a hash.
  */
 
 /** A document's sync metadata: enough to decide the winner without sending the body. */
@@ -21,7 +26,7 @@ export interface SyncRecord {
    * comes back from the dead.
    */
   deleted: boolean;
-  /** Content fingerprint, used only to break exact timestamp ties. Not a security hash. */
+  /** Content fingerprint, used only to break timestamp ties. Not a security hash. */
   hash: string;
 }
 
@@ -32,31 +37,36 @@ export interface MergePlan {
   download: string[];
   /** Local tombstones to push, so the deletion reaches the other side. */
   deleteRemote: string[];
-  /** Remote tombstones to apply locally. */
-  deleteLocal: string[];
+  /**
+   * Remote tombstones to record locally, carrying the *remote* metadata. Storing the
+   * tombstone's own `updatedAt` matters: keeping only the local (older) timestamp would let
+   * a stale peer's live copy win the next round and resurrect the document.
+   */
+  deleteLocal: SyncRecord[];
   /** Already identical on both sides; nothing to transfer. */
   unchanged: string[];
 }
 
 const EMPTY: MergePlan = { upload: [], download: [], deleteRemote: [], deleteLocal: [], unchanged: [] };
 
-/**
- * Local wins when it is strictly newer. When the clocks tie, the *larger* hash wins.
- *
- * Comparing the two hashes (instead of only noticing they differ) is what makes this a
- * total order. With a mere inequality, both devices would see their own copy as the winner
- * — each runs this with the sides swapped — so both would upload and the round would
- * ping-pong forever instead of converging.
- */
+/** Strict total order over the two records; `true` means the local copy wins. */
 function localWins(local: SyncRecord, remote: SyncRecord): boolean {
   if (local.updatedAt !== remote.updatedAt) return local.updatedAt > remote.updatedAt;
-  return local.hash > remote.hash;
+  if (local.hash !== remote.hash) return local.hash > remote.hash;
+  // Same clock, same content: only `deleted` can differ. Let the deletion win so it
+  // propagates instead of being silently ignored.
+  return local.deleted && !remote.deleted;
+}
+
+/** True when the two records describe the same state, tombstone included. */
+function sameState(a: SyncRecord, b: SyncRecord): boolean {
+  return a.updatedAt === b.updatedAt && a.hash === b.hash && a.deleted === b.deleted;
 }
 
 /**
  * Decides, for every document known to either side, which side's copy should survive.
- * Pure and symmetric in the sense that both devices reach the same plan from the same
- * two record sets, so a round converges instead of ping-ponging.
+ * Pure, and both devices reach the same plan from the same two record sets, so a round
+ * converges instead of ping-ponging.
  */
 export function planMerge(local: SyncRecord[], remote: SyncRecord[]): MergePlan {
   const localById = new Map(local.map((record) => [record.id, record]));
@@ -74,16 +84,20 @@ export function planMerge(local: SyncRecord[], remote: SyncRecord[]): MergePlan 
       continue;
     }
     if (there && !here) {
+      // A tombstone for an unknown document carries nothing to apply, so it is ignored.
       if (!there.deleted) plan.download.push(id);
       continue;
     }
     if (!here || !there) continue;
 
-    // Both sides know it: compare clocks.
+    if (sameState(here, there)) {
+      plan.unchanged.push(id);
+      continue;
+    }
+
     if (!localWins(here, there)) {
-      // Remote wins. Equal clocks AND equal hashes means nothing to do.
-      if (here.updatedAt === there.updatedAt && here.hash === there.hash) plan.unchanged.push(id);
-      else if (there.deleted) plan.deleteLocal.push(id);
+      // Remote wins.
+      if (there.deleted) plan.deleteLocal.push(there);
       else plan.download.push(id);
       continue;
     }
@@ -92,25 +106,50 @@ export function planMerge(local: SyncRecord[], remote: SyncRecord[]): MergePlan 
     else plan.upload.push(id);
   }
 
-  for (const key of ['upload', 'download', 'deleteRemote', 'deleteLocal', 'unchanged'] as const) {
-    plan[key].sort();
-  }
+  plan.upload.sort();
+  plan.download.sort();
+  plan.deleteRemote.sort();
+  plan.unchanged.sort();
+  plan.deleteLocal.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return plan;
 }
 
 /**
- * Stable fingerprint of a document body. Not cryptographic and not meant to be: it only
- * distinguishes two edits that share a millisecond. djb2 keeps it dependency-free and
- * synchronous, so it can run while saving to localStorage.
+ * Stable fingerprint of a document body, 128 bits.
+ *
+ * Not cryptographic and never to be used for integrity or security. It must merely be wide
+ * enough that two *different* bodies do not collide, because `planMerge` treats equal
+ * hashes as equal content and would silently drop one of them. A 32-bit hash was not wide
+ * enough: djb2 maps both 'Aa' and 'B@' to the same value.
  */
 export function hashText(text: string): string {
-  let hash = 5381;
-  for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
-  return (hash >>> 0).toString(36);
+  const seeds = [0x811c9dc5, 0x01000193, 0x9e3779b9, 0x85ebca6b];
+  return seeds
+    .map((seed) => {
+      let hash = seed;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193);
+      }
+      return (hash >>> 0).toString(16).padStart(8, '0');
+    })
+    .join('');
 }
 
-/** Applies a merge plan's deletions to a local list, returning the surviving records. */
+/**
+ * Applies the plan's deletions to the local metadata list.
+ *
+ * A deleted document keeps a *tombstone* record rather than disappearing. Dropping it
+ * entirely would make the document look "missing here, present there" on the next round
+ * with a peer that still has the old copy — and it would be downloaded straight back.
+ * Callers must also clear the stored body; the tombstone is metadata only.
+ */
 export function applyLocalDeletions(local: SyncRecord[], plan: MergePlan): SyncRecord[] {
-  const gone = new Set(plan.deleteLocal);
-  return local.filter((record) => !gone.has(record.id));
+  const tombstones = new Map(plan.deleteLocal.map((record) => [record.id, record]));
+  const updated = local.map((record) => tombstones.get(record.id) ?? record);
+  // A tombstone for a document this device had not seen yet still has to be recorded,
+  // or the next pull would re-create it.
+  const known = new Set(local.map((record) => record.id));
+  for (const tombstone of plan.deleteLocal) if (!known.has(tombstone.id)) updated.push(tombstone);
+  return updated;
 }
