@@ -15,13 +15,48 @@ import { account, documents, session, user, verification } from './schema';
  * Postgres can, because a wrong column name is a runtime error, not a type error.
  *
  * Skipped unless `TEST_DATABASE_URL` points at a throwaway database, so CI (which has no
- * Postgres) stays green. Start one with `docker run -d --rm -p 127.0.0.1:55432:5432`, passing
- * the postgres image its own user, database and password environment variables, then export
- * `TEST_DATABASE_URL` for that user and database. The connection string is deliberately not
- * spelled out here: a literal URL with credentials trips secret scanners, and that noise
- * would train us to ignore a real finding.
+ * Postgres) stays green. Start one and point the test at it:
+ *
+ *   docker run -d --rm -p 127.0.0.1:55432:5432 \
+ *     -e POSTGRES_USER="$PGUSER" -e POSTGRES_PASSWORD="$PGPASSWORD" -e POSTGRES_DB=gencv_test \
+ *     postgres:16-alpine
+ *   TEST_DATABASE_URL="postgres://$PGUSER:$PGPASSWORD@127.0.0.1:55432/gencv_test" \
+ *     ./node_modules/.bin/vitest run --root apps/web lib/sync
+ *
+ * The database name must contain "test": the setup below drops tables, so the name is the
+ * guard against aiming this at a real database by accident. Credentials come from shell
+ * variables on purpose — a literal URL with a password trips secret scanners, and that
+ * noise would train us to ignore a real finding.
  */
 const url = process.env.TEST_DATABASE_URL;
+
+/**
+ * Refuses to run against a database that does not announce itself as throwaway. The setup
+ * drops every table this test touches, so a real connection string pasted into
+ * `TEST_DATABASE_URL` would destroy real data. Requiring "test" in the database name turns
+ * that mistake into a loud failure instead of silent data loss.
+ */
+function assertThrowawayDatabase(connectionString: string): void {
+  const name = new URL(connectionString).pathname.replace(/^\//, '');
+  if (!/test/i.test(name)) {
+    throw new Error(
+      `Refusing to run: database "${name}" does not look like a throwaway database. ` +
+        'The database name must contain "test" — this test drops tables.',
+    );
+  }
+}
+
+// Runs even when the integration suite is skipped: this is the safety mechanism for the
+// destructive setup below, so it must not itself depend on a database.
+describe('assertThrowawayDatabase', () => {
+  it('accepts a database whose name says it is throwaway', () => {
+    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv_test')).not.toThrow();
+  });
+
+  it('refuses a database whose name does not', () => {
+    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv')).toThrow(/test/);
+  });
+});
 
 /**
  * Throwaway password for the test account. Assembled from parts on purpose: a plain literal
@@ -47,6 +82,7 @@ describe.skipIf(!url)('Better Auth schema (integration)', () => {
   let db: ReturnType<typeof drizzle>;
 
   beforeAll(async () => {
+    assertThrowawayDatabase(url!);
     pool = new Pool({ connectionString: url });
     // Start from a clean slate so the run is repeatable: earlier runs (and `drizzle-kit
     // push`) leave the tables behind.
@@ -119,6 +155,29 @@ describe.skipIf(!url)('Better Auth schema (integration)', () => {
     await auth.api.signUpEmail({ body: { email, password: TEST_PW, name: 'Salah' } });
     await expect(
       auth.api.signInEmail({ body: { email, password: WRONG_PW } }),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a duplicate (provider_id, account_id) pair', async () => {
+    const email = `dupacct-${Date.now()}@example.com`;
+    await auth.api.signUpEmail({ body: { email, password: TEST_PW, name: 'Ganda' } });
+
+    // The sign-up already wrote the credential account for this user.
+    const accounts = await db.select().from(account);
+    const existing = accounts.find((a) => a.providerId === 'credential' && a.accountId);
+    expect(existing).toBeDefined();
+
+    // A second row with the same provider identity must be impossible: Better Auth resolves an
+    // account by that pair, and two matches make the identity ambiguous.
+    await expect(
+      db.insert(account).values({
+        id: `dup-${Date.now()}`,
+        providerId: existing!.providerId,
+        accountId: existing!.accountId,
+        userId: existing!.userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
     ).rejects.toThrow();
   });
 

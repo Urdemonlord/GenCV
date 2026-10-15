@@ -1,15 +1,30 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, check, index, jsonb, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  boolean,
+  check,
+  index,
+  jsonb,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  unique,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Drizzle schema for cloud sync: Better Auth's own tables (user/session/account/verification)
  * plus the CV documents. Column names are snake_case, matching Better Auth's defaults, so
  * the adapter needs no field mapping.
  *
- * The four auth tables are verified against the real library by
+ * The `user`, `account` and `session` tables are verified against the real library by
  * `auth.integration.test.ts`, which runs a real sign-up, sign-in and session lookup against
  * Postgres. Run it with `TEST_DATABASE_URL` set (see the file header); it skips itself when
  * that variable is absent so CI needs no database.
+ *
+ * `verification` is NOT covered: no flow this app enables (email verification, password
+ * reset) writes to it, so its columns have not been exercised against the library. Treat
+ * them as unverified until one of those flows is turned on.
  */
 
 export const user = pgTable('user', {
@@ -59,7 +74,13 @@ export const account = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
   },
-  (table) => [index('account_user_id_idx').on(table.userId)],
+  (table) => [
+    index('account_user_id_idx').on(table.userId),
+    // A provider identity is the pair (provider_id, account_id). Better Auth throws at runtime
+    // when that pair resolves to more than one row, so keep the duplicate impossible in the
+    // database rather than discovering it mid-sign-in.
+    unique('account_provider_account_unique').on(table.providerId, table.accountId),
+  ],
 );
 
 export const verification = pgTable(
