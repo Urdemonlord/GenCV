@@ -49,13 +49,19 @@ export interface MergePlan {
 
 const EMPTY: MergePlan = { upload: [], download: [], deleteRemote: [], deleteLocal: [], unchanged: [] };
 
-/** Strict total order over the two records; `true` means the local copy wins. */
-function localWins(local: SyncRecord, remote: SyncRecord): boolean {
-  if (local.updatedAt !== remote.updatedAt) return local.updatedAt > remote.updatedAt;
-  if (local.hash !== remote.hash) return local.hash > remote.hash;
+/**
+ * Strict total order over two records for the same document; `true` means `a` wins.
+ *
+ * Exported because the server applies the same rule before accepting a write. Two
+ * implementations of "who wins" would be two chances to disagree, and a disagreement here is
+ * a sync that never converges.
+ */
+export function winsOver(a: SyncRecord, b: SyncRecord): boolean {
+  if (a.updatedAt !== b.updatedAt) return a.updatedAt > b.updatedAt;
+  if (a.hash !== b.hash) return a.hash > b.hash;
   // Same clock, same content: only `deleted` can differ. Let the deletion win so it
   // propagates instead of being silently ignored.
-  return local.deleted && !remote.deleted;
+  return a.deleted && !b.deleted;
 }
 
 /** True when the two records describe the same state, tombstone included. */
@@ -95,7 +101,7 @@ export function planMerge(local: SyncRecord[], remote: SyncRecord[]): MergePlan 
       continue;
     }
 
-    if (!localWins(here, there)) {
+    if (!winsOver(here, there)) {
       // Remote wins.
       if (there.deleted) plan.deleteLocal.push(there);
       else plan.download.push(id);
