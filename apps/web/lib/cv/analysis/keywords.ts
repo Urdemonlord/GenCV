@@ -3,12 +3,26 @@ import { SKILL_TERMS, SYNONYMS } from './lexicon';
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** Lower-cases and folds synonyms ("k8s" → "kubernetes") so both sides compare equally. */
+/**
+ * Lower-cases and folds synonyms ("k8s" → "kubernetes") so both sides compare equally.
+ *
+ * Two guards keep the folding idempotent, because a synonym key can be a prefix of its own
+ * expansion:
+ *  - the lookahead also rejects a trailing dot that starts a token (`node` in `node.js`),
+ *    while a sentence-final dot (`js.`) still folds;
+ *  - the replacement is skipped when the text already reads as the target (`ui` in
+ *    `ui design`), so running it twice is the same as running it once.
+ */
 export function normalizeText(text: string): string {
   let result = ` ${text.toLowerCase().replace(/\s+/g, ' ')} `;
   // Longest synonyms first so "restful apis" wins over "rest apis".
   for (const [from, to] of Object.entries(SYNONYMS).sort((a, b) => b[0].length - a[0].length)) {
-    result = result.replace(new RegExp(`(?<![\\w.#+/-])${escape(from)}(?![\\w#+/-])`, 'g'), to);
+    const pattern = new RegExp(`(?<![\\w.#+/-])${escape(from)}(?![\\w#+/-]|\\.\\w)`, 'g');
+    result = result.replace(pattern, (match, offset: number, whole: string) =>
+      // `to` starting with `from` means `from` is a prefix of its own expansion; leave the
+      // already-correct text alone instead of appending the target a second time.
+      to.startsWith(from) && whole.startsWith(to, offset) ? match : to
+    );
   }
   return result;
 }
