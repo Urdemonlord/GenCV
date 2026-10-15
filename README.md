@@ -21,7 +21,7 @@ Workspace untuk membuat, mengoptimalkan, dan menyesuaikan CV dengan lowongan yan
 
 ## Menjalankan lokal
 
-Butuh Node.js 18.18 atau lebih baru.
+Butuh Node.js 20.19 atau lebih baru.
 
 ```bash
 npm install
@@ -29,7 +29,7 @@ cp apps/web/.env.example apps/web/.env.local   # opsional, hanya untuk fitur AI
 npm run dev                                     # http://localhost:3000
 ```
 
-Semua fitur selain AI berjalan tanpa env apa pun.
+Semua fitur selain AI berjalan tanpa env apa pun. Sinkronisasi cloud juga opsional: tanpa env di tabel bawah, aplikasi berjalan penuh secara lokal.
 
 | Perintah | Fungsi |
 | --- | --- |
@@ -54,6 +54,7 @@ npx vitest run -u lib/cv/pdf/templates.snapshot.test.tsx
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Disarankan | Rate limit `/api/ai` yang dibagi semua instance. Tanpa ini, limit hanya per instance. |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Opsional | Verifikasi Cloudflare Turnstile di `/api/ai`. Pasang keduanya atau tidak sama sekali. |
 | `NEXT_PUBLIC_APP_URL` | Disarankan | Domain publik untuk canonical URL, sitemap, dan Open Graph. Di Vercel, tanpa ini dipakai domain produksi project. |
+| `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` | Opsional | Sinkronisasi cloud. Tanpa ketiganya, aplikasi tetap berjalan penuh di perangkat dan `/api/auth` membalas 503. `BETTER_AUTH_SECRET` minimal 32 karakter (`openssl rand -base64 32`). Postgres harus bisa dijangkau dari Vercel (mis. Neon); socket lokal tidak bisa. |
 
 ## Deploy (Vercel)
 
@@ -70,6 +71,7 @@ apps/web/
   lib/cv/             Schema CV (zod), format, template PDF/DOCX, analisis ATS & Job Match, penyimpanan lokal
   lib/ai/             Kontrak task AI, prompt, guard anti-mengarang, saran
   lib/blog/           Data artikel dan pembangun RSS feed
+  lib/sync/           Sinkronisasi cloud: rencana merge, skema Drizzle, Better Auth
   e2e/                Smoke test Playwright
   public/             Font (Inter, Source Serif 4) dan gambar template
 plan.md               Roadmap dan keputusan desain
