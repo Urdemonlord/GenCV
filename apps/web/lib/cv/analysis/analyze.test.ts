@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeCV } from '../normalize';
 import { analyzeCv } from './analyze';
-import { matchKeywords, normalizeText } from './keywords';
+import { containsTerm, matchKeywords, normalizeText } from './keywords';
+import { SKILL_TERMS, SYNONYMS } from './lexicon';
 
 const strong = normalizeCV({
   personalInfo: { fullName: 'Rina', headline: 'Backend Engineer', email: 'r@x.co', phone: '+62 812 3456 7890', location: 'Jakarta' },
@@ -89,12 +90,63 @@ describe('matchKeywords', () => {
 
   it('does not match words inside other words', () => {
     expect(matchKeywords(strong, 'Experience with javascript').keywords).toEqual(['javascript']);
+  });
+
+  it('keeps dotted terms intact instead of folding a synonym into its own expansion', () => {
+    // Regression: the `node` synonym used to rewrite the prefix of `node.js` → `node.js.js`.
     expect(normalizeText('Node and node.js')).toContain('node.js and node.js');
+    expect(normalizeText('node.js')).not.toContain('node.js.js');
+    expect(normalizeText('Next.js')).toContain('next.js');
+    expect(normalizeText('experience with .net')).toContain('.net');
+  });
+
+  it('folds a synonym once even when its target contains it (ui → ui design)', () => {
+    // Regression: `ui design` used to become `ui design design`.
+    expect(normalizeText('ui design')).toBe(' ui design ');
+    expect(normalizeText('ux design')).toBe(' ux design ');
+    expect(normalizeText('ui')).toBe(' ui design ');
+  });
+
+  it('still folds a prefix synonym when the target does not end there', () => {
+    // `ui` is a prefix of `ui design`; skipping must only happen for the complete target,
+    // otherwise "UI designer" would stop matching the `ui design` skill.
+    expect(normalizeText('UI designer')).toContain('ui design');
+    expect(containsTerm(normalizeText('UI designer'), 'ui design')).toBe(true);
+    expect(containsTerm(normalizeText('ux designer'), 'ux design')).toBe(true);
+  });
+
+  it('still folds synonyms in ordinary prose', () => {
+    expect(normalizeText('we use k8s and postgres')).toContain('kubernetes');
+    expect(normalizeText('we use k8s and postgres')).toContain('postgresql');
+    expect(normalizeText('React.js and nextjs')).toBe(' react and next.js ');
+    expect(normalizeText('js.')).toContain('javascript');
   });
 
   it('adds a keyword component only when a job description is set', () => {
     expect(analyzeCv(strong).keywords.score).toBeNull();
     const withAd = analyzeCv(normalizeCV({ ...strong, jobDescription: ad }));
     expect(withAd.components.at(-1)?.id).toBe('keywords');
+  });
+});
+
+describe('normalizeText invariants', () => {
+  // These sweep the whole lexicon, so a future synonym that collides with a known term
+  // fails here instead of silently corrupting the ATS score.
+  it('leaves every known skill term untouched', () => {
+    expect(SKILL_TERMS.filter((term) => normalizeText(term) !== ` ${term} `)).toEqual([]);
+  });
+
+  it('keeps every known skill term matchable after normalization', () => {
+    expect(SKILL_TERMS.filter((term) => !containsTerm(normalizeText(term), term))).toEqual([]);
+  });
+
+  it('folds every synonym to its target term', () => {
+    expect(Object.entries(SYNONYMS).filter(([from, to]) => !containsTerm(normalizeText(from), to))).toEqual([]);
+  });
+
+  it('is idempotent apart from the padding it adds', () => {
+    const canon = (s: string) => normalizeText(s).trim().replace(/\s+/g, ' ');
+    const nonIdempotent = [...SKILL_TERMS, ...Object.keys(SYNONYMS)].filter((s) => canon(s) !== canon(canon(s)));
+    expect(nonIdempotent).toEqual([]);
   });
 });
