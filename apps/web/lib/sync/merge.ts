@@ -50,6 +50,37 @@ export interface MergePlan {
 const EMPTY: MergePlan = { upload: [], download: [], deleteRemote: [], deleteLocal: [], unchanged: [] };
 
 /**
+ * Bounds the protocol agrees on, shared so local state can never be *stored* in a shape the
+ * server would then reject on every round — a poisoned record would break sync until the user
+ * cleared storage by hand.
+ */
+export const RECORD_LIMITS = {
+  idLength: 128,
+  hashLength: 64,
+  /** ECMAScript's maximum date. Anything beyond it is a clock bug, not a timestamp. */
+  maxTimestamp: 8.64e15,
+} as const;
+
+/** Shape check for a record. The one validator both sides use instead of two that can drift. */
+export function isRecordLike(value: unknown): value is SyncRecord {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Partial<SyncRecord>;
+  return (
+    typeof record.id === 'string' &&
+    record.id.length > 0 &&
+    record.id.length <= RECORD_LIMITS.idLength &&
+    typeof record.updatedAt === 'number' &&
+    Number.isInteger(record.updatedAt) &&
+    record.updatedAt >= 0 &&
+    record.updatedAt <= RECORD_LIMITS.maxTimestamp &&
+    typeof record.deleted === 'boolean' &&
+    typeof record.hash === 'string' &&
+    record.hash.length > 0 &&
+    record.hash.length <= RECORD_LIMITS.hashLength
+  );
+}
+
+/**
  * Strict total order over two records for the same document; `true` means `a` wins.
  *
  * Exported because the server applies the same rule before accepting a write. Two

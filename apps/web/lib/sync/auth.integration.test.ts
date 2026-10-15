@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { account, documents, session, user, verification } from './schema';
+import { assertThrowawayDatabase } from './test-database';
 
 /**
  * Integration test for the hand-written Better Auth schema.
@@ -30,33 +31,6 @@ import { account, documents, session, user, verification } from './schema';
  */
 const url = process.env.TEST_DATABASE_URL;
 
-/**
- * Refuses to run against a database that does not announce itself as throwaway. The setup
- * drops every table this test touches, so a real connection string pasted into
- * `TEST_DATABASE_URL` would destroy real data. Requiring "test" in the database name turns
- * that mistake into a loud failure instead of silent data loss.
- */
-function assertThrowawayDatabase(connectionString: string): void {
-  const name = new URL(connectionString).pathname.replace(/^\//, '');
-  if (!/test/i.test(name)) {
-    throw new Error(
-      `Refusing to run: database "${name}" does not look like a throwaway database. ` +
-        'The database name must contain "test" — this test drops tables.',
-    );
-  }
-}
-
-// Runs even when the integration suite is skipped: this is the safety mechanism for the
-// destructive setup below, so it must not itself depend on a database.
-describe('assertThrowawayDatabase', () => {
-  it('accepts a database whose name says it is throwaway', () => {
-    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv_test')).not.toThrow();
-  });
-
-  it('refuses a database whose name does not', () => {
-    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv')).toThrow(/test/);
-  });
-});
 
 /**
  * Throwaway password for the test account. Assembled from parts on purpose: a plain literal

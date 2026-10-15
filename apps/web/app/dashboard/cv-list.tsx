@@ -17,6 +17,7 @@ import {
   saveDocument,
   type CvSummary,
 } from '@/lib/cv/storage';
+import { readLocalRecords, recordDeletion } from '@/lib/sync/local';
 import { TEMPLATE_INFO } from '@/lib/cv/templates';
 import { relativeTimeLabel } from '@/lib/relative-time';
 
@@ -83,6 +84,14 @@ export function CvList() {
   };
 
   const remove = (id: string) => {
+    // Record the deletion *before* the body is gone: afterwards the record cannot be derived,
+    // and without a tombstone the next sync would download the CV back from another device.
+    try {
+      const record = readLocalRecords().find((entry) => entry.id === id);
+      if (record) recordDeletion(record);
+    } catch {
+      // Sync metadata is best-effort here; the local delete must still happen.
+    }
     deleteDocument(id);
     setConfirmDelete(null);
     refresh();

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createDocument, deleteDocument, listDocuments, saveDocument } from '@/lib/cv/storage';
 import { emptyCV } from '@/lib/cv/model';
 import { hashText } from './merge';
-import { readLocalRecords, readTombstones, pruneTombstones, saveTombstones } from './local';
+import { clearTombstones, readLocalRecords, readTombstones, pruneTombstones, recordDeletion, saveTombstones, TombstonesUnreadableError } from './local';
 
 /** Minimal in-memory `Storage`, so these tests need no browser. */
 function memoryStorage(): Storage {
@@ -54,39 +54,49 @@ describe('readLocalRecords', () => {
     expect(records[0]).toMatchObject({ id: 'back', deleted: false });
   });
 
-  it('ignores malformed stored tombstones instead of trusting them', () => {
-    // A record with `deleted: false` would read as a live document with no body, which the
-    // server would reject forever.
+  it('refuses malformed stored tombstones rather than skipping them', () => {
+    // Skipping an unreadable tombstone is indistinguishable from "this device never knew about
+    // the deletion", so a live server copy would be downloaded straight over the deletion.
+    // Failing loudly is the only safe option.
     const storage = memoryStorage();
-    storage.setItem(
-      'gencv:sync-tombstones',
-      JSON.stringify([
-        { id: 'ok', updatedAt: 1, deleted: true, hash: 'h' },
-        { id: 'live', updatedAt: 1, deleted: false, hash: 'h' },
-        { id: 'noUpdatedAt', deleted: true, hash: 'h' },
-        { id: 'nan', updatedAt: 'x', deleted: true, hash: 'h' },
-        null,
-      ]),
-    );
-
-    expect(readTombstones(storage)).toEqual([{ id: 'ok', updatedAt: 1, deleted: true, hash: 'h' }]);
+    for (const bad of [
+      [{ id: 'live', updatedAt: 1, deleted: false, hash: 'h' }],
+      [{ id: 'noUpdatedAt', deleted: true, hash: 'h' }],
+      [{ id: 'nan', updatedAt: 'x', deleted: true, hash: 'h' }],
+      [{ id: 'huge', updatedAt: 9e15, deleted: true, hash: 'h' }],
+      [{ id: 'longhash', updatedAt: 1, deleted: true, hash: 'h'.repeat(65) }],
+      [null],
+    ]) {
+      storage.setItem('gencv:sync-tombstones', JSON.stringify(bad));
+      expect(() => readTombstones(storage)).toThrow(TombstonesUnreadableError);
+    }
   });
 
-  it('survives unreadable storage rather than throwing', () => {
+  it('refuses unreadable storage rather than reporting "no deletions"', () => {
     const storage = memoryStorage();
     storage.setItem('gencv:sync-tombstones', '{not json');
+    expect(() => readTombstones(storage)).toThrow(TombstonesUnreadableError);
+  });
+
+  it('recovers when the deletions are cleared', () => {
+    const storage = memoryStorage();
+    storage.setItem('gencv:sync-tombstones', '{not json');
+    clearTombstones(storage);
     expect(readTombstones(storage)).toEqual([]);
   });
 
-  it('drops a document whose body is missing but whose summary remains', () => {
-    // The index and the bodies are separate keys, so they can disagree. A summary with no
-    // body has nothing to hash, and reporting it would push an empty CV over a real one.
+  it('keeps the tombstone when a summary has no body to read', () => {
+    // The index and the bodies are separate keys, so they can disagree. Treating a bodyless
+    // summary as live would push an empty CV over a real one; treating it as absent would drop
+    // the deletion and let the server resurrect the document. So the record is skipped *and*
+    // the tombstone is kept.
     const storage = memoryStorage();
     const id = createDocument(titled('Ada di indeks'), storage);
+    saveTombstones([{ id, updatedAt: 42, deleted: true, hash: 'h' }], storage);
     storage.removeItem(`gencv:doc:${id}`);
 
     expect(listDocuments(storage)).toHaveLength(1);
-    expect(readLocalRecords(storage)).toEqual([]);
+    expect(readLocalRecords(storage)).toEqual([{ id, updatedAt: 42, deleted: true, hash: 'h' }]);
   });
 });
 
@@ -149,9 +159,40 @@ describe('readLocalRecords with deletions', () => {
     const id = createDocument(titled('Akan dihapus'), storage);
     const record = readLocalRecords(storage)[0];
 
+    recordDeletion(record, storage, record.updatedAt + 500);
     deleteDocument(id, storage);
-    saveTombstones([{ ...record, deleted: true }], storage);
 
-    expect(readLocalRecords(storage)).toEqual([{ ...record, deleted: true }]);
+    expect(readLocalRecords(storage)).toEqual([{ ...record, deleted: true, updatedAt: record.updatedAt + 500 }]);
+  });
+});
+describe('recordDeletion', () => {
+  it('stamps the tombstone with the deletion time, not the last save', () => {
+    // Reusing the save timestamp would let a server copy written after that save outrank the
+    // deletion, and the deleted CV would be downloaded back.
+    const storage = memoryStorage();
+    const id = createDocument(titled('Dihapus'), storage);
+    const record = readLocalRecords(storage)[0];
+    const deletedAt = record.updatedAt + 60_000;
+
+    recordDeletion(record, storage, deletedAt);
+
+    expect(readTombstones(storage)).toEqual([{ id, updatedAt: deletedAt, deleted: true, hash: record.hash }]);
+  });
+
+  it('never moves a tombstone backwards in time', () => {
+    // A clock that jumped back must not produce a deletion that loses to the copy it deletes.
+    const storage = memoryStorage();
+    const record = { id: 'cv-x', updatedAt: 5_000, deleted: false, hash: 'h' };
+    recordDeletion(record, storage, 1_000);
+    expect(readTombstones(storage)[0].updatedAt).toBe(5_000);
+  });
+
+  it('replaces an earlier tombstone for the same document', () => {
+    const storage = memoryStorage();
+    const record = { id: 'cv-x', updatedAt: 5_000, deleted: false, hash: 'h' };
+    recordDeletion(record, storage, 5_000);
+    recordDeletion(record, storage, 9_000);
+    expect(readTombstones(storage)).toHaveLength(1);
+    expect(readTombstones(storage)[0].updatedAt).toBe(9_000);
   });
 });

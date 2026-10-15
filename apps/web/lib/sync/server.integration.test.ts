@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { applyUpserts, listRecords, readFor, type Upsert } from './server';
+import { assertThrowawayDatabase } from './test-database';
 import type { Database } from './db';
 import * as schema from './schema';
 import { documents, user } from './schema';
@@ -19,30 +20,6 @@ import { documents, user } from './schema';
  * Postgres) stays green. See the header of `auth.integration.test.ts` for the setup command.
  */
 const url = process.env.TEST_DATABASE_URL;
-
-/**
- * Refuses to run against a database that does not announce itself as throwaway: the setup
- * below drops every table this test touches.
- */
-function assertThrowawayDatabase(connectionString: string): void {
-  const name = new URL(connectionString).pathname.replace(/^\//, '');
-  if (!/test/i.test(name)) {
-    throw new Error(
-      `Refusing to run: database "${name}" does not look like a throwaway database. ` +
-        'The database name must contain "test" — this test drops tables.',
-    );
-  }
-}
-
-describe('assertThrowawayDatabase', () => {
-  it('accepts a throwaway database', () => {
-    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv_test')).not.toThrow();
-  });
-
-  it('refuses anything else', () => {
-    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv')).toThrow(/test/);
-  });
-});
 
 const mkUser = (tag: string) => ({
   id: `sync-user-${tag}-${Date.now()}`,

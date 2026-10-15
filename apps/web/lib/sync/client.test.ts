@@ -74,6 +74,10 @@ function fakeServer(initial: Upsert[] = []) {
   return { fetchImpl, rows, requestCount: () => requests };
 }
 
+/** A response whose shape matches `/api/sync` without touching a server. */
+const jsonResponse = (payload: unknown, status = 200) =>
+  new Response(JSON.stringify(payload), { status, headers: { 'content-type': 'application/json' } });
+
 /** Points the module-level `localStorage` at a throwaway store, as the browser would. */
 function useDevice(): Storage {
   const storage = memoryStorage();
@@ -351,5 +355,172 @@ describe('deleting a document locally', () => {
 
     expect(loadDocument('cv-a', storage)).toBeNull();
     expect(readTombstones(storage)).toEqual([{ ...record, deleted: true }]);
+  });
+});
+describe('runSyncRound robustness', () => {
+  it('sends nothing when there is nothing to send or fetch', async () => {
+    // Most rounds are like this. A second request here would double the cost of every idle
+    // round, which is the common case today.
+    useDevice();
+    const server = fakeServer();
+    await runSyncRound(server.fetchImpl);
+    const after = server.requestCount();
+    await runSyncRound(server.fetchImpl);
+    expect(server.requestCount() - after).toBe(1);
+  });
+
+  it('chunks a library larger than the server cap instead of failing the round', async () => {
+    // The server rejects over 200 upserts per request. A device with more CVs than that must
+    // still sync, in batches, rather than failing wholesale.
+    const storage = useDevice();
+    for (let i = 0; i < 205; i++) saveDocument(`cv-${i}`, titled(`CV ${i}`), storage);
+
+    const bodiesSeen: number[] = [];
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      const { upserts = [] } = JSON.parse(String(init.body ?? '{}')) as { upserts?: unknown[] };
+      bodiesSeen.push(upserts.length);
+      return jsonResponse({ success: true, records: [], documents: [] });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, uploaded: 205 });
+    // No request exceeds the cap; the whole library went up across batched calls.
+    expect(Math.max(...bodiesSeen)).toBeLessThanOrEqual(200);
+    expect(bodiesSeen.reduce((a, b) => a + b, 0)).toBe(205);
+  });
+
+  it('ignores a body the server should never have sent', async () => {
+    // The body goes straight into storage, so a non-object would break the editor on load.
+    const storage = useDevice();
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jsonResponse({
+          success: true,
+          records: [{ id: 'cv-bad', updatedAt: 1_000, deleted: false, hash: 'h' }],
+          documents: [],
+        });
+      }
+      return jsonResponse({
+        success: true,
+        records: [],
+        documents: [{ id: 'cv-bad', updatedAt: 1_000, deleted: false, hash: 'h', body: 'not a CV' }],
+      });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, downloaded: 0 });
+    expect(loadDocument('cv-bad', storage)).toBeNull();
+  });
+
+  it('accepts an empty CV, which is a real CV a user just created', async () => {
+    // `isCvLike` (the JSON-import validator) demands a filled personal field and would reject
+    // this, silently losing the download.
+    const storage = useDevice();
+    const fresh = emptyCV();
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jsonResponse({ success: true, records: [{ id: 'cv-new', updatedAt: 5_000, deleted: false, hash: 'h' }] });
+      }
+      return jsonResponse({
+        success: true,
+        records: [],
+        documents: [{ id: 'cv-new', updatedAt: 5_000, deleted: false, hash: 'h', body: fresh }],
+      });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, downloaded: 1 });
+    expect(loadDocument('cv-new', storage)).toEqual(fresh);
+  });
+
+  it('stops instead of guessing when the local deletions are unreadable', async () => {
+    // Syncing with an unknown local picture could pull back a document the user deleted, so
+    // the round refuses to run rather than pretending to succeed.
+    const storage = useDevice();
+    saveDocument('cv-a', titled('Punya saya'), storage);
+    storage.setItem('gencv:sync-tombstones', '{not json');
+    const server = fakeServer();
+
+    const result = await runSyncRound(server.fetchImpl);
+
+    expect(result).toMatchObject({ ok: false, reason: 'local-data-unreadable' });
+    // Nothing was pushed: the server never heard about this round.
+    expect(server.rows.size).toBe(0);
+  });
+
+  it('reports `unauthenticated` when the session expires during phase 2', async () => {
+    // Phase 2 failing with 401 means the caller should prompt for sign-in, not show a generic
+    // error — the two need different messages.
+    const storage = useDevice();
+    saveDocument('cv-a', titled('Perlu dikirim'), storage);
+
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) return jsonResponse({ success: true, records: [] });
+      return new Response('{}', { status: 401 });
+    }) as unknown as typeof fetch;
+
+    expect(await runSyncRound(fetchImpl)).toMatchObject({ ok: false, reason: 'unauthenticated' });
+  });
+
+  it('fetches the body when a concurrent write made the server reject our push', async () => {
+    // Our upload loses to a newer write that arrived in between. Reporting success while this
+    // device is still behind would leave the two sides disagreeing indefinitely.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Versi saya'), storage, 1_000);
+
+    const newer = titled('Versi perangkat lain');
+    let calls = 0;
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      calls += 1;
+      const payload = JSON.parse(String(init.body ?? '{}')) as { upserts?: unknown[]; want?: string[] };
+      if (calls === 1) {
+        // Phase 1: the server already holds a newer copy.
+        return jsonResponse({ success: true, records: [{ id, updatedAt: 9_000, deleted: false, hash: 'z' }] });
+      }
+      if ((payload.want ?? []).includes(id)) {
+        return jsonResponse({
+          success: true,
+          records: [],
+          documents: [{ id, updatedAt: 9_000, deleted: false, hash: 'z', body: newer }],
+        });
+      }
+      // The push is refused, but the winning record comes back in the response.
+      return jsonResponse({ success: true, records: [{ id, updatedAt: 9_000, deleted: false, hash: 'z' }] });
+    }) as unknown as typeof fetch;
+
+    await runSyncRound(fetchImpl);
+
+    expect(bodyOf(storage, id)).toEqual(newer);
+  });
+
+  it('never runs two rounds at once', async () => {
+    // Overlapping rounds read the same local state and then act on a world the other one has
+    // already changed. They are serialised rather than made interleaving-safe.
+    useDevice();
+    let concurrent = 0;
+    let maxConcurrent = 0;
+    const fetchImpl = (async () => {
+      concurrent += 1;
+      maxConcurrent = Math.max(maxConcurrent, concurrent);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      concurrent -= 1;
+      return jsonResponse({ success: true, records: [] });
+    }) as unknown as typeof fetch;
+
+    const [a, b] = await Promise.all([runSyncRound(fetchImpl), runSyncRound(fetchImpl)]);
+
+    expect(maxConcurrent).toBe(1);
+    expect(a).toMatchObject({ ok: true });
+    expect(b).toMatchObject({ ok: true });
   });
 });
