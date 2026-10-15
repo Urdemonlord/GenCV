@@ -524,3 +524,56 @@ describe('runSyncRound robustness', () => {
     expect(b).toMatchObject({ ok: true });
   });
 });
+
+describe('late winners', () => {
+  it('fetches the winning body in the same round, not some later one', async () => {
+    // Our push loses to a write that arrived in between. Reporting success without fetching it
+    // would leave this device behind until the next round — and if the user never syncs again,
+    // forever.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Versi saya'), storage, 1_000);
+
+    const winner = titled('Versi perangkat lain');
+    const requests: { upserts?: unknown[]; want?: string[] }[] = [];
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      const payload = JSON.parse(String(init.body ?? '{}')) as { upserts?: unknown[]; want?: string[] };
+      requests.push(payload);
+      const winningRecord = { id, updatedAt: 1_000, deleted: false, hash: 'zzzz' };
+
+      if (requests.length === 1) return jsonResponse({ success: true, records: [winningRecord] });
+      if ((payload.want ?? []).includes(id)) {
+        return jsonResponse({ success: true, records: [], documents: [{ ...winningRecord, body: winner }] });
+      }
+      // The push is refused; the winner comes back in the response.
+      return jsonResponse({ success: true, records: [winningRecord] });
+    }) as unknown as typeof fetch;
+
+    await runSyncRound(fetchImpl);
+
+    // A follow-up request asked for the winner, and the local copy is now the winning body.
+    const followUp = requests.slice(1).find((r) => (r.want ?? []).includes(id));
+    expect(followUp).toBeDefined();
+    expect(bodyOf(storage, id)).toEqual(winner);
+  });
+
+  it('does not count a winning deletion as a download', async () => {
+    // A tombstone carries no body, so it must not be saved or counted.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Akan hilang'), storage, 1_000);
+
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jsonResponse({ success: true, records: [{ id, updatedAt: 1_000, deleted: false, hash: 'z' }] });
+      }
+      return jsonResponse({ success: true, records: [{ id, updatedAt: 2_000, deleted: true, hash: 'z' }] });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, downloaded: 0 });
+  });
+});

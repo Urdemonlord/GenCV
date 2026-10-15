@@ -1,6 +1,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
+import { normalizeCV } from '@/lib/cv/normalize';
 import type { Database } from './db';
-import { winsOver, type SyncRecord } from './merge';
+import { hashText, winsOver, type SyncRecord } from './merge';
 import { documents } from './schema';
 
 /**
@@ -72,6 +73,23 @@ async function lockOne(tx: Database, userId: string, id: string): Promise<SyncRe
 }
 
 /**
+ * Normalises a body and derives its hash, instead of trusting the one the client sent.
+ *
+ * The hash decides conflicts, so a client-supplied hash that does not describe its own body
+ * breaks the whole round: the client computes the hash of the *stored* (normalised) body, so
+ * the two never agree and the same document is transferred again on every sync, forever. The
+ * body is normalised here too, so the stored bytes and the hash always match.
+ *
+ * A tombstone has no body to hash; its `hash` only ever breaks a tie between two tombstones,
+ * so it is left as sent.
+ */
+function canonicalize(upsert: Upsert): Upsert {
+  if (upsert.deleted) return upsert;
+  const body = normalizeCV(upsert.body);
+  return { ...upsert, body, hash: hashText(JSON.stringify(body)) };
+}
+
+/**
  * Applies the client's writes, each accepted only if it wins the total order.
  *
  * Each document is handled in its own transaction so the check and the write cannot be
@@ -84,7 +102,8 @@ async function lockOne(tx: Database, userId: string, id: string): Promise<SyncRe
  * transaction), and a conflict is then re-read under a lock so the normal rule decides.
  */
 export async function applyUpserts(db: Database, userId: string, upserts: Upsert[]): Promise<void> {
-  for (const upsert of upserts) {
+  for (const raw of upserts) {
+    const upsert = canonicalize(raw);
     await db.transaction(async (tx) => {
       const values = {
         userId,

@@ -2,7 +2,7 @@
 
 import { deleteDocument, loadDocument, saveDocument } from '@/lib/cv/storage';
 import { normalizeCV } from '@/lib/cv/normalize';
-import { planMerge, type SyncRecord } from './merge';
+import { planMerge, winsOver, type SyncRecord } from './merge';
 import { pruneTombstones, readLocalRecords, saveTombstones, TombstonesUnreadableError } from './local';
 
 /**
@@ -154,8 +154,7 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
     // Bodies are asked for on the last chunk, once every push has been accepted: a body the
     // server just took from us does not need to come back down.
     const isLast = index === rounds - 1;
-    const want = isLast ? [...wantQueue, ...extraWanted] : [];
-    if (isLast) extraWanted.clear();
+    const want = isLast ? [...new Set([...wantQueue, ...extraWanted])] : [];
 
     let response: Response;
     try {
@@ -178,15 +177,42 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
     received.push(...(body.documents ?? []));
 
     // A concurrent write on another device can have made the server reject one of our pushes.
-    // The response carries the winning records, so if the server is ahead on a document we just
-    // sent, this round is not finished for it — fetch its body rather than reporting success
-    // while this device is still behind.
+    // The response carries the winner, so this round is not finished for that document: it goes
+    // into `extraWanted` and the loop below drains it. Leaving it to the *next* round would
+    // report success while this device is still behind.
+    //
+    // The comparison is `winsOver`, not a timestamp check: a winner can win on the hash
+    // tie-break at the same timestamp, and a timestamp-only test would miss it.
     const have = new Set(received.map((doc) => doc.id));
     for (const record of body.records ?? []) {
-      const ours = byId.get(record.id);
-      const serverAhead = record.updatedAt > (ours?.updatedAt ?? 0) || (!ours && !record.deleted);
-      if (serverAhead && !have.has(record.id)) extraWanted.add(record.id);
+      const ours = byId.get(record.id) ?? { id: record.id, updatedAt: 0, deleted: false, hash: '' };
+      if (winsOver(record, ours) && !record.deleted && !have.has(record.id)) extraWanted.add(record.id);
     }
+  }
+
+  // Drain the ids discovered during the pushes. Bounded by the server's per-request cap, and
+  // the loop is bounded too: `extraWanted` only ever receives ids from the records the server
+  // just reported, and a fetched body stops it being asked for again.
+  const MAX_FOLLOW_UP_ROUNDS = 10;
+  for (let attempt = 0; attempt < MAX_FOLLOW_UP_ROUNDS && extraWanted.size > 0; attempt++) {
+    const batch = [...extraWanted].slice(0, MAX_WANT_PER_REQUEST);
+    batch.forEach((id) => extraWanted.delete(id));
+
+    let response: Response;
+    try {
+      response = await post({ want: batch });
+    } catch {
+      return { ok: false, reason: 'offline', message: 'Koneksi terputus saat mengambil perubahan terbaru.' };
+    }
+    if (response.status === 401) {
+      return { ok: false, reason: 'unauthenticated', message: 'Sesi masuk sudah berakhir.' };
+    }
+
+    const body = (await response.json().catch(() => ({}))) as ServerResponse;
+    if (!response.ok || !body.success) {
+      return { ok: false, reason: 'error', message: body.error ?? 'Sinkronisasi gagal saat mengambil perubahan terbaru.' };
+    }
+    received.push(...(body.documents ?? []));
   }
 
   let downloaded = 0;

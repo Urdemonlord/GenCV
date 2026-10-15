@@ -84,13 +84,22 @@ export function CvList() {
   };
 
   const remove = (id: string) => {
-    // Record the deletion *before* the body is gone: afterwards the record cannot be derived,
-    // and without a tombstone the next sync would download the CV back from another device.
+    // Record the deletion *before* the body is gone: afterwards the record cannot be derived.
+    // If that write fails, the deletion is aborted — deleting the body anyway would leave a CV
+    // that this device has forgotten about but the server still holds, and the next sync would
+    // download it straight back. Better to keep a CV the user can delete again than to make one
+    // that silently returns.
     try {
       const record = readLocalRecords().find((entry) => entry.id === id);
       if (record) recordDeletion(record);
     } catch {
-      // Sync metadata is best-effort here; the local delete must still happen.
+      setConfirmDelete(null);
+      toast({
+        variant: 'destructive',
+        title: 'Gagal menghapus CV',
+        description: 'Catatan sinkronisasi di perangkat ini tidak bisa diperbarui, jadi CV tidak jadi dihapus.',
+      });
+      return;
     }
     deleteDocument(id);
     setConfirmDelete(null);

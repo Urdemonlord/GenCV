@@ -5,6 +5,8 @@ import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { applyUpserts, listRecords, readFor, type Upsert } from './server';
 import { assertThrowawayDatabase } from './test-database';
+import { hashText, winsOver } from './merge';
+import { normalizeCV } from '@/lib/cv/normalize';
 import type { Database } from './db';
 import * as schema from './schema';
 import { documents, user } from './schema';
@@ -30,11 +32,21 @@ const mkUser = (tag: string) => ({
   updatedAt: new Date(),
 });
 
-const upsert = (id: string, updatedAt: number, body: unknown | null, hash = 'h'): Upsert => ({
+/** The body as the server will store it; the stored hash is derived from exactly this. */
+const norm = (body: unknown) => normalizeCV(body) as unknown;
+
+/** The hash the server derives for a body. */
+const hashOf = (body: unknown) => hashText(JSON.stringify(norm(body)));
+
+/**
+ * A client write. `hash` defaults to the hash of the normalised body, which is what a real
+ * client sends — the server recomputes it anyway and only uses its own value.
+ */
+const upsert = (id: string, updatedAt: number, body: unknown | null, hash?: string): Upsert => ({
   id,
   updatedAt,
   deleted: body === null,
-  hash,
+  hash: hash ?? (body === null ? 'tombstone' : hashOf(body)),
   body,
 });
 
@@ -68,11 +80,13 @@ describe.skipIf(!url)('sync server (integration)', () => {
     await pool?.end();
   });
 
-  it('stores a document and reads its record back', async () => {
-    await applyUpserts(db, alice.id, [upsert('cv-1', 1000, { title: 'Satu' })]);
+  it('stores a document and reads its record back, with the hash it derived', async () => {
+    const body = { title: 'Satu' };
+    await applyUpserts(db, alice.id, [upsert('cv-1', 1000, body)]);
 
     const records = await listRecords(db, alice.id);
-    expect(records).toEqual([{ id: 'cv-1', updatedAt: 1000, deleted: false, hash: 'h' }]);
+    // The hash is computed from the *stored* (normalised) body, not from what the client sent.
+    expect(records).toEqual([{ id: 'cv-1', updatedAt: 1000, deleted: false, hash: hashOf(body) }]);
   });
 
   it('keeps the winner and refuses the older write', async () => {
@@ -83,28 +97,53 @@ describe.skipIf(!url)('sync server (integration)', () => {
 
     const records = await listRecords(db, alice.id);
     const record = records.find((r) => r.id === 'cv-2');
-    expect(record).toMatchObject({ updatedAt: 2000, hash: 'newer' });
+    expect(record).toMatchObject({ updatedAt: 2000, hash: hashOf({ title: 'Baru' }) });
 
     const outcome = await readFor(db, alice.id, ['cv-2']);
-    expect(outcome.documents[0].body).toEqual({ title: 'Baru' });
+    expect(outcome.documents[0].body).toEqual(norm({ title: 'Baru' }));
   });
 
-  it('accepts a win on the hash tie-break, so the devices agree', async () => {
-    // Same clock: the larger hash wins. If the server used `!==` here instead, both devices
-    // would consider themselves the winner and the round would never converge.
-    await applyUpserts(db, alice.id, [upsert('cv-3', 3000, { v: 'x' }, 'aaaa')]);
-    await applyUpserts(db, alice.id, [upsert('cv-3', 3000, { v: 'y' }, 'bbbb')]);
+  it('resolves a same-timestamp tie to one winner, the same one either way', async () => {
+    // Both bodies share a timestamp, so the larger derived hash decides. The order the two
+    // writes arrive in must not change the outcome — otherwise two devices would each keep
+    // their own copy and the round would ping-pong forever.
+    const bodyX = { v: 'x' };
+    const bodyY = { v: 'y' };
+    const winner = winsOver(
+      { id: 'cv-3', updatedAt: 3000, deleted: false, hash: hashOf(bodyX) },
+      { id: 'cv-3', updatedAt: 3000, deleted: false, hash: hashOf(bodyY) },
+    )
+      ? bodyX
+      : bodyY;
+
+    await applyUpserts(db, alice.id, [upsert('cv-3', 3000, bodyX)]);
+    await applyUpserts(db, alice.id, [upsert('cv-3', 3000, bodyY)]);
 
     const outcome = await readFor(db, alice.id, ['cv-3']);
-    expect(outcome.documents[0].hash).toBe('bbbb');
+    expect(outcome.documents[0].body).toEqual(norm(winner));
+
+    // The loser arriving first must produce the same result.
+    await applyUpserts(db, alice.id, [upsert('cv-6', 6000, bodyY)]);
+    await applyUpserts(db, alice.id, [upsert('cv-6', 6000, bodyX)]);
+    const other = await readFor(db, alice.id, ['cv-6']);
+    expect(other.documents[0].body).toEqual(norm(winner === bodyX ? bodyX : bodyY));
   });
 
-  it('refuses the smaller hash, so the same tie does not flip back', async () => {
-    await applyUpserts(db, alice.id, [upsert('cv-4', 4000, { v: 'y' }, 'bbbb')]);
-    await applyUpserts(db, alice.id, [upsert('cv-4', 4000, { v: 'x' }, 'aaaa')]);
+  it('refuses a write that loses the tie, so the same tie does not flip back', async () => {
+    const bodyX = { v: 'x' };
+    const bodyY = { v: 'y' };
+    const xFirst = winsOver(
+      { id: 'x', updatedAt: 1, deleted: false, hash: hashOf(bodyX) },
+      { id: 'x', updatedAt: 1, deleted: false, hash: hashOf(bodyY) },
+    );
+    const winner = xFirst ? bodyX : bodyY;
+    const loser = xFirst ? bodyY : bodyX;
 
-    const outcome = await readFor(db, alice.id, ['cv-4']);
-    expect(outcome.documents[0].hash).toBe('bbbb');
+    await applyUpserts(db, alice.id, [upsert('cv-7', 7000, winner)]);
+    await applyUpserts(db, alice.id, [upsert('cv-7', 7000, loser)]);
+
+    const outcome = await readFor(db, alice.id, ['cv-7']);
+    expect(outcome.documents[0].body).toEqual(norm(winner));
   });
 
   it('stores a deletion as a tombstone with no body', async () => {
@@ -131,18 +170,18 @@ describe.skipIf(!url)('sync server (integration)', () => {
 
     const bobs = await readFor(db, bob.id, ['bob-secret']);
     expect(bobs.documents).toHaveLength(1);
-    expect(bobs.documents[0].body).toEqual({ title: 'Milik Bob' });
+    expect(bobs.documents[0].body).toEqual(norm({ title: 'Milik Bob' }));
 
     const alices = await readFor(db, alice.id, ['bob-secret']);
-    expect(alices.documents[0].body).toEqual({ title: 'Bukan milik Bob' });
+    expect(alices.documents[0].body).toEqual(norm({ title: 'Bukan milik Bob' }));
   });
 
   it('allows the same document id for two users', async () => {
     await applyUpserts(db, alice.id, [upsert('shared-id', 9000, { who: 'alice' })]);
     await applyUpserts(db, bob.id, [upsert('shared-id', 9000, { who: 'bob' })]);
 
-    expect((await readFor(db, alice.id, ['shared-id'])).documents[0].body).toEqual({ who: 'alice' });
-    expect((await readFor(db, bob.id, ['shared-id'])).documents[0].body).toEqual({ who: 'bob' });
+    expect((await readFor(db, alice.id, ['shared-id'])).documents[0].body).toEqual(norm({ who: 'alice' }));
+    expect((await readFor(db, bob.id, ['shared-id'])).documents[0].body).toEqual(norm({ who: 'bob' }));
   });
 
   it('rejects a live document with no body at the database level', async () => {
@@ -165,6 +204,24 @@ describe.skipIf(!url)('sync server (integration)', () => {
         [alice.id, 'with-body', 1000, 'h', JSON.stringify({ a: 1 })],
       ),
     ).rejects.toThrow();
+  });
+
+  it('derives the hash from the body instead of trusting the client', async () => {
+    // A client-supplied hash that does not describe its own body would make the two sides
+    // disagree forever: the client hashes the stored (normalised) body, so an unchecked hash
+    // never matches and the same document is transferred on every round.
+    const body = { personalInfo: { fullName: 'Kanoni' } };
+    await applyUpserts(db, alice.id, [
+      { id: 'canon', updatedAt: 11_000, deleted: false, hash: 'z', body },
+    ]);
+
+    const outcome = await readFor(db, alice.id, ['canon']);
+    const stored = outcome.records.find((r) => r.id === 'canon');
+    // The bogus hash is discarded and replaced by one derived from the normalised body — the
+    // same value the client will compute for it, which is what lets the round converge.
+    expect(stored!.hash).not.toBe('z');
+    expect(stored!.hash).toBe(hashOf(body));
+    expect(outcome.documents[0].body).toEqual(norm(body));
   });
 
   it('leaves documents untouched when `want` is empty', async () => {
