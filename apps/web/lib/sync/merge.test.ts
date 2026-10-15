@@ -33,11 +33,25 @@ describe('planMerge', () => {
     expect(planMerge([rec('a', 1000)], [rec('a', 2000)]).download).toEqual(['a']);
   });
 
-  it('breaks an exact timestamp tie by content, so two same-ms edits converge', () => {
-    // Different content, same clock: exactly one side must win, and it must be deterministic.
-    expect(planMerge([rec('a', 1000, { hash: 'x' })], [rec('a', 1000, { hash: 'y' })]).upload).toEqual(['a']);
+  it('breaks an exact timestamp tie with a total order, so both devices agree', () => {
+    // Regression: comparing hashes with `!==` made BOTH devices consider their own copy the
+    // winner, so both uploaded and the round ping-ponged forever. A tie must resolve to one
+    // deterministic winner that each side computes the same way.
+    const a: SyncRecord = rec('a', 1000, { hash: 'x' });
+    const b: SyncRecord = rec('a', 1000, { hash: 'y' });
+
+    const fromA = planMerge([a], [b]); // A holds 'x'
+    const fromB = planMerge([b], [a]); // B holds 'y'
+
+    // Exactly one direction transfers, and the two devices agree on which copy survives.
+    const aTransfers = fromA.upload.length + fromA.download.length;
+    const bTransfers = fromB.upload.length + fromB.download.length;
+    expect(aTransfers).toBe(1);
+    expect(bTransfers).toBe(1);
+    expect(fromA.download).toEqual(['a']); // 'x' < 'y' → the larger hash ('y', device B) wins
+    expect(fromB.upload).toEqual(['a']);
     // Same content, same clock: nothing to do.
-    expect(planMerge([rec('a', 1000, { hash: 'x' })], [rec('a', 1000, { hash: 'x' })]).unchanged).toEqual(['a']);
+    expect(planMerge([a], [{ ...a }]).unchanged).toEqual(['a']);
   });
 
   it('propagates a deletion instead of resurrecting the document', () => {

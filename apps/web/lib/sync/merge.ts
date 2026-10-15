@@ -40,10 +40,17 @@ export interface MergePlan {
 
 const EMPTY: MergePlan = { upload: [], download: [], deleteRemote: [], deleteLocal: [], unchanged: [] };
 
-/** Local wins when it is strictly newer, or when the clocks tie but the content differs. */
+/**
+ * Local wins when it is strictly newer. When the clocks tie, the *larger* hash wins.
+ *
+ * Comparing the two hashes (instead of only noticing they differ) is what makes this a
+ * total order. With a mere inequality, both devices would see their own copy as the winner
+ * — each runs this with the sides swapped — so both would upload and the round would
+ * ping-pong forever instead of converging.
+ */
 function localWins(local: SyncRecord, remote: SyncRecord): boolean {
   if (local.updatedAt !== remote.updatedAt) return local.updatedAt > remote.updatedAt;
-  return local.hash !== remote.hash;
+  return local.hash > remote.hash;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
@@ -35,7 +36,7 @@ function buildAuth() {
       cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
     advanced: {
-      database: { generateId: () => crypto.randomUUID() },
+      database: { generateId: () => randomUUID() },
     },
     plugins: [nextCookies()],
   });
