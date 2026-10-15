@@ -79,13 +79,14 @@ export const verification = pgTable(
 
 /**
  * One row per CV per user. The composite primary key is (user_id, id): document ids are
- * generated on the device, so they are only unique within a user.
+ * generated on the device, so they are only unique within a user — two different users can
+ * both own a document called `cv1`.
  *
- * This key is a *uniqueness* constraint, NOT authorization. It stops two users from
- * claiming the same id, but a write can still name another user's `user_id`. Every query
- * must therefore be scoped to the authenticated user (`where eq(documents.userId, session.
- * user.id)`) in the sync route. When the route lands, consider a row-level-security policy
- * as a second line of defence.
+ * This key is a *uniqueness* constraint, NOT authorization. It only prevents a duplicate
+ * `(user_id, id)` pair; it does not stop two users from using the same `id`, and it does not
+ * stop a write from naming another user's `user_id`. Every query must therefore be scoped to
+ * the authenticated user (`where(eq(documents.userId, session.user.id))`) in the sync route.
+ * When that route lands, consider a row-level-security policy as a second line of defence.
  */
 export const documents = pgTable(
   'documents',
