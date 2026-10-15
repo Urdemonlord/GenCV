@@ -107,6 +107,14 @@ describe('matchKeywords', () => {
     expect(normalizeText('ui')).toBe(' ui design ');
   });
 
+  it('still folds a prefix synonym when the target does not end there', () => {
+    // `ui` is a prefix of `ui design`; skipping must only happen for the complete target,
+    // otherwise "UI designer" would stop matching the `ui design` skill.
+    expect(normalizeText('UI designer')).toContain('ui design');
+    expect(containsTerm(normalizeText('UI designer'), 'ui design')).toBe(true);
+    expect(containsTerm(normalizeText('ux designer'), 'ux design')).toBe(true);
+  });
+
   it('still folds synonyms in ordinary prose', () => {
     expect(normalizeText('we use k8s and postgres')).toContain('kubernetes');
     expect(normalizeText('we use k8s and postgres')).toContain('postgresql');
