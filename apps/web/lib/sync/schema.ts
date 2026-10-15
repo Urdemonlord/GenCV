@@ -6,10 +6,10 @@ import { bigint, boolean, check, index, jsonb, pgTable, primaryKey, text, timest
  * plus the CV documents. Column names are snake_case, matching Better Auth's defaults, so
  * the adapter needs no field mapping.
  *
- * The four auth tables follow Better Auth's documented Postgres shape. They are NOT yet
- * verified against the real library: that needs a running Postgres and an integration test
- * doing a real sign-up, which is still to be added. Treat the column names as unverified
- * until then.
+ * The four auth tables are verified against the real library by
+ * `auth.integration.test.ts`, which runs a real sign-up, sign-in and session lookup against
+ * Postgres. Run it with `TEST_DATABASE_URL` set (see the file header); it skips itself when
+ * that variable is absent so CI needs no database.
  */
 
 export const user = pgTable('user', {
