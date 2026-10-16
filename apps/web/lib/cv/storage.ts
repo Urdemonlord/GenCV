@@ -87,8 +87,13 @@ export function loadDocument(id: string, storage: Storage = localStorage): CV | 
   }
 }
 
-export function saveDocument(id: string, cv: CV, storage: Storage = localStorage): number {
-  const updatedAt = Date.now();
+/**
+ * Writes a document. `updatedAt` defaults to now, but callers that apply a *remote* edit
+ * must pass the remote timestamp: stamping a downloaded document with the local clock would
+ * make it look newer than the server on the next round, so it would be uploaded back every
+ * time and the two sides would never converge.
+ */
+export function saveDocument(id: string, cv: CV, storage: Storage = localStorage, updatedAt = Date.now()): number {
   storage.setItem(docKey(id), JSON.stringify(cv));
   const index = listDocuments(storage).filter((doc) => doc.id !== id);
   writeIndex(storage, [summarize(id, cv, updatedAt), ...index]);

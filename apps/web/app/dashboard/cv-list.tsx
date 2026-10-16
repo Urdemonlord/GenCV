@@ -17,6 +17,7 @@ import {
   saveDocument,
   type CvSummary,
 } from '@/lib/cv/storage';
+import { readLocalRecords, recordDeletion } from '@/lib/sync/local';
 import { TEMPLATE_INFO } from '@/lib/cv/templates';
 import { relativeTimeLabel } from '@/lib/relative-time';
 
@@ -83,6 +84,23 @@ export function CvList() {
   };
 
   const remove = (id: string) => {
+    // Record the deletion *before* the body is gone: afterwards the record cannot be derived.
+    // If that write fails, the deletion is aborted — deleting the body anyway would leave a CV
+    // that this device has forgotten about but the server still holds, and the next sync would
+    // download it straight back. Better to keep a CV the user can delete again than to make one
+    // that silently returns.
+    try {
+      const record = readLocalRecords().find((entry) => entry.id === id);
+      if (record) recordDeletion(record);
+    } catch {
+      setConfirmDelete(null);
+      toast({
+        variant: 'destructive',
+        title: 'Gagal menghapus CV',
+        description: 'Catatan sinkronisasi di perangkat ini tidak bisa diperbarui, jadi CV tidak jadi dihapus.',
+      });
+      return;
+    }
     deleteDocument(id);
     setConfirmDelete(null);
     refresh();
