@@ -58,7 +58,12 @@ function chunk<T>(items: T[], size: number, maxBytes?: number): T[][] {
   let bytes = 0;
 
   for (const item of items) {
-    const cost = maxBytes === undefined ? 0 : JSON.stringify(item).length;
+    // `TextEncoder`, not `.length`: the server measures the request in UTF-8 bytes, and
+    // `.length` counts UTF-16 code units. Text that is mostly non-ASCII (CJK, or Indonesian
+    // with plenty of accents) takes up to three bytes per code unit, so a chunk counted as
+    // 3 MiB could arrive as ~9 MiB and be rejected with a 413 on every retry. This module runs
+    // in the browser, so `Buffer` is not available.
+    const cost = maxBytes === undefined ? 0 : utf8Length(JSON.stringify(item));
     if (current.length > 0 && (current.length >= size || bytes + cost > maxBytes!)) {
       out.push(current);
       current = [];
@@ -69,6 +74,13 @@ function chunk<T>(items: T[], size: number, maxBytes?: number): T[][] {
   }
   if (current.length > 0) out.push(current);
   return out;
+}
+
+const encoder = new TextEncoder();
+
+/** Length of a string once encoded as UTF-8, which is what the server actually receives. */
+function utf8Length(text: string): number {
+  return encoder.encode(text).length;
 }
 
 /**

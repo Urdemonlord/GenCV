@@ -390,6 +390,54 @@ describe('runSyncRound robustness', () => {
     expect(bodiesSeen.reduce((a, b) => a + b, 0)).toBe(205);
   });
 
+  it('keeps each request under the byte budget, not just the upsert count', async () => {
+    // Eight CVs at the per-body cap already exceed the server's total request limit, so a
+    // count-only chunk would be refused with a 413.
+    const storage = useDevice();
+    const big = 'x'.repeat(400 * 1024);
+    for (let i = 0; i < 8; i++) {
+      saveDocument(`big-${i}`, { ...emptyCV(), title: `CV ${i}`, jobDescription: big }, storage);
+    }
+
+    const sizes: number[] = [];
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      const raw = String(init.body ?? '');
+      if (raw.includes('"upserts":[{"id"')) sizes.push(raw.length);
+      return jsonResponse({ success: true, records: [], documents: [] });
+    }) as unknown as typeof fetch;
+
+    await runSyncRound(fetchImpl);
+
+    expect(sizes.length).toBeGreaterThan(1);
+    for (const size of sizes) expect(size).toBeLessThan(4 * 1024 * 1024);
+  });
+
+  it('measures the byte budget in UTF-8, not UTF-16 code units', async () => {
+    // A string's `.length` counts UTF-16 code units while the server measures UTF-8 bytes. Text
+    // that is mostly CJK takes up to three bytes per code unit, so a batch counted as 1.4 MiB
+    // can arrive as ~4.3 MiB and be refused with a 413 on every retry.
+    //
+    // Each body stays well inside the server's per-body cap; it is the total that overflows.
+    const storage = useDevice();
+    const cjk = '漢'.repeat(60_000); // ~180 KB as UTF-8, ~60 K code units
+    for (let i = 0; i < 24; i++) {
+      saveDocument(`cjk-${i}`, { ...emptyCV(), title: `CV ${i}`, jobDescription: cjk }, storage);
+    }
+
+    const utf8Sizes: number[] = [];
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      const raw = String(init.body ?? '');
+      if (raw.includes('"upserts":[{"id"')) utf8Sizes.push(Buffer.byteLength(raw, 'utf8'));
+      return jsonResponse({ success: true, records: [], documents: [] });
+    }) as unknown as typeof fetch;
+
+    await runSyncRound(fetchImpl);
+
+    // The mis-counted version would have sent all 24 as one ~4.3 MB request.
+    expect(utf8Sizes.length).toBeGreaterThan(1);
+    for (const size of utf8Sizes) expect(size).toBeLessThanOrEqual(3 * 1024 * 1024);
+  });
+
   it('ignores a body the server should never have sent', async () => {
     // The body goes straight into storage, so a non-object would break the editor on load.
     const storage = useDevice();
