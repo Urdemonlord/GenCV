@@ -37,13 +37,20 @@ describe('authErrorMessage', () => {
 describe('syncStatusLabel', () => {
   it('says an idle round succeeded, rather than reporting zeros', () => {
     // "Selesai: ." or "0 dikirim" would read like a failure. Most rounds are idle.
-    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 0 })).toContain('tidak ada perubahan');
+    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 0, deleted: 0 })).toContain('tidak ada perubahan');
   });
 
   it('counts only what actually moved', () => {
-    expect(syncStatusLabel({ ok: true, uploaded: 3, downloaded: 0 })).toBe('Selesai: 3 dikirim.');
-    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 2 })).toBe('Selesai: 2 diterima.');
-    expect(syncStatusLabel({ ok: true, uploaded: 1, downloaded: 2 })).toBe('Selesai: 1 dikirim, 2 diterima.');
+    expect(syncStatusLabel({ ok: true, uploaded: 3, downloaded: 0, deleted: 0 })).toBe('Selesai: 3 dikirim.');
+    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 2, deleted: 0 })).toBe('Selesai: 2 diterima.');
+    expect(syncStatusLabel({ ok: true, uploaded: 1, downloaded: 2, deleted: 0 })).toBe('Selesai: 1 dikirim, 2 diterima.');
+  });
+
+  it('reports a round that only applied deletions', () => {
+    // A document deleted on another device is the one outcome a user is most likely to ask
+    // about, so reporting it as "tidak ada perubahan" would hide exactly the wrong thing.
+    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 0, deleted: 1 })).toBe('Selesai: 1 dihapus.');
+    expect(syncStatusLabel({ ok: true, uploaded: 0, downloaded: 0, deleted: 3 })).toBe('Selesai: 3 dihapus.');
   });
 
   it('tells the user to sign in again when the session expired', () => {

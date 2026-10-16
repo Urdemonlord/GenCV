@@ -58,13 +58,18 @@ export type SyncReason = 'offline' | 'unauthenticated' | 'error' | 'local-data-u
  * from the user (sign in again) — showing it as a generic error would leave them stuck.
  */
 export function syncStatusLabel(
-  result: { ok: true; uploaded: number; downloaded: number } | { ok: false; reason: SyncReason },
+  result:
+    | { ok: true; uploaded: number; downloaded: number; deleted: number }
+    | { ok: false; reason: SyncReason },
 ): string {
   if (result.ok) {
-    if (result.uploaded === 0 && result.downloaded === 0) return 'Sudah sinkron — tidak ada perubahan.';
     const parts: string[] = [];
     if (result.uploaded > 0) parts.push(`${result.uploaded} dikirim`);
     if (result.downloaded > 0) parts.push(`${result.downloaded} diterima`);
+    // Deletions are reported too: a round that only removed a document the user deleted on
+    // another device did change something, and "tidak ada perubahan" would hide it.
+    if (result.deleted > 0) parts.push(`${result.deleted} dihapus`);
+    if (parts.length === 0) return 'Sudah sinkron — tidak ada perubahan.';
     return `Selesai: ${parts.join(', ')}.`;
   }
 

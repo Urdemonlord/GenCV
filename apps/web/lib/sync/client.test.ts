@@ -4,6 +4,7 @@ import { emptyCV, type CV } from '@/lib/cv/model';
 import { hashText, winsOver, type SyncRecord } from './merge';
 import { readTombstones, recordDeletion, saveTombstones } from './local';
 import { runSyncRound } from './client';
+import { syncStatusLabel } from './messages';
 
 /**
  * Tests for one sync round.
@@ -670,5 +671,27 @@ describe('late winners', () => {
     const result = await runSyncRound(fetchImpl);
 
     expect(result).toMatchObject({ ok: true, downloaded: 0 });
+  });
+
+  it('counts a deletion applied mid-round, so the panel does not say nothing happened', async () => {
+    // Without this the round reports `deleted: 0` and the label reads "tidak ada perubahan",
+    // hiding the one outcome a user is most likely to ask about.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Dihapus di tempat lain'), storage, 1_000);
+
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jsonResponse({ success: true, records: [{ id, updatedAt: 1_000, deleted: false, hash: 'z' }] });
+      }
+      return jsonResponse({ success: true, records: [{ id, updatedAt: 2_000, deleted: true, hash: 'z' }] });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, deleted: 1 });
+    expect(syncStatusLabel(result)).toBe('Selesai: 1 dihapus.');
   });
 });
