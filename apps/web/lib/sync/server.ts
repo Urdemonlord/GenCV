@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { normalizeCV } from '@/lib/cv/normalize';
 import type { Database } from './db';
 import { hashText, winsOver, type SyncRecord } from './merge';
@@ -143,26 +143,29 @@ export async function applyUpserts(db: Database, userId: string, upserts: Upsert
 /**
  * Metadata for everything the user owns, plus bodies for `want`.
  *
- * `want` is resolved with one scoped query rather than by filtering a full read: the bodies of
- * documents the client did not ask for are never loaded. Ids the user does not own simply do
- * not come back — never borrowed from another user.
+ * One query, not two. Reading the metadata and the bodies separately lets a concurrent sync
+ * land in between, which would pair a fresh body with stale `updatedAt`/`hash` — and the
+ * client hashes whatever it is given, so it would store a body whose hash describes a
+ * different row and re-download it forever. A single statement sees one state of the table.
+ *
+ * `want` only decides which bodies come back; the metadata for every document is needed
+ * anyway to feed the client's merge. Ids the user does not own simply do not appear — never
+ * borrowed from another user.
  */
 export async function readFor(db: Database, userId: string, want: string[]): Promise<SyncOutcome> {
-  const records = await listRecords(db, userId);
+  const wanted = new Set(want);
+  const rows = await db
+    .select({ ...META, body: documents.body })
+    .from(documents)
+    .where(eq(documents.userId, userId));
 
-  const bodies = new Map<string, unknown | null>();
-  if (want.length > 0) {
-    const rows = await db
-      .select({ ...META, body: documents.body })
-      .from(documents)
-      .where(and(eq(documents.userId, userId), inArray(documents.id, want)));
-    for (const row of rows) bodies.set(row.id, row.body ?? null);
+  const records: SyncRecord[] = [];
+  const documentsOut: (SyncRecord & { body: unknown | null })[] = [];
+  for (const row of rows) {
+    const record = toRecord(row);
+    records.push(record);
+    if (wanted.has(row.id)) documentsOut.push({ ...record, body: row.body ?? null });
   }
 
-  return {
-    records,
-    documents: records
-      .filter((record) => bodies.has(record.id))
-      .map((record) => ({ ...record, body: bodies.get(record.id) ?? null })),
-  };
+  return { records, documents: documentsOut };
 }

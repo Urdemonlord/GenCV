@@ -35,14 +35,39 @@ export type SyncResult =
 /** Server caps, mirrored so a large library is chunked instead of rejected outright. */
 const MAX_UPSERTS_PER_REQUEST = 200;
 const MAX_WANT_PER_REQUEST = 500;
+/**
+ * Byte budget per request, comfortably under the server's `MAX_REQUEST_BYTES`. Counting only
+ * the *number* of upserts is not enough: eight CVs at the 512 KiB per-body cap already exceed
+ * the server's total limit, so those requests would be refused with a 413.
+ */
+const MAX_UPSERTS_BYTES = 3 * 1024 * 1024;
 
 /** Metadata-only view of a record; the body is read separately, and only when it must move. */
 const toUpsert = ({ id, updatedAt, deleted, hash }: SyncRecord) => ({ id, updatedAt, deleted, hash });
 
-/** Splits a list into chunks of at most `size`, so no request exceeds the server cap. */
-function chunk<T>(items: T[], size: number): T[][] {
+/**
+ * Splits a list into chunks bounded by both a count and a byte budget.
+ *
+ * The byte budget is the one that matters for CVs: a single body may be 512 KiB, so a chunk of
+ * 200 would be far over any sane request size. A single item larger than the budget still gets
+ * its own chunk, so it is refused by the server with a clear 413 rather than silently dropped.
+ */
+function chunk<T>(items: T[], size: number, maxBytes?: number): T[][] {
   const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  let current: T[] = [];
+  let bytes = 0;
+
+  for (const item of items) {
+    const cost = maxBytes === undefined ? 0 : JSON.stringify(item).length;
+    if (current.length > 0 && (current.length >= size || bytes + cost > maxBytes!)) {
+      out.push(current);
+      current = [];
+      bytes = 0;
+    }
+    current.push(item);
+    bytes += cost;
+  }
+  if (current.length > 0) out.push(current);
   return out;
 }
 
@@ -134,9 +159,37 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
   /** Ids discovered mid-round that this device turned out to be behind on. */
   const extraWanted = new Set<string>();
 
+  /**
+   * Reconciles the server's records after a write.
+   *
+   * Two things happen here, and both are about a concurrent write on another device:
+   *  - a record that now wins over ours means this round is not finished for that document, so
+   *    its body is queued (`extraWanted`) rather than left for some later round;
+   *  - a record that is a *deletion* carries no body to fetch, so it is applied on the spot —
+   *    otherwise this device keeps a live copy the server has already deleted, and uploads it
+   *    back.
+   *
+   * The comparison is `winsOver`, not a timestamp check: a winner can win on the hash
+   * tie-break at the same timestamp, which a timestamp-only test would miss.
+   */
+  const absorb = (records: SyncRecord[]) => {
+    const have = new Set(received.map((doc) => doc.id));
+    for (const record of records) {
+      const ours = byId.get(record.id) ?? { id: record.id, updatedAt: 0, deleted: false, hash: '' };
+      if (!winsOver(record, ours)) continue;
+
+      if (record.deleted) {
+        saveTombstones([record]);
+        deleteDocument(record.id);
+        continue;
+      }
+      if (!have.has(record.id)) extraWanted.add(record.id);
+    }
+  };
+
   // One request per chunk of upserts. Chunking means a library larger than the server's
   // per-request cap still syncs, a few documents at a time, instead of failing the whole round.
-  const pushChunks = chunk(toPush, MAX_UPSERTS_PER_REQUEST);
+  const pushChunks = chunk(toPush, MAX_UPSERTS_PER_REQUEST, MAX_UPSERTS_BYTES);
   const wantQueue = [...plan.download];
 
   // Nothing to push and nothing to pull: phase 1 already answered the whole question, so an
@@ -175,19 +228,7 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
 
     uploaded += upserts.length;
     received.push(...(body.documents ?? []));
-
-    // A concurrent write on another device can have made the server reject one of our pushes.
-    // The response carries the winner, so this round is not finished for that document: it goes
-    // into `extraWanted` and the loop below drains it. Leaving it to the *next* round would
-    // report success while this device is still behind.
-    //
-    // The comparison is `winsOver`, not a timestamp check: a winner can win on the hash
-    // tie-break at the same timestamp, and a timestamp-only test would miss it.
-    const have = new Set(received.map((doc) => doc.id));
-    for (const record of body.records ?? []) {
-      const ours = byId.get(record.id) ?? { id: record.id, updatedAt: 0, deleted: false, hash: '' };
-      if (winsOver(record, ours) && !record.deleted && !have.has(record.id)) extraWanted.add(record.id);
-    }
+    absorb(body.records ?? []);
   }
 
   // Drain the ids discovered during the pushes. Bounded by the server's per-request cap, and
@@ -213,12 +254,21 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
       return { ok: false, reason: 'error', message: body.error ?? 'Sinkronisasi gagal saat mengambil perubahan terbaru.' };
     }
     received.push(...(body.documents ?? []));
+    absorb(body.records ?? []);
   }
 
   let downloaded = 0;
   for (const incoming of received) {
-    // A tombstone carries no body, and its local copy is already gone (handled above).
-    if (incoming.deleted || incoming.body === null || incoming.body === undefined) continue;
+    // A deletion that arrived mid-round (a concurrent write, not the plan) still has to be
+    // applied: its metadata is authoritative, and skipping it would leave this device holding a
+    // live copy the server has already deleted — which it would then re-upload.
+    if (incoming.deleted) {
+      saveTombstones([incoming]);
+      deleteDocument(incoming.id);
+      continue;
+    }
+    // A live record without a body carries nothing to store.
+    if (incoming.body === null || incoming.body === undefined) continue;
     // The server is not trusted to send a well-formed CV: `saveDocument` writes it straight to
     // storage, where a malformed body would break the editor when it loads.
     if (!isCvBody(incoming.body)) continue;

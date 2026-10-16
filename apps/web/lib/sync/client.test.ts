@@ -527,34 +527,61 @@ describe('runSyncRound robustness', () => {
 
 describe('late winners', () => {
   it('fetches the winning body in the same round, not some later one', async () => {
-    // Our push loses to a write that arrived in between. Reporting success without fetching it
-    // would leave this device behind until the next round — and if the user never syncs again,
-    // forever.
+    // The winner appears only when our push is *refused* — a concurrent write, not something
+    // phase 1 could have known about. Reporting success without fetching it would leave this
+    // device behind until the next round, and forever if the user never syncs again.
     const storage = useDevice();
     const id = 'cv-a';
     saveDocument(id, titled('Versi saya'), storage, 1_000);
 
     const winner = titled('Versi perangkat lain');
+    const winningRecord = { id, updatedAt: 1_000, deleted: false, hash: 'zzzz' };
     const requests: { upserts?: unknown[]; want?: string[] }[] = [];
+    let sawPush = false;
+
     const fetchImpl = (async (_input: string, init: RequestInit) => {
       const payload = JSON.parse(String(init.body ?? '{}')) as { upserts?: unknown[]; want?: string[] };
       requests.push(payload);
-      const winningRecord = { id, updatedAt: 1_000, deleted: false, hash: 'zzzz' };
 
-      if (requests.length === 1) return jsonResponse({ success: true, records: [winningRecord] });
+      if ((payload.upserts ?? []).length > 0) {
+        sawPush = true;
+        // The upload is refused, and the winner comes back in the same response.
+        return jsonResponse({ success: true, records: [winningRecord] });
+      }
       if ((payload.want ?? []).includes(id)) {
         return jsonResponse({ success: true, records: [], documents: [{ ...winningRecord, body: winner }] });
       }
-      // The push is refused; the winner comes back in the response.
-      return jsonResponse({ success: true, records: [winningRecord] });
+      // Phase 1: the server looks identical, so nothing is scheduled up front.
+      return jsonResponse({ success: true, records: [] });
     }) as unknown as typeof fetch;
 
     await runSyncRound(fetchImpl);
 
-    // A follow-up request asked for the winner, and the local copy is now the winning body.
-    const followUp = requests.slice(1).find((r) => (r.want ?? []).includes(id));
-    expect(followUp).toBeDefined();
+    // The upload really was rejected, and a follow-up request fetched the winner.
+    expect(sawPush).toBe(true);
+    expect(requests.some((r) => (r.want ?? []).includes(id))).toBe(true);
     expect(bodyOf(storage, id)).toEqual(winner);
+  });
+
+  it('applies a deletion that arrives as the winner of a concurrent write', async () => {
+    // A tombstone has no body to fetch, so queueing it cannot work. Without applying it on the
+    // spot, this device keeps a live copy the server has deleted and uploads it back.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Sudah dihapus di tempat lain'), storage, 1_000);
+
+    const fetchImpl = (async (_input: string, init: RequestInit) => {
+      const payload = JSON.parse(String(init.body ?? '{}')) as { upserts?: unknown[] };
+      if ((payload.upserts ?? []).length > 0) {
+        return jsonResponse({ success: true, records: [{ id, updatedAt: 2_000, deleted: true, hash: 'z' }] });
+      }
+      return jsonResponse({ success: true, records: [] });
+    }) as unknown as typeof fetch;
+
+    await runSyncRound(fetchImpl);
+
+    expect(loadDocument(id, storage)).toBeNull();
+    expect(readTombstones(storage).map((record) => record.id)).toContain(id);
   });
 
   it('does not count a winning deletion as a download', async () => {

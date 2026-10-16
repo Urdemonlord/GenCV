@@ -16,6 +16,18 @@ describe('assertThrowawayDatabase', () => {
     expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv')).toThrow(/test/);
   });
 
+  it('refuses a database named only in a query parameter', () => {
+    // Reading only the URL path would let `.../gencv_test?db=production` through, and the tests
+    // would then drop production's tables.
+    for (const param of ['db', 'database', 'dbname']) {
+      expect(() => assertThrowawayDatabase(`postgres://127.0.0.1:55432/gencv_test?${param}=production`)).toThrow(/test/);
+    }
+  });
+
+  it('accepts a query parameter that is also a throwaway name', () => {
+    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv_test?db=gencv_test')).not.toThrow();
+  });
+
   it('refuses names that merely contain the letters `test`', () => {
     // `contest` and `latest` are exactly the sort of database someone pastes in by accident,
     // so matching the substring anywhere is not good enough.

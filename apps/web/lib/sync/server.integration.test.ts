@@ -107,14 +107,17 @@ describe.skipIf(!url)('sync server (integration)', () => {
     // Both bodies share a timestamp, so the larger derived hash decides. The order the two
     // writes arrive in must not change the outcome — otherwise two devices would each keep
     // their own copy and the round would ping-pong forever.
-    const bodyX = { v: 'x' };
-    const bodyY = { v: 'y' };
+    const bodyX = { title: 'Versi X' };
+    const bodyY = { title: 'Versi Y' };
     const winner = winsOver(
       { id: 'cv-3', updatedAt: 3000, deleted: false, hash: hashOf(bodyX) },
       { id: 'cv-3', updatedAt: 3000, deleted: false, hash: hashOf(bodyY) },
     )
       ? bodyX
       : bodyY;
+
+    // The fixtures must really differ after normalisation, or this proves nothing.
+    expect(hashOf(bodyX)).not.toBe(hashOf(bodyY));
 
     await applyUpserts(db, alice.id, [upsert('cv-3', 3000, bodyX)]);
     await applyUpserts(db, alice.id, [upsert('cv-3', 3000, bodyY)]);
@@ -130,8 +133,8 @@ describe.skipIf(!url)('sync server (integration)', () => {
   });
 
   it('refuses a write that loses the tie, so the same tie does not flip back', async () => {
-    const bodyX = { v: 'x' };
-    const bodyY = { v: 'y' };
+    const bodyX = { title: 'Versi X' };
+    const bodyY = { title: 'Versi Y' };
     const xFirst = winsOver(
       { id: 'x', updatedAt: 1, deleted: false, hash: hashOf(bodyX) },
       { id: 'x', updatedAt: 1, deleted: false, hash: hashOf(bodyY) },
