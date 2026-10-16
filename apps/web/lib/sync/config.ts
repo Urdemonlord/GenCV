@@ -33,3 +33,28 @@ export function isSyncConfigured(): boolean {
 export function authBaseUrl(): string | undefined {
   return process.env[AUTH_URL_ENV]?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim() || undefined;
 }
+
+/**
+ * Origins allowed to call the auth endpoints.
+ *
+ * A preview deployment serves from its own hostname, which is *not* the production origin in
+ * `NEXT_PUBLIC_APP_URL`. Without trusting it, the browser sends the preview origin, Better Auth
+ * compares it against the configured base URL, and rejects every sign-in on previews — the one
+ * place the flow most needs testing.
+ *
+ * Deliberately `VERCEL_URL` and not a `*.vercel.app` wildcard: the former is set by the platform
+ * to this deployment's own hostname, while the latter would trust every Vercel deployment anyone
+ * on the internet can create, which is most of what the origin check is for.
+ */
+export function trustedOrigins(): string[] {
+  const origins: string[] = [];
+  const base = authBaseUrl();
+  if (base) origins.push(base);
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  // `VERCEL_URL` is documented as a bare hostname, but a value that already carries a scheme
+  // would otherwise become `https://https://…` — an origin that can never match anything.
+  if (vercelUrl) origins.push(/^https?:\/\//.test(vercelUrl) ? vercelUrl : `https://${vercelUrl}`);
+
+  return origins;
+}
