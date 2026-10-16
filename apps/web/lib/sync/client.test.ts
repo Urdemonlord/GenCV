@@ -350,11 +350,29 @@ describe('deleting a document locally', () => {
       hash: 'h',
     };
 
-    recordDeletion(record, storage);
+    // The deletion time is passed in rather than left to `Date.now()`: the default reads the
+    // clock, so an assertion against the *save* time is off by however many milliseconds
+    // passed between the two calls — a flake that only shows up on a loaded machine.
+    const deletedAt = record.updatedAt + 5_000;
+    recordDeletion(record, storage, deletedAt);
     deleteDocument('cv-a', storage);
 
     expect(loadDocument('cv-a', storage)).toBeNull();
-    expect(readTombstones(storage)).toEqual([{ ...record, deleted: true }]);
+    // Stamped with the deletion time, not the last-save time: keeping the old timestamp would
+    // let a server copy written after that save outrank the deletion and come back.
+    expect(readTombstones(storage)).toEqual([{ ...record, deleted: true, updatedAt: deletedAt }]);
+  });
+
+  it('never stamps a deletion earlier than the save it follows', () => {
+    // A clock that jumps backwards must not produce a tombstone that loses to the very copy it
+    // is meant to replace.
+    const storage = useDevice();
+    saveDocument('cv-b', titled('B'), storage);
+    const record: SyncRecord = { id: 'cv-b', updatedAt: 5_000, deleted: false, hash: 'h' };
+
+    recordDeletion(record, storage, 1_000);
+
+    expect(readTombstones(storage)[0].updatedAt).toBe(5_000);
   });
 });
 describe('runSyncRound robustness', () => {
