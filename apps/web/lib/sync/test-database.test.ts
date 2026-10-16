@@ -28,6 +28,13 @@ describe('assertThrowawayDatabase', () => {
     expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/gencv_test?db=gencv_test')).not.toThrow();
   });
 
+  it('refuses a connection string that names no database at all', () => {
+    // `pg` falls back to a default database (the user name) when none is given, so accepting
+    // this would run `drop table cascade` against whatever that default happens to be.
+    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432')).toThrow(/no database/);
+    expect(() => assertThrowawayDatabase('postgres://127.0.0.1:55432/')).toThrow(/no database/);
+  });
+
   it('refuses names that merely contain the letters `test`', () => {
     // `contest` and `latest` are exactly the sort of database someone pastes in by accident,
     // so matching the substring anywhere is not good enough.

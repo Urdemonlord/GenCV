@@ -25,8 +25,18 @@ export function assertThrowawayDatabase(connectionString: string): void {
   const url = new URL(connectionString);
   const candidates = [url.pathname.replace(/^\//, ''), ...DATABASE_PARAMS.map((key) => url.searchParams.get(key))];
 
-  for (const name of candidates) {
-    if (name === null || name === '') continue;
+  // A connection string with no database at all is rejected rather than skipped: `pg` falls
+  // back to a default database (the user name), which is even less likely to be throwaway than
+  // a name that failed the check. Only names that are explicitly throwaway should get through.
+  const named = candidates.filter((name): name is string => name !== null && name !== '');
+  if (named.length === 0) {
+    throw new Error(
+      'Refusing to run: the connection string names no database, so `pg` would fall back to its ' +
+        'default. Name a throwaway database explicitly (e.g. `gencv_test`) — this test drops tables.',
+    );
+  }
+
+  for (const name of named) {
     if (!/(^|[_-])test([_-]|$)/i.test(name)) {
       throw new Error(
         `Refusing to run: database "${name}" does not look like a throwaway database. ` +

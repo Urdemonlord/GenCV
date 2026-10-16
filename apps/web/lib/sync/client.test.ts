@@ -629,7 +629,9 @@ describe('late winners', () => {
     await runSyncRound(fetchImpl);
 
     expect(loadDocument(id, storage)).toBeNull();
-    expect(readTombstones(storage).map((record) => record.id)).toContain(id);
+    // The full tombstone, not just its presence: an older `updatedAt` would lose to a stale
+    // live copy on the next round and the deletion would be undone.
+    expect(readTombstones(storage)).toEqual([{ id, updatedAt: 2_000, deleted: true, hash: 'z' }]);
   });
 
   it('does not count a winning deletion as a download', async () => {
