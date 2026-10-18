@@ -167,6 +167,17 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
     }));
 
   let uploaded = 0;
+  /**
+   * Documents this round deleted, counted in both directions.
+   *
+   * `removedHere` starts from the server's tombstones that were just applied and grows with every
+   * deletion that wins mid-round; `propagated` counts the deletions this device pushed up. They
+   * are disjoint — a document is either already gone here or already gone there, not both — and
+   * leaving either out makes the panel report "tidak ada perubahan" for the one outcome a user
+   * is most likely to ask about.
+   */
+  const removedHere = new Set<string>(plan.deleteLocal.map((record) => record.id));
+  const propagatedDeleteIds = new Set<string>(plan.deleteRemote);
   const received: NonNullable<ServerResponse['documents']> = [];
   /** Ids discovered mid-round that this device turned out to be behind on. */
   const extraWanted = new Set<string>();
@@ -191,8 +202,17 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
       if (!winsOver(record, ours)) continue;
 
       if (record.deleted) {
+        // `removedHere` is a set, so `absorb` running after every request cannot double count a
+        // tombstone the server reports more than once in a round.
+        const wasLive = byId.get(record.id)?.deleted === false;
         saveTombstones([record]);
         deleteDocument(record.id);
+        if (wasLive) {
+          removedHere.add(record.id);
+          // It was live here and will be deleted there on the next push, so this device is not
+          // what made it disappear. Drop it from the count to avoid double reporting.
+          propagatedDeleteIds.delete(record.id);
+        }
         continue;
       }
       if (!have.has(record.id)) extraWanted.add(record.id);
@@ -209,7 +229,9 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
   // cost of every no-op round — which is most of them.
   if (toPush.length === 0 && wantQueue.length === 0) {
     pruneAgainstLocalState();
-    return { ok: true, uploaded: 0, downloaded: 0, deleted: 0 };
+    // `removedHere` can be non-empty here: the server's tombstones were applied before this
+    // point, and that is a real change to report even though phase 2 never runs.
+    return { ok: true, uploaded: 0, downloaded: 0, deleted: removedHere.size };
   }
 
   const rounds = Math.max(pushChunks.length, 1);
@@ -275,6 +297,10 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
     // applied: its metadata is authoritative, and skipping it would leave this device holding a
     // live copy the server has already deleted — which it would then re-upload.
     if (incoming.deleted) {
+      // Counted too: a round that only applied remote deletions did change something, and
+      // reporting it as "nothing happened" would hide the one outcome users ask about.
+      removedHere.add(incoming.id);
+      propagatedDeleteIds.delete(incoming.id);
       saveTombstones([incoming]);
       deleteDocument(incoming.id);
       continue;
@@ -297,7 +323,7 @@ async function performRound(fetchImpl: typeof fetch): Promise<SyncResult> {
   // the round had only moments ago recorded.
   pruneAgainstLocalState();
 
-  return { ok: true, uploaded, downloaded, deleted: plan.deleteRemote.length };
+  return { ok: true, uploaded, downloaded, deleted: removedHere.size + propagatedDeleteIds.size };
 }
 
 /** Forgets tombstones for documents that exist locally right now. */
