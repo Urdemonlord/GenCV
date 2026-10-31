@@ -59,6 +59,16 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
+    title: 'Kredit AI',
+    body: (
+      <p>
+        Setiap hari tersedia kuota AI gratis. Setelah habis, satu permintaan AI memakai 1 kredit yang dibeli lewat QRIS di halaman
+        Kredit AI. Kredit terikat ke akunmu, tidak kedaluwarsa, tidak dapat diuangkan, dan tidak dipotong jika permintaan AI gagal.
+        Jika pembayaran dibatalkan atau ditarik kembali oleh bank atau e-wallet, kredit dari pembayaran itu ditarik dari saldo.
+      </p>
+    ),
+  },
+  {
     title: 'Data dan cadangan',
     body: (
       <p>

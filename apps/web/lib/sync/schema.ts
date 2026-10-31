@@ -4,6 +4,7 @@ import {
   boolean,
   check,
   index,
+  integer,
   jsonb,
   pgTable,
   primaryKey,
@@ -131,5 +132,53 @@ export const documents = pgTable(
     // `deleted` and `body IS NULL` are both tombstone markers, so they must not disagree:
     // a half-written tombstone would sync as a live document with no content.
     check('documents_tombstone_has_no_body', sql`${table.deleted} = (${table.body} IS NULL)`),
+  ],
+);
+
+/**
+ * AI credit balance. One row per user, created on the first purchase. Users without a row have
+ * no paid credits and only the free daily quota. The CHECK keeps a race from spending below zero.
+ */
+export const aiCredits = pgTable(
+  'ai_credits',
+  {
+    userId: text('user_id')
+      .primaryKey()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    balance: integer('balance').notNull().default(0),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [check('ai_credits_balance_not_negative', sql`${table.balance} >= 0`)],
+);
+
+/**
+ * QRIS purchases of credit packs through the MeowPay panel. `id` is the panel's order id.
+ * Status only moves pending → paid/expired/cancelled; expired/cancelled/reversed → paid (a late
+ * payment still counts); paid → reversed (the money was pulled back).
+ */
+export const creditPayments = pgTable(
+  'credit_payments',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    packId: text('pack_id').notNull(),
+    credits: integer('credits').notNull(),
+    /** List price of the pack. */
+    price: integer('price').notNull(),
+    /** What the buyer pays: the price, or a little less when another buyer holds that amount. */
+    amount: integer('amount').notNull(),
+    qrString: text('qr_string').notNull(),
+    status: text('status').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    index('credit_payments_user_idx').on(table.userId, table.createdAt),
+    check('credit_payments_status', sql`${table.status} in ('pending', 'paid', 'expired', 'cancelled', 'reversed')`),
+    check('credit_payments_amount', sql`${table.amount} > 0 and ${table.amount} <= ${table.price} and ${table.credits} > 0`),
   ],
 );

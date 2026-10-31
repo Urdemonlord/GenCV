@@ -53,6 +53,16 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
+    title: 'Akun dan pembelian kredit',
+    body: (
+      <p>
+        Akun hanya diperlukan untuk membeli kredit AI. Yang disimpan: nama, email, hash kata sandi, saldo kredit, serta riwayat
+        pembelian (paket, nominal, ID order QRIS, status, dan waktunya). Pembayaran diproses oleh aplikasi bank atau e-wallet kamu;
+        GenCV tidak menerima nomor rekening, kartu, atau PIN.
+      </p>
+    ),
+  },
+  {
     title: 'Statistik kunjungan',
     body: (
       <>
