@@ -59,7 +59,7 @@ describe.skipIf(!url)('sync server (integration)', () => {
   beforeAll(async () => {
     assertThrowawayDatabase(url!);
     pool = new Pool({ connectionString: url });
-    await pool.query('drop table if exists documents, session, account, verification, "user" cascade');
+    await pool.query('drop table if exists credit_payments, ai_credits, documents, session, account, verification, "user" cascade');
     const dir = join(__dirname, 'migrations');
     const sql = readdirSync(dir)
       .filter((f) => f.endsWith('.sql'))
