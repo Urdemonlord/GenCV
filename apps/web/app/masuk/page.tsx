@@ -29,14 +29,18 @@ export default async function MasukPage({ searchParams }: { searchParams: Search
   const configured = isSyncConfigured();
   // ?mode=daftar preselects the sign-up form, so the header can offer
   // "Masuk" and "Daftar" as two real entry points to the same form.
-  const initialMode = first((await searchParams).mode) === 'daftar' ? 'daftar' : 'masuk';
+  // ?callbackURL= membawa user kembali ke halaman yang mengharuskan login
+  // (misalnya /lowongan); divalidasi di AuthForm sebelum dipakai.
+  const params = await searchParams;
+  const initialMode = first(params.mode) === 'daftar' ? 'daftar' : 'masuk';
+  const callbackURL = first(params.callbackURL);
 
   return (
     <>
       <SiteHeader />
       <main className="min-h-[60vh]">
         {configured ? (
-          <AuthForm initialMode={initialMode} />
+          <AuthForm initialMode={initialMode} callbackURL={callbackURL} />
         ) : (
           <div className="mx-auto w-full max-w-md px-4 py-16">
             <h1 className="text-3xl font-bold tracking-tight">Masuk belum tersedia</h1>

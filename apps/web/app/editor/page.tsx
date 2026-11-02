@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
+import { isSyncConfigured } from '@/lib/sync/config';
 import { EditorEntry } from './_components/editor-entry';
 import { EditorShell } from './_components/editor-shell';
 
@@ -25,5 +26,11 @@ export default async function EditorPage({ searchParams }: { searchParams: Searc
       first(params.fromJob) === '1' && jobTitle && jobUrl ? { title: jobTitle, url: jobUrl } : undefined;
     return <EditorShell key={id} id={id} jobNotice={jobNotice} />;
   }
-  return <EditorEntry createNew={first(params.new) === '1'} template={first(params.template)} />;
+  return (
+    <EditorEntry
+      createNew={first(params.new) === '1'}
+      template={first(params.template)}
+      syncConfigured={isSyncConfigured()}
+    />
+  );
 }

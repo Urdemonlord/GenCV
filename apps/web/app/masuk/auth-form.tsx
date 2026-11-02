@@ -5,7 +5,13 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { Button, Field, Input } from '@/components/ds';
 import { authClient } from '@/lib/sync/auth-client';
+import { runSyncRound } from '@/lib/sync/client';
 import { authErrorMessage, type AuthMode } from '@/lib/sync/messages';
+
+/** Hanya path lokal yang boleh jadi tujuan kembali — bukan URL luar (open redirect). */
+function safeCallbackURL(value: string | undefined): string {
+  return value && value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
+}
 
 /**
  * Sign-in / sign-up form.
@@ -14,8 +20,18 @@ import { authErrorMessage, type AuthMode } from '@/lib/sync/messages';
  * so a second page would be a copy with two strings changed. The mode lives in state rather
  * than the URL because it is not worth a navigation, and losing form contents to a route change
  * would be worse than losing the mode.
+ *
+ * Setelah berhasil masuk, satu ronde sinkronisasi jalan dulu: CV lokal yang dibuat sebelum
+ * punya akun ikut ter-upload ke akun, dan CV dari perangkat lain ikut ter-download — jadi
+ * akun benar-benar jadi profilnya, bukan sekadar pintu masuk.
  */
-export function AuthForm({ initialMode = 'masuk' }: { initialMode?: AuthMode }) {
+export function AuthForm({
+  initialMode = 'masuk',
+  callbackURL,
+}: {
+  initialMode?: AuthMode;
+  callbackURL?: string;
+}) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,9 +57,17 @@ export function AuthForm({ initialMode = 'masuk' }: { initialMode?: AuthMode }) 
         setError(authErrorMessage(result.error, mode));
         return;
       }
+      // Sinkronisasi best-effort sebelum pindah halaman: gagal sinkron tidak
+      // membatalkan login — panel dashboard bisa mencoba lagi, dan CV lokal
+      // tetap aman di perangkat ini.
+      try {
+        await runSyncRound();
+      } catch {
+        // Diabaikan dengan sengaja; lihat komentar di atas.
+      }
       // A full navigation, not `router.push`: the session arrives in a Set-Cookie header, and
       // the server components on the dashboard render from that cookie.
-      window.location.assign('/dashboard');
+      window.location.assign(safeCallbackURL(callbackURL));
     } catch {
       setError('Tidak bisa menghubungi server. Periksa koneksi lalu coba lagi.');
     } finally {
@@ -58,8 +82,8 @@ export function AuthForm({ initialMode = 'masuk' }: { initialMode?: AuthMode }) 
       <h1 className="text-3xl font-bold tracking-tight">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {isSignUp
-          ? 'Opsional. CV tetap bisa dipakai tanpa akun — akun hanya menambahkan salinan di server.'
-          : 'Masuk supaya CV di perangkat ini ikut tersimpan di server dan bisa dibuka dari perangkat lain.'}
+          ? 'Akun diperlukan untuk membuat CV baru. CV tersimpan di akunmu dan bisa dibuka dari perangkat lain.'
+          : 'Masuk supaya CV di perangkat ini ikut tersimpan di akunmu dan bisa dibuka dari perangkat lain.'}
       </p>
 
       <form onSubmit={submit} className="mt-8 space-y-4" noValidate>
