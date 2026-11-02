@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HUNTER_PORTALS, cvTitleForJob, parseHunterJobs } from './hunter';
+import { HUNTER_FEED_URL, HUNTER_PORTALS, cvTitleForJob, parseHunterJobs } from './hunter';
 
 const job = (overrides: Record<string, unknown> = {}) => ({
   site: 'linkedin',
@@ -43,6 +43,12 @@ describe('parseHunterJobs', () => {
   it('builds a per-company CV title', () => {
     const { jobs } = parseHunterJobs([job()]);
     expect(cvTitleForJob(jobs[0])).toBe('CV Golang Developer \u2013 Contoh Corp');
+  });
+});
+
+describe('HUNTER_FEED_URL', () => {
+  it('points at the public hunter feed repo', () => {
+    expect(HUNTER_FEED_URL).toBe('https://raw.githubusercontent.com/Urdemonlord/gencv-hunter-feed/main/jobs.json');
   });
 });
 
