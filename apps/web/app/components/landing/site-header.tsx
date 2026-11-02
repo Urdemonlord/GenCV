@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FileText, User } from 'lucide-react';
 import { Button } from '@/components/ds';
 import { authClient } from '@/lib/sync/auth-client';
@@ -13,7 +14,6 @@ const NAV = [
   { href: '/#fitur', label: 'Fitur' },
   { href: '/#faq', label: 'FAQ' },
   { href: '/dashboard', label: 'CV saya' },
-  { href: '/masuk', label: 'Masuk' },
 ];
 
 /**
@@ -24,28 +24,39 @@ const NAV = [
  */
 export function SiteHeader() {
   const { data: session } = authClient.useSession();
-
-  // Sudah masuk: jangan tawarkan Masuk/Daftar lagi, cukup satu tombol Profil.
-  const nav = session ? NAV.filter((item) => item.href !== '/masuk') : NAV;
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
-          <FileText className="size-5 text-primary-soft" aria-hidden="true" />
+          <FileText className="size-5 text-brand-accent" aria-hidden="true" />
           <span>
-            Gen<span className="text-gradient">CV</span>
+            Gen<span className="text-brand-accent">CV</span>
           </span>
         </Link>
         <nav aria-label="Utama" className="hidden md:block">
-          <ul className="flex gap-6 text-sm text-muted-foreground">
-            {nav.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="transition-colors hover:text-foreground">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+          <ul className="flex items-center gap-1 text-sm text-muted-foreground">
+            {NAV.map((item) => {
+              // Halaman aktif memakai pil hijau seperti mockup; tautan jangkar
+              // (/#fitur, /#faq) tidak pernah cocok dengan pathname.
+              const active = pathname === item.href;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={
+                      active
+                        ? 'rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground'
+                        : 'rounded-full px-3 py-1.5 transition-colors hover:text-foreground'
+                    }
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
         <div className="ml-auto flex items-center gap-2">
@@ -61,7 +72,7 @@ export function SiteHeader() {
           ) : (
             <>
               <Button asChild variant="outline" size="sm">
-                <Link href="/masuk?mode=daftar">Daftar</Link>
+                <Link href="/masuk">Masuk</Link>
               </Button>
               <Button asChild variant="primary" size="sm">
                 <Link href="/editor">Mulai gratis</Link>

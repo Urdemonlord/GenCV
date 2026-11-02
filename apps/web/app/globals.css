@@ -9,8 +9,9 @@
  * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
  */
 @theme {
-  /* --font-jakarta is injected by next/font on <html>. */
+  /* --font-jakarta and --font-anton are injected by next/font on <html>. */
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
 
   --color-surface: hsl(var(--surface));
   --color-surface-raised: hsl(var(--surface-raised));
