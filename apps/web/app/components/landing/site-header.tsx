@@ -6,9 +6,11 @@ const NAV = [
   { href: '/', label: 'Beranda' },
   { href: '/templates', label: 'Template' },
   { href: '/artikel', label: 'Artikel' },
+  { href: '/lowongan', label: 'Lowongan' },
   { href: '/#fitur', label: 'Fitur' },
   { href: '/#faq', label: 'FAQ' },
   { href: '/dashboard', label: 'CV saya' },
+  { href: '/masuk', label: 'Masuk' },
 ];
 
 export function SiteHeader() {
@@ -32,9 +34,14 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
-        <Button asChild variant="primary" size="sm" className="ml-auto">
-          <Link href="/editor">Mulai gratis</Link>
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/masuk?mode=daftar">Daftar</Link>
+          </Button>
+          <Button asChild variant="primary" size="sm">
+            <Link href="/editor">Mulai gratis</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );

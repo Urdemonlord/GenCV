@@ -19,17 +19,24 @@ export const metadata: Metadata = pageMetadata({
 // variable is runtime-only would then serve "belum tersedia" forever while the API worked fine.
 export const dynamic = 'force-dynamic';
 
-export default function MasukPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+
+export default async function MasukPage({ searchParams }: { searchParams: SearchParams }) {
   // Read on the server so the page can explain itself instead of failing on submit. Without a
   // database the API answers 503, and that is a fact of this deployment, not a user error.
   const configured = isSyncConfigured();
+  // ?mode=daftar preselects the sign-up form, so the header can offer
+  // "Masuk" and "Daftar" as two real entry points to the same form.
+  const initialMode = first((await searchParams).mode) === 'daftar' ? 'daftar' : 'masuk';
 
   return (
     <>
       <SiteHeader />
       <main className="min-h-[60vh]">
         {configured ? (
-          <AuthForm />
+          <AuthForm initialMode={initialMode} />
         ) : (
           <div className="mx-auto w-full max-w-md px-4 py-16">
             <h1 className="text-3xl font-bold tracking-tight">Masuk belum tersedia</h1>
