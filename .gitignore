@@ -1,4 +1,4 @@
-# Dependencies (package-lock.json is committed)
+# Dependencies (bun.lock is committed)
 node_modules
 
 # Next.js
