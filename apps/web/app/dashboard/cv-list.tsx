@@ -134,6 +134,9 @@ export function CvList() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link href="/lowongan">Lowongan hunter</Link>
+          </Button>
           <Button variant="outline" onClick={() => fileInput.current?.click()}>
             <Upload aria-hidden="true" />
             Impor JSON
