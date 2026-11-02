@@ -60,7 +60,7 @@ describe.skipIf(!url)('Better Auth schema (integration)', () => {
     pool = new Pool({ connectionString: url });
     // Start from a clean slate so the run is repeatable: earlier runs (and `drizzle-kit
     // push`) leave the tables behind.
-    await pool.query('drop table if exists documents, session, account, verification, "user" cascade');
+    await pool.query('drop table if exists credit_payments, ai_credits, documents, session, account, verification, "user" cascade');
     // Apply the committed migration, so this also checks the file we ship to production.
     const dir = join(__dirname, 'migrations');
     const sql = readdirSync(dir)
