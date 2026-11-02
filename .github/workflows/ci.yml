@@ -15,19 +15,24 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      # Node stays installed: Next.js build/start and Playwright still run on Node.
+      # Bun only replaces npm as the package manager.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - run: npm test
-      - run: npm run build
+      - uses: oven-sh/setup-bun@v2
+        with:
+          # Pinned to the version verified locally, not `latest`, so CI stays reproducible.
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run type-check
+      - run: bun run test
+      - run: bun run build
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
         working-directory: apps/web
-      - run: npm run test:e2e
+      - run: bun run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
