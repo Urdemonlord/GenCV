@@ -80,38 +80,40 @@
 :root {
   color-scheme: dark;
 
-  --background: 226 49% 8%;
-  --foreground: 210 40% 98%;
-  --surface: 221 39% 11%;
-  --surface-raised: 222 33% 15%;
+  /* Tema neon editorial mockup (design.md): berlaku global, bukan hanya
+     /lowongan — bg #080B14, hijau #39FF14, magenta #FF00FF. */
+  --background: 225 43% 5%;
+  --foreground: 230 37% 97%;
+  --surface: 223 40% 10%;
+  --surface-raised: 222 36% 14%;
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface-raised);
   --popover-foreground: var(--foreground);
 
-  --primary: 243 75% 59%;
-  --primary-foreground: 0 0% 100%;
-  --brand-accent: 271 91% 65%;
+  --primary: 111 100% 54%;
+  --primary-foreground: 114 45% 4%;
+  --brand-accent: 300 100% 50%;
   /* Lighter variants for text on dark surfaces (WCAG AA: >= 4.5:1). */
-  --primary-soft: 230 94% 82%;
-  --brand-accent-soft: 270 95% 75%;
+  --primary-soft: 111 100% 72%;
+  --brand-accent-soft: 300 100% 75%;
 
   --secondary: 222 33% 15%;
   --secondary-foreground: 210 40% 98%;
   --muted: 222 33% 15%;
-  --muted-foreground: 215 20% 65%;
-  /* shadcn "accent" is the hover/selected background, not the brand purple */
-  --accent: 222 33% 18%;
+  --muted-foreground: 221 19% 70%;
+  /* shadcn "accent" is the hover/selected background, not the brand magenta */
+  --accent: 222 36% 14%;
   --accent-foreground: 210 40% 98%;
 
-  --success: 142 71% 45%;
+  --success: 111 100% 54%;
   --warning: 38 92% 50%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 220 31% 21%;
-  --input: 220 31% 21%;
-  --ring: 239 84% 67%;
+  --border: 224 22% 24%;
+  --input: 224 22% 24%;
+  --ring: 111 100% 54%;
   --radius: 0.75rem;
 }
 
@@ -140,9 +142,9 @@
     background-clip: text;
     color: transparent;
   }
-  /* Darker stops than the tokens so white labels stay above 4.5:1 across the gradient. */
+  /* Neon brand gradient: hijau → magenta, seperti aksen mockup. */
   .bg-gradient-brand {
-    background-image: linear-gradient(to right, hsl(243 75% 59%), hsl(271 81% 56%));
+    background-image: linear-gradient(to right, hsl(111 100% 54%), hsl(300 100% 50%));
   }
 }
 

@@ -8,8 +8,8 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Gradient is reserved for the main call to action on a screen.
-        primary: 'bg-gradient-brand text-white shadow-lg shadow-primary/25 hover:brightness-110',
+        // Flat neon green, like the mockup CTAs (not a gradient).
+        primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:brightness-110',
         secondary: 'bg-surface-raised text-foreground hover:bg-accent',
         outline: 'border border-border bg-transparent text-foreground hover:border-primary/60 hover:bg-primary/10',
         ghost: 'text-muted-foreground hover:bg-accent hover:text-foreground',
