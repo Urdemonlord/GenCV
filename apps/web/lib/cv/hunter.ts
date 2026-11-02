@@ -70,6 +70,14 @@ export function parseHunterJobs(parsed: unknown): HunterParseResult {
   return { jobs, skipped };
 }
 
+/**
+ * Feed publik hunter: jobs.json yang ditulis cron harian VPS ke repo data
+ * publik dan dibaca halaman /lowongan langsung. Isinya hanya lowongan publik
+ * (judul, perusahaan, link), tanpa data pribadi, jadi aman dipublikasikan.
+ */
+export const HUNTER_FEED_URL =
+  'https://raw.githubusercontent.com/Urdemonlord/gencv-hunter-feed/main/jobs.json';
+
 /** Title for the CV created from a hunter job. */
 export function cvTitleForJob(job: HunterJob): string {
   return `CV ${job.title} \u2013 ${job.company}`;

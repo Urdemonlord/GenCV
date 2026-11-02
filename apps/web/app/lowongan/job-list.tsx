@@ -14,7 +14,13 @@ import {
   saveDocument,
   type CvSummary,
 } from '@/lib/cv/storage';
-import { HUNTER_PORTALS, cvTitleForJob, parseHunterJobs, type HunterJob } from '@/lib/cv/hunter';
+import {
+  HUNTER_FEED_URL,
+  HUNTER_PORTALS,
+  cvTitleForJob,
+  parseHunterJobs,
+  type HunterJob,
+} from '@/lib/cv/hunter';
 
 /**
  * Lowongan dari hunter VPS: impor file jobs.json, lalu buat satu CV per
@@ -30,6 +36,8 @@ export function JobList() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [jobs, setJobs] = useState<HunterJob[] | null>(null);
   const [skipped, setSkipped] = useState(0);
+  const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>('loading');
+  const [feedSource, setFeedSource] = useState<'otomatis' | 'manual'>('otomatis');
   const [baseId, setBaseId] = useState('');
   // localStorage only exists in the browser: reading it during render would
   // break the static prerender of this page, the same reason CvList reads
@@ -37,6 +45,33 @@ export function JobList() {
   const [bases, setBases] = useState<CvSummary[]>([]);
   useEffect(() => {
     setBases(listDocuments());
+  }, []);
+
+  // Feed otomatis: hunter harian mempublikasikan jobs.json ke repo data
+  // publik, dan halaman ini memuatnya langsung. Impor manual tetap ada
+  // sebagai fallback kalau feed tidak bisa dijangkau.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(HUNTER_FEED_URL, { cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error();
+        return response.json();
+      })
+      .then((parsed: unknown) => {
+        if (cancelled) return;
+        const { jobs: feedJobs, skipped: dropped } = parseHunterJobs(parsed);
+        if (feedJobs.length === 0) throw new Error();
+        setJobs(feedJobs);
+        setSkipped(dropped);
+        setFeedSource('otomatis');
+        setFeedState('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setFeedState('failed');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const importFile = (file: File | undefined) => {
@@ -48,6 +83,8 @@ export function JobList() {
         if (parsed.length === 0) throw new Error();
         setJobs(parsed);
         setSkipped(dropped);
+        setFeedSource('manual');
+        setFeedState('loaded');
       } catch {
         toast({
           variant: 'destructive',
@@ -149,16 +186,22 @@ export function JobList() {
       {jobs === null ? (
         <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
           <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
-          <h2 className="mt-4 text-lg font-semibold">Belum ada daftar lowongan</h2>
+          <h2 className="mt-4 text-lg font-semibold">
+            {feedState === 'loading' ? 'Memuat lowongan dari hunter…' : 'Belum ada daftar lowongan'}
+          </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Hunter harian di VPS menulis <code>jobs.json</code> setiap pagi. Impor file itu di sini, atau tempel deskripsi
-            lowongan langsung di editor seperti biasa.
+            {feedState === 'failed'
+              ? 'Feed otomatis hunter tidak bisa dijangkau. Impor file jobs.json secara manual di atas, atau tempel deskripsi lowongan langsung di editor seperti biasa.'
+              : 'Daftar lowongan dimuat otomatis dari hunter harian. Kalau belum muncul, impor file jobs.json secara manual di atas.'}
           </p>
         </div>
       ) : (
         <>
           <p className="mt-8 text-sm text-muted-foreground">
-            {jobs.length} lowongan{skipped > 0 ? `, ${skipped} entri tidak valid dilewati` : ''}.
+            {jobs.length} lowongan{skipped > 0 ? `, ${skipped} entri tidak valid dilewati` : ''}
+            {feedSource === 'otomatis'
+              ? ' — dimuat otomatis dari hunter (diperbarui tiap pagi).'
+              : ' — dari file yang kamu impor.'}
           </p>
           <ul className="mt-4 grid gap-4 md:grid-cols-2">
             {jobs.map((job) => (
