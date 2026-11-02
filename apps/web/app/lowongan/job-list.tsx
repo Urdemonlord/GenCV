@@ -59,9 +59,9 @@ type View = 'all' | 'saved';
 
 const SAVED_KEY = 'gencv:saved-jobs';
 
-const GREEN = '#39FF14';
-const MAGENTA = '#FF00FF';
-const GREEN_INK = '#071006';
+const GREEN = 'hsl(var(--primary))';
+const MAGENTA = 'hsl(var(--brand-accent))';
+const GREEN_INK = 'hsl(var(--primary-foreground))';
 
 const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'all', label: 'Semua' },
@@ -140,11 +140,11 @@ function loadSaved(): Set<string> {
 }
 
 const btnGreen =
-  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#39FF14] px-4 py-2.5 text-sm font-bold text-[#071006] transition hover:bg-[#65ff49] focus-visible:outline-2 focus-visible:outline-[#39FF14] focus-visible:outline-offset-2 disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
 const btnOutline =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-[#30374B] px-4 py-2.5 text-sm font-bold transition hover:border-[#8189a2] focus-visible:outline-2 focus-visible:outline-[#39FF14] focus-visible:outline-offset-2 disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold transition hover:border-muted-foreground/60 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
 const btnGhost =
-  'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-[#A5AEC2] transition hover:bg-[#171F31] hover:text-white focus-visible:outline-2 focus-visible:outline-[#39FF14] focus-visible:outline-offset-2';
+  'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-surface-raised hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2';
 
 export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const router = useRouter();
@@ -388,7 +388,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   const filterSelectClass =
-    'w-full appearance-none bg-transparent py-3.5 text-sm text-[#e9ebf3] outline-none [&>option]:bg-[#101625] [&>option]:text-white';
+    'w-full appearance-none bg-transparent py-3.5 text-sm text-foreground outline-none [&>option]:bg-surface [&>option]:text-foreground';
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-10 md:px-[4.5%]">
@@ -396,21 +396,21 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
       <section>
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
           <div className="max-w-[760px]">
-            <p className="flex items-center gap-2.5 text-[13px] tracking-wide text-[#A5AEC2]">
-              <span className="inline-block size-2.5 rounded-full bg-[#39FF14] shadow-[0_0_18px_rgba(57,255,20,0.4)]" />
+            <p className="flex items-center gap-2.5 text-[13px] tracking-wide text-muted-foreground">
+              <span className="inline-block size-2.5 rounded-full bg-primary shadow-[0_0_18px_hsl(var(--primary)/0.4)]" />
               Job Portal by GenCV
             </p>
             <h1 className="mt-4 text-[clamp(34px,4.2vw,60px)] font-extrabold leading-[1.04] tracking-[-0.055em]">
-              Temukan peluang kerja yang <span className="italic text-[#FF00FF]">sesuai dengan profilmu.</span>
+              Temukan peluang kerja yang <span className="italic text-brand-accent">sesuai dengan profilmu.</span>
             </h1>
-            <p className="mt-4 max-w-[690px] text-[17px] leading-[1.65] text-[#bdc4d5]">
+            <p className="mt-4 max-w-[690px] text-[17px] leading-[1.65] text-muted-foreground">
               Jelajahi lowongan dari berbagai sumber, simpan yang menarik, dan cek kecocokan dengan CV-mu.
             </p>
           </div>
 
           <aside
             aria-label="Ringkasan Job Match"
-            className="w-full max-w-[370px] shrink-0 rounded-[18px] border border-[#4a4d64] bg-[linear-gradient(145deg,#151a2a,#0d111c)] p-[22px] shadow-[6px_6px_0_rgba(255,0,255,0.65)] lg:w-[370px] lg:min-w-[310px] lg:rotate-[-2deg] lg:shadow-[12px_12px_0_rgba(255,0,255,0.75)]"
+            className="w-full max-w-[370px] shrink-0 rounded-[18px] border border-border bg-surface p-[22px] shadow-[6px_6px_0_hsl(var(--brand-accent)/0.65)] lg:w-[370px] lg:min-w-[310px] lg:rotate-[-2deg] lg:shadow-[12px_12px_0_hsl(var(--brand-accent)/0.75)]"
           >
             <h2 className="text-[15px] font-bold">Job Match dengan profilmu</h2>
             {bestMatch ? (
@@ -419,37 +419,37 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   <div
                     className="relative grid size-[88px] place-items-center rounded-full"
                     style={{
-                      background: `conic-gradient(${GREEN} 0 ${bestMatch.score}%, #353a4b ${bestMatch.score}% 100%)`,
+                      background: `conic-gradient(${GREEN} 0 ${bestMatch.score}%, hsl(var(--border)) ${bestMatch.score}% 100%)`,
                     }}
                   >
-                    <span className="absolute inset-[9px] rounded-full bg-[#101625]" />
+                    <span className="absolute inset-[9px] rounded-full bg-surface" />
                     <strong className="relative text-[25px]">{bestMatch.score}%</strong>
                   </div>
-                  <p className="mt-2 text-center text-xs font-extrabold text-[#39FF14]">
+                  <p className="mt-2 text-center text-xs font-extrabold text-primary">
                     {bestMatch.score >= 90 ? 'Sangat cocok' : bestMatch.score >= 50 ? 'Cocok' : 'Perlu dicek'}
                   </p>
                 </div>
-                <ul className="grid gap-2 text-xs text-[#e6e8f0]">
+                <ul className="grid gap-2 text-xs text-foreground">
                   {bestMatch.result.matched.slice(0, 3).map((term) => (
                     <li key={term} className="flex items-center gap-2">
-                      <span className="grid size-[17px] shrink-0 place-items-center rounded-full bg-[#39FF14] text-[11px] font-black text-[#061005]">
+                      <span className="grid size-[17px] shrink-0 place-items-center rounded-full bg-primary text-[11px] font-black text-primary-foreground">
                         ✓
                       </span>
                       {term}
                     </li>
                   ))}
                   {bestMatch.result.matched.length === 0 && <li>Belum ada kata kunci yang cocok.</li>}
-                  <li className="text-[#A5AEC2]">{bestMatch.job.title}</li>
+                  <li className="text-muted-foreground">{bestMatch.job.title}</li>
                 </ul>
               </div>
             ) : baseDoc ? (
-              <p className="mt-4 text-sm leading-relaxed text-[#A5AEC2]">
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Belum ada kata kunci lowongan yang dikenali dari CV dasarmu. Tempel deskripsi lengkap di editor untuk
                 skor Job Match penuh.
               </p>
             ) : (
               <>
-                <p className="mt-4 text-sm leading-relaxed text-[#A5AEC2]">
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                   Buat atau pilih CV dasar untuk melihat kecocokanmu dengan lowongan di bawah.
                 </p>
                 <a href="/editor?new=1" className={`${btnGreen} mt-4`}>
@@ -459,7 +459,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
             )}
           </aside>
         </div>
-        <p className="mt-6 max-w-[760px] text-xs leading-relaxed text-[#717c94]">
+        <p className="mt-6 max-w-[760px] text-xs leading-relaxed text-muted-foreground/70">
           Skor dihitung dari kata kunci deskripsi lowongan — atau judulnya bila deskripsi belum ada — dibandingkan
           dengan CV dasarmu. Bukan angka contoh: lowongan tanpa kata kunci yang dikenali tidak menampilkan badge.
         </p>
@@ -467,24 +467,24 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
 
       {/* Search + filter ala mockup. */}
       <form
-        className="mt-8 grid gap-3 lg:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(125px,0.5fr))]"
+        className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(125px,0.5fr))]"
         onSubmit={(e) => e.preventDefault()}
       >
-        <label className="flex min-w-0 items-center gap-2 rounded-[14px] border border-[#62677d] bg-[linear-gradient(120deg,#121725,#0d111b)] py-1.5 pl-4 pr-1.5">
-          <Search className="size-[22px] shrink-0 text-[#d9deeb]" aria-hidden="true" />
+        <label className="flex min-w-0 items-center gap-2 rounded-[14px] border border-border bg-surface py-1.5 pl-4 pr-1.5">
+          <Search className="size-[22px] shrink-0 text-foreground" aria-hidden="true" />
           <span className="sr-only">Cari posisi, perusahaan, atau lokasi</span>
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari posisi, perusahaan, atau skill…"
-            className="w-full min-w-0 bg-transparent px-2 py-3 text-[15px] text-[#F4F5FA] outline-none placeholder:text-[#A5AEC2]"
+            className="w-full min-w-0 bg-transparent px-2 py-3 text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button type="submit" className={`${btnGreen} h-11 shrink-0 px-6`}>
             Cari
           </button>
         </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-[#535b73] bg-[#0e1320] px-3">
+        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
           <span className="sr-only">Filter lokasi</span>
           <select
             value={locationFilter}
@@ -497,7 +497,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
           </select>
           <span aria-hidden="true">⌄</span>
         </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-[#535b73] bg-[#0e1320] px-3">
+        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
           <span className="sr-only">Filter tipe kerja</span>
           <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={filterSelectClass}>
             <option value="">▣ Tipe kerja</option>
@@ -508,7 +508,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
           </select>
           <span aria-hidden="true">⌄</span>
         </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-[#535b73] bg-[#0e1320] px-3">
+        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
           <span className="sr-only">Filter sumber</span>
           <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className={filterSelectClass}>
             <option value="">▱ Sumber</option>
@@ -522,11 +522,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
         </label>
       </form>
 
-      <div className="mt-8 grid items-start gap-7 lg:grid-cols-[250px_minmax(0,1fr)]">
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] items-start gap-7 lg:grid-cols-[250px_minmax(0,1fr)]">
         {/* Sidebar ala mockup: di mobile jadi baris horizontal. */}
         <aside
           aria-label="Navigasi lowongan"
-          className="rounded-[17px] border border-[#30374B] bg-[linear-gradient(160deg,#111725,#0c101a)] p-[15px] lg:sticky lg:top-4"
+          className="rounded-[17px] border border-border bg-surface p-[15px] lg:sticky lg:top-4"
         >
           <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
             <button
@@ -534,7 +534,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               onClick={() => setView('all')}
               aria-current={view === 'all' ? 'page' : undefined}
               className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[11px] px-3 py-3 text-sm font-semibold ${
-                view === 'all' ? 'bg-[#39FF14] text-[#071006]' : 'text-[#dfe3ee] hover:bg-[#171F31]'
+                view === 'all' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-surface-raised'
               }`}
             >
               <Search className="size-[19px] shrink-0" aria-hidden="true" />
@@ -545,30 +545,30 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               onClick={() => setView('saved')}
               aria-current={view === 'saved' ? 'page' : undefined}
               className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[11px] px-3 py-3 text-sm font-semibold ${
-                view === 'saved' ? 'bg-[#39FF14] text-[#071006]' : 'text-[#dfe3ee] hover:bg-[#171F31]'
+                view === 'saved' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-surface-raised'
               }`}
             >
               <Bookmark className="size-[19px] shrink-0" aria-hidden="true" />
               Tersimpan
-              <span className="rounded-full bg-[#1a2030] px-2 py-0.5 text-[11px] text-[#A5AEC2]">{saved.size}</span>
+              <span className="rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-muted-foreground">{saved.size}</span>
             </button>
           </nav>
           <div className="mt-4 hidden lg:block">
-            <div className="mx-2 h-px bg-[#30374B]" />
-            <p className="px-2.5 pb-2 pt-4 text-xs font-bold uppercase tracking-[0.08em] text-[#A5AEC2]">
+            <div className="mx-2 h-px bg-border" />
+            <p className="px-2.5 pb-2 pt-4 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
               Sumber lowongan
             </p>
             {sourceCounts.map(([name, count]) => (
-              <div key={name} className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-[#e0e3ec]">
-                <span className="size-2 rounded-full bg-[#FF00FF]" />
+              <div key={name} className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-foreground">
+                <span className="size-2 rounded-full bg-brand-accent" />
                 {name}
-                <span className="ml-auto rounded-full bg-[#1a2030] px-2 py-0.5 text-[11px] text-[#A5AEC2]">{count}</span>
+                <span className="ml-auto rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-muted-foreground">{count}</span>
               </div>
             ))}
-            <p className="px-2.5 pt-3 text-xs leading-relaxed text-[#717c94]">
+            <p className="px-2.5 pt-3 text-xs leading-relaxed text-muted-foreground/70">
               Jumlah dihitung dari lowongan yang benar-benar ada di feed saat ini.
             </p>
-            <p className="px-2.5 pt-2 text-xs leading-relaxed text-[#717c94]">
+            <p className="px-2.5 pt-2 text-xs leading-relaxed text-muted-foreground/70">
               Lowongan tersimpan hanya ada di perangkat ini. Masuk tidak diperlukan, dan keluar tidak menghapusnya.
             </p>
           </div>
@@ -576,7 +576,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
 
         <section aria-label="Hasil lowongan">
           {/* Tab + sortir ala mockup. */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#30374B]">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border">
             <div role="tablist" aria-label="Kategori lowongan" className="flex gap-6 overflow-x-auto">
               {TAB_LABELS.map((t) => (
                 <button
@@ -586,20 +586,20 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={`relative whitespace-nowrap pb-[15px] text-sm ${
-                    tab === t.id ? 'font-extrabold text-white' : 'text-[#bfc5d5]'
+                    tab === t.id ? 'font-extrabold text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   {t.label} <strong>({tabCounts[t.id]})</strong>
-                  {tab === t.id && <span className="absolute -bottom-px left-0 right-0 h-[3px] rounded bg-[#39FF14]" />}
+                  {tab === t.id && <span className="absolute -bottom-px left-0 right-0 h-[3px] rounded bg-primary" />}
                 </button>
               ))}
             </div>
-            <label className="mb-2.5 flex items-center gap-2 whitespace-nowrap rounded-[11px] border border-[#30374B] bg-[#111625] px-3 py-2.5 text-sm">
-              <span className="text-xs text-[#A5AEC2]">Urutkan:</span>
+            <label className="mb-2.5 flex items-center gap-2 whitespace-nowrap rounded-[11px] border border-border bg-surface px-3 py-2.5 text-sm">
+              <span className="text-xs text-muted-foreground">Urutkan:</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as Sort)}
-                className="bg-transparent text-[#e8eaf2] outline-none [&>option]:bg-[#101625]"
+                className="bg-transparent text-foreground outline-none [&>option]:bg-surface"
               >
                 <option value="relevant">Paling relevan</option>
                 <option value="newest">Terbaru</option>
@@ -612,18 +612,18 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
             feedState === 'loading' ? (
               <div aria-busy="true" className="mt-6 grid gap-[13px]" aria-label="Memuat lowongan">
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="animate-pulse rounded-2xl border border-[#30374B] bg-[#111622] p-[18px]">
-                    <div className="h-5 w-2/3 rounded bg-[#171F31]" />
-                    <div className="mt-3 h-4 w-1/3 rounded bg-[#171F31]" />
-                    <div className="mt-4 h-9 w-40 rounded bg-[#171F31]" />
+                  <div key={i} className="animate-pulse rounded-2xl border border-border bg-surface p-[18px]">
+                    <div className="h-5 w-2/3 rounded bg-surface-raised" />
+                    <div className="mt-3 h-4 w-1/3 rounded bg-surface-raised" />
+                    <div className="mt-4 h-9 w-40 rounded bg-surface-raised" />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="mt-6 rounded-2xl border border-dashed border-[#30374B] p-10 text-center">
-                <FileText className="mx-auto size-10 text-[#A5AEC2]" aria-hidden="true" />
+              <div className="mt-6 rounded-2xl border border-dashed border-border p-10 text-center">
+                <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
                 <h2 className="mt-4 text-lg font-semibold">Feed otomatis hunter tidak bisa dijangkau</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm text-[#A5AEC2]">
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                   Sebagai fallback, impor file jobs.json hasil hunter secara manual. Daftar ini tidak dikirim ke server
                   mana pun.
                 </p>
@@ -653,8 +653,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
           ) : (
             <>
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <p className="text-[13px] text-[#A5AEC2]" aria-live="polite">
-                  <strong className="text-white">{visibleJobs.length} lowongan</strong>
+                <p className="text-[13px] text-muted-foreground" aria-live="polite">
+                  <strong className="text-foreground">{visibleJobs.length} lowongan</strong>
                   {skipped > 0 ? `, ${skipped} entri tidak valid dilewati` : ''}
                   {feedSource === 'otomatis'
                     ? ' — dimuat otomatis dari hunter (diperbarui tiap pagi).'
@@ -671,12 +671,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </button>
                 )}
                 {bases.length > 0 && (
-                  <label className="ml-auto flex items-center gap-2 text-sm text-[#A5AEC2]">
+                  <label className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
                     CV dasar
                     <select
                       value={baseId ?? ''}
                       onChange={(e) => setBaseId(e.target.value)}
-                      className="rounded-lg border border-[#30374B] bg-[#0e1320] px-2 py-1.5 text-[#F4F5FA]"
+                      className="rounded-lg border border-border bg-surface px-2 py-1.5 text-foreground"
                     >
                       <option value="">CV kosong</option>
                       {bases.map((doc) => (
@@ -690,8 +690,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               </div>
 
               {visibleJobs.length === 0 ? (
-                <div className="mt-6 rounded-2xl border border-dashed border-[#30374B] p-[50px_20px] text-center text-[#A5AEC2]">
-                  <h2 className="text-lg font-semibold text-white">
+                <div className="mt-6 rounded-2xl border border-dashed border-border p-[50px_20px] text-center text-muted-foreground">
+                  <h2 className="text-lg font-semibold text-foreground">
                     {view === 'saved' ? 'Belum ada lowongan tersimpan' : 'Tidak ada lowongan yang cocok'}
                   </h2>
                   <p className="mx-auto mt-2 max-w-md text-sm">
@@ -721,7 +721,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                     return (
                       <li
                         key={job.jobUrl}
-                        className="grid grid-cols-[56px_minmax(0,1fr)] gap-4 rounded-2xl border border-[#30374B] bg-[linear-gradient(110deg,#111622,#0c101a)] p-[18px] transition hover:-translate-y-px hover:border-[#606982] lg:grid-cols-[56px_minmax(0,1fr)_auto]"
+                        className="grid grid-cols-[56px_minmax(0,1fr)] gap-4 rounded-2xl border border-border bg-surface p-[18px] transition hover:-translate-y-px hover:border-muted-foreground/60 lg:grid-cols-[56px_minmax(0,1fr)_auto]"
                       >
                         <span
                           aria-hidden="true"
@@ -736,29 +736,29 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                               {job.title}
                             </a>
                           </h2>
-                          <p className="mt-1 text-sm text-[#c3cada]">{job.company}</p>
-                          <div className="mt-2.5 flex flex-wrap items-center gap-4 text-xs text-[#c6ccda]">
+                          <p className="mt-1 text-sm text-muted-foreground">{job.company}</p>
+                          <div className="mt-2.5 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                             {job.location && (
                               <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-[#e5e8f2]" aria-hidden="true" />
+                                <MapPin className="size-[15px] text-foreground" aria-hidden="true" />
                                 {job.location}
                               </span>
                             )}
                             {type && (
                               <span className="inline-flex items-center gap-1.5">
-                                <Briefcase className="size-[15px] text-[#e5e8f2]" aria-hidden="true" />
+                                <Briefcase className="size-[15px] text-foreground" aria-hidden="true" />
                                 {TYPE_LABEL[type]}
                               </span>
                             )}
                             {isRemoteJob(job) && !job.location && (
                               <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-[#e5e8f2]" aria-hidden="true" />
+                                <MapPin className="size-[15px] text-foreground" aria-hidden="true" />
                                 Remote
                               </span>
                             )}
                           </div>
                           {(job.flagDemoLike || !job.description) && (
-                            <p className="mt-2 text-xs text-[#717c94]">
+                            <p className="mt-2 text-xs text-muted-foreground/70">
                               {[
                                 job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
                                 !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
@@ -773,15 +773,15 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                             <span
                               className={`whitespace-nowrap rounded-full border px-2.5 py-1.5 text-xs font-extrabold ${
                                 score < 93
-                                  ? 'border-[#FF00FF] text-[#FF00FF]'
-                                  : 'border-[#39FF14] text-[#39FF14]'
+                                  ? 'border-brand-accent text-brand-accent'
+                                  : 'border-primary text-primary'
                               }`}
                             >
                               ✧ {score}% cocok
                             </span>
                           )}
                           {job.datePosted && (
-                            <span className="whitespace-nowrap text-center text-xs text-[#A5AEC2]">{job.datePosted}</span>
+                            <span className="whitespace-nowrap text-center text-xs text-muted-foreground">{job.datePosted}</span>
                           )}
                           <button
                             type="button"
@@ -789,8 +789,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                             aria-pressed={isSaved}
                             aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
                             title={isSaved ? 'Tersimpan' : 'Simpan'}
-                            className={`grid size-[38px] shrink-0 place-items-center rounded-lg transition hover:bg-[rgba(255,0,255,0.08)] hover:text-[#FF00FF] focus-visible:outline-2 focus-visible:outline-[#39FF14] focus-visible:outline-offset-2 ${
-                              isSaved ? 'bg-[rgba(255,0,255,0.08)] text-[#FF00FF]' : 'text-[#e5e8f2]'
+                            className={`grid size-[38px] shrink-0 place-items-center rounded-lg transition hover:bg-[hsl(var(--brand-accent)/0.08)] hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
+                              isSaved ? 'bg-[hsl(var(--brand-accent)/0.08)] text-brand-accent' : 'text-foreground'
                             }`}
                           >
                             <Bookmark className="size-[22px]" fill={isSaved ? 'currentColor' : 'none'} aria-hidden="true" />

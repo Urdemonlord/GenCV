@@ -15,7 +15,7 @@ export default function NotFound() {
       <SiteHeader />
       <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 py-16 text-center">
         <p className="text-sm font-semibold text-primary-soft">404</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">Halaman tidak ditemukan</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Halaman tidak ditemukan</h1>
         <p className="mt-3 text-muted-foreground">
           Alamatnya mungkin salah ketik atau halamannya sudah dipindah. CV kamu tetap aman, karena tersimpan di perangkat ini.
         </p>

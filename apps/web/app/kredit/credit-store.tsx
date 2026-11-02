@@ -117,7 +117,7 @@ export function CreditStore() {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Kredit AI</h1>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Kredit AI</h1>
         <p className="text-muted-foreground">
           Setiap hari kamu dapat {data.freePerDay} permintaan AI gratis. Setelah itu, satu permintaan (perbaiki ringkasan,
           bullet, atau keahlian) memakai 1 kredit. Kredit tidak kedaluwarsa dan tidak dipotong jika AI gagal.
@@ -239,7 +239,7 @@ function Checkout({ payment, onChange, onClose }: { payment: Payment; onChange: 
   if (payment.status === 'paid') {
     return (
       <Panel className="space-y-3 p-6 text-center" role="status">
-        <CheckCircle2 className="mx-auto size-10 text-emerald-500" />
+        <CheckCircle2 className="mx-auto size-10 text-primary" />
         <p className="text-lg font-semibold">Pembayaran {formatRupiah(payment.amount)} diterima.</p>
         <p className="text-muted-foreground">{payment.credits} kredit sudah masuk ke saldo kamu.</p>
         <div className="flex justify-center gap-2">

@@ -127,9 +127,9 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="border-t border-border/60 py-20">
-      <div className="mx-auto max-w-4xl rounded-2xl border border-[#30374B] bg-[linear-gradient(110deg,#111622,#0c101a)] px-6 py-14 text-center text-white">
+      <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-surface px-6 py-14 text-center text-foreground">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Siap melamar dengan CV yang lebih kuat?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-white/90">Mulai gratis, tanpa daftar akun. Draf tersimpan otomatis di perangkatmu.</p>
+        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Mulai gratis, tanpa daftar akun. Draf tersimpan otomatis di perangkatmu.</p>
         <Button asChild variant="primary" size="lg" className="mt-8">
           <Link href="/editor">
             Buat CV sekarang

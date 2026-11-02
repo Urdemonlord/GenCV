@@ -1,11 +1,12 @@
 import { ImageResponse } from 'next/og';
 import { TEMPLATE_IDS } from '@/lib/cv/templates';
+import { OG, ogFonts } from '@/lib/og';
 
 export const alt = 'Template CV ramah ATS · GenCV';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
   return new ImageResponse(
     (
       <div
@@ -16,22 +17,22 @@ export default function OpengraphImage() {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: 80,
-          background: 'linear-gradient(135deg, #0B1020 55%, #2e1065)',
-          color: '#F8FAFC',
-          fontFamily: 'sans-serif',
+          background: OG.background,
+          color: OG.text,
+          fontFamily: OG.font,
         }}
       >
-        <div style={{ fontSize: 40, fontWeight: 700, display: 'flex' }}>
-          Gen<span style={{ color: '#C084FC' }}>CV</span>
+        <div style={{ fontSize: 40, fontWeight: 800, display: 'flex' }}>
+          Gen<span style={{ color: OG.accent }}>CV</span>
         </div>
-        <div style={{ marginTop: 36, fontSize: 68, fontWeight: 700, lineHeight: 1.1, maxWidth: 900, display: 'flex' }}>
+        <div style={{ marginTop: 36, fontSize: 68, fontWeight: 800, lineHeight: 1.1, maxWidth: 900, display: 'flex' }}>
           Template CV yang tetap terbaca ATS
         </div>
-        <div style={{ marginTop: 28, fontSize: 30, color: '#94A3B8', maxWidth: 900, display: 'flex' }}>
+        <div style={{ marginTop: 28, fontSize: 30, color: OG.muted, maxWidth: 900, display: 'flex' }}>
           {`${TEMPLATE_IDS.length} template satu kolom, teks asli, judul bagian standar`}
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts: await ogFonts() },
   );
 }

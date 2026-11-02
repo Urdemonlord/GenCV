@@ -42,8 +42,8 @@ export default async function MasukPage({ searchParams }: { searchParams: Search
         {configured ? (
           <AuthForm initialMode={initialMode} callbackURL={callbackURL} />
         ) : (
-          <div className="mx-auto w-full max-w-md px-4 py-16">
-            <h1 className="text-3xl font-bold tracking-tight">Masuk belum tersedia</h1>
+          <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Masuk belum tersedia</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Sinkronisasi cloud belum diaktifkan di server ini. Semua fitur lain tetap berjalan normal dan CV kamu tetap
               tersimpan di perangkat ini.
