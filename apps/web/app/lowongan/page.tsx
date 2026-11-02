@@ -6,8 +6,8 @@ import { isSyncConfigured } from '@/lib/sync/config';
 import { JobList } from './job-list';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Lowongan hunter',
-  description: 'Impor daftar lowongan dari hunter VPS dan buat satu CV per lowongan.',
+  title: 'Lowongan',
+  description: 'Jelajahi lowongan dari hunter, simpan yang menarik, dan buat satu CV per lowongan.',
   path: '/lowongan',
   index: false,
 });
