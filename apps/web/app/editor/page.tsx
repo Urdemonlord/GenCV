@@ -18,6 +18,12 @@ export default async function EditorPage({ searchParams }: { searchParams: Searc
   const params = await searchParams;
   const id = first(params.id);
   // Remount per document so no state leaks from one CV into another.
-  if (id) return <EditorShell key={id} id={id} />;
+  if (id) {
+    const jobTitle = first(params.jobTitle);
+    const jobUrl = first(params.jobUrl);
+    const jobNotice =
+      first(params.fromJob) === '1' && jobTitle && jobUrl ? { title: jobTitle, url: jobUrl } : undefined;
+    return <EditorShell key={id} id={id} jobNotice={jobNotice} />;
+  }
   return <EditorEntry createNew={first(params.new) === '1'} template={first(params.template)} />;
 }

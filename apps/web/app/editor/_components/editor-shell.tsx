@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, FileText, Gauge, LayoutGrid, Pencil } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Gauge, LayoutGrid, Pencil, X } from 'lucide-react';
 import { Button, NavItem, Select, Skeleton, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
@@ -16,12 +16,13 @@ function savedLabel(savedAt: number | null, now: number): string {
   return savedAt ? `Tersimpan di perangkat ini · ${relativeTimeLabel(savedAt, now)}` : 'Belum tersimpan';
 }
 
-export function EditorShell({ id }: { id: string }) {
+export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title: string; url: string } }) {
   const { cv, update, status, ready, savedAt, saveError } = useCvDocument(id);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
   const [now, setNow] = useState(() => Date.now());
   const [previewTab, setPreviewTab] = useState<PreviewTab>('preview');
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
   // Analysis is cheap but runs on every keystroke; let typing win.
   const deferredCv = useDeferredValue(cv);
   const analysis = useMemo(() => analyzeCv(deferredCv), [deferredCv]);
@@ -120,6 +121,29 @@ export function EditorShell({ id }: { id: string }) {
           <ExportMenu cv={cv} update={update} docId={id} onOpenJobMatch={openJobMatch} />
         </div>
       </header>
+
+      {jobNotice && ready && !cv.jobDescription.trim() && !noticeDismissed && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-border bg-surface px-4 py-3" role="status">
+          <p className="min-w-0 flex-1 text-sm text-foreground">
+            CV ini dibuat dari lowongan <strong>{jobNotice.title}</strong>. Deskripsi lowongan tidak dibawa feed, jadi Job
+            Match belum bisa menghitung skor — buka lowongan aslinya, salin deskripsinya, lalu tempel di Job Match.
+            GenCV tidak mengarang deskripsi.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="primary" size="sm" onClick={openJobMatch}>
+              Buka Job Match
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a href={jobNotice.url} target="_blank" rel="noreferrer">
+                Lihat lowongan
+              </a>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setNoticeDismissed(true)} aria-label="Tutup pemberitahuan">
+              <X aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="flex min-h-0 flex-1">
         <nav aria-label="Bagian CV" className="hidden w-60 shrink-0 overflow-y-auto border-r border-border p-3 lg:block">
