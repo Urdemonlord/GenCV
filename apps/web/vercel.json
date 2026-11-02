@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd ../.. && npm run build",
+  "buildCommand": "cd ../.. && bun run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev"
+  "installCommand": "cd ../.. && bun install --frozen-lockfile",
+  "devCommand": "bun run dev"
 }
