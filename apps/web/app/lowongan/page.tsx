@@ -16,14 +16,34 @@ export const metadata: Metadata = pageMetadata({
 // dan JobList membutuhkannya untuk memutuskan apakah pembuatan CV harus login.
 export const dynamic = 'force-dynamic';
 
+// Palet mockup (design.md) diterapkan ke seluruh halaman ini lewat override
+// variabel tema — header/footer ikut gelap-neon, komponen lain tidak berubah.
+const MOCKUP_THEME = {
+  '--background': '225 43% 5%',
+  '--foreground': '230 37% 97%',
+  '--surface': '223 40% 10%',
+  '--surface-raised': '222 36% 14%',
+  '--card': '223 40% 10%',
+  '--card-foreground': '230 37% 97%',
+  '--popover': '222 36% 14%',
+  '--muted-foreground': '221 19% 70%',
+  '--primary': '111 100% 54%',
+  '--primary-foreground': '114 45% 4%',
+  '--primary-soft': '111 100% 72%',
+  '--accent': '222 36% 14%',
+  '--border': '224 22% 24%',
+  '--input': '224 22% 24%',
+  '--ring': '111 100% 54%',
+} as React.CSSProperties;
+
 export default function LowonganPage() {
   return (
-    <>
+    <div style={MOCKUP_THEME} className="bg-background text-foreground">
       <SiteHeader />
       <main className="min-h-[60vh]">
         <JobList syncConfigured={isSyncConfigured()} />
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }
