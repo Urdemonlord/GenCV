@@ -36,6 +36,24 @@ describe('parseHunterJobs', () => {
     expect(jobs[0].description).toHaveLength(50_000);
   });
 
+  it('keeps a company logo from the feed, in either key spelling', () => {
+    const { jobs } = parseHunterJobs([
+      job({ company_logo: 'https://example.com/logo.png' }),
+      job({ job_url: 'https://example.com/jobs/2', companyLogo: 'https://example.com/logo2.png' }),
+    ]);
+    expect(jobs[0].companyLogo).toBe('https://example.com/logo.png');
+    expect(jobs[1].companyLogo).toBe('https://example.com/logo2.png');
+  });
+
+  it('drops a company logo that is not an absolute http(s) URL', () => {
+    const { jobs } = parseHunterJobs([
+      job({ company_logo: 'javascript:alert(1)' }),
+      job({ job_url: 'https://example.com/jobs/2', company_logo: '/logo.png' }),
+      job({ job_url: 'https://example.com/jobs/3' }),
+    ]);
+    expect(jobs.map((entry) => entry.companyLogo)).toEqual(['', '', '']);
+  });
+
   it('rejects a non-array feed without throwing', () => {
     expect(parseHunterJobs({})).toEqual({ jobs: [], skipped: 0 });
   });

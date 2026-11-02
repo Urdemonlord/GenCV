@@ -12,6 +12,8 @@ export interface HunterJob {
   site: string;
   title: string;
   company: string;
+  /** URL logo perusahaan bila feed membawanya; '' bila tidak ada. */
+  companyLogo: string;
   location: string;
   datePosted: string;
   jobType: string;
@@ -31,6 +33,16 @@ export interface HunterParseResult {
 const MAX_DESCRIPTION_CHARS = 50_000;
 
 const asText = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+/**
+ * Logo hanya diterima dari URL http(s) absolut. Nilai lain (relatif,
+ * javascript:, data:) dibuang supaya kartu tidak pernah me-render sumber
+ * tak terpercaya dari file feed.
+ */
+const asHttpUrl = (value: unknown): string => {
+  const url = asText(value);
+  return url.startsWith('https://') || url.startsWith('http://') ? url : '';
+};
 
 export function parseHunterJobs(parsed: unknown): HunterParseResult {
   if (!Array.isArray(parsed)) return { jobs: [], skipped: 0 };
@@ -58,6 +70,7 @@ export function parseHunterJobs(parsed: unknown): HunterParseResult {
       site: asText(record.site),
       title,
       company,
+      companyLogo: asHttpUrl(record.company_logo ?? record.companyLogo),
       location: asText(record.location),
       datePosted: asText(record.date_posted ?? record.datePosted),
       jobType: asText(record.job_type ?? record.jobType),

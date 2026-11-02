@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Bookmark, Briefcase, FileText, MapPin, Search, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -89,6 +90,45 @@ function tileFor(company: string) {
   let hash = 0;
   for (let i = 0; i < company.length; i += 1) hash = (hash + company.charCodeAt(i)) % 997;
   return TILE_COLORS[hash % TILE_COLORS.length];
+}
+
+/**
+ * Logo perusahaan bila feed membawanya, monogram bila tidak ada atau
+ * logonya gagal dimuat. Logo dirender di kotak yang sama persis dengan
+ * monogram (56px) supaya tata letak kartu tidak berubah.
+ */
+function CompanyLogo({ job }: { job: HunterJob }) {
+  const [failed, setFailed] = useState(false);
+  const tile = tileFor(job.company);
+  if (!job.companyLogo || failed) {
+    return (
+      <span
+        aria-hidden="true"
+        className="grid size-14 shrink-0 place-items-center rounded-[13px] text-[26px] font-black"
+        style={{ background: tile.bg, color: tile.fg }}
+      >
+        {job.company.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-[13px] bg-white">
+      {/* unoptimized: logo berasal dari banyak host (CDN LinkedIn, Glassdoor,
+          dsb.) yang tidak bisa di-whitelist di remotePatterns, dan optimasi
+          Next tidak diinginkan untuk logo pihak ketiga. */}
+      <Image
+        src={job.companyLogo}
+        alt=""
+        aria-hidden="true"
+        width={56}
+        height={56}
+        unoptimized
+        referrerPolicy="no-referrer"
+        className="size-14 object-contain p-1"
+        onError={() => setFailed(true)}
+      />
+    </span>
+  );
 }
 
 function siteName(site: string) {
@@ -715,7 +755,6 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 <ul className="mt-4 grid gap-[13px]" aria-live="polite">
                   {visibleJobs.map((job) => {
                     const type = normalizedType(job);
-                    const tile = tileFor(job.company);
                     const score = scores.get(job.jobUrl)?.score;
                     const isSaved = saved.has(job.jobUrl);
                     return (
@@ -723,13 +762,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                         key={job.jobUrl}
                         className="grid grid-cols-[56px_minmax(0,1fr)] gap-4 rounded-2xl border border-border bg-surface p-[18px] transition hover:-translate-y-px hover:border-muted-foreground/60 lg:grid-cols-[56px_minmax(0,1fr)_auto]"
                       >
-                        <span
-                          aria-hidden="true"
-                          className="grid size-14 shrink-0 place-items-center rounded-[13px] text-[26px] font-black"
-                          style={{ background: tile.bg, color: tile.fg }}
-                        >
-                          {job.company.charAt(0).toUpperCase()}
-                        </span>
+                        <CompanyLogo job={job} />
                         <div className="min-w-0">
                           <h2 className="text-[18px] font-extrabold leading-[1.3] tracking-[-0.025em]">
                             <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
