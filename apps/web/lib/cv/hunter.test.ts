@@ -55,7 +55,17 @@ describe('HUNTER_FEED_URL', () => {
 describe('HUNTER_PORTALS', () => {
   it('marks exactly the daily cron boards as active and JobStreet/Glints as unavailable', () => {
     const active = HUNTER_PORTALS.filter((portal) => portal.status === 'aktif').map((portal) => portal.name);
-    expect(active).toEqual(['LinkedIn', 'Indeed', 'Glassdoor']);
+    expect(active).toEqual([
+      'LinkedIn',
+      'Indeed',
+      'Glassdoor',
+      'ZipRecruiter',
+      'Bayt',
+      'Naukri',
+      'BDJobs',
+      'HelloWork',
+      'Google Jobs',
+    ]);
     for (const name of ['JobStreet', 'Glints']) {
       expect(HUNTER_PORTALS.find((portal) => portal.name === name)?.status).toBe('belum');
     }
