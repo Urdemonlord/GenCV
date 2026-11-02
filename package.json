@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev -w @gencv/web",
-    "build": "npm run build -w @gencv/web",
-    "start": "npm run start -w @gencv/web",
-    "lint": "npm run lint -w @gencv/web",
-    "type-check": "npm run type-check -w @gencv/web",
-    "test": "npm run test -w @gencv/web",
-    "test:e2e": "npm run test:e2e -w @gencv/web"
+    "dev": "bun --filter @gencv/web dev",
+    "build": "bun --filter @gencv/web build",
+    "start": "bun --filter @gencv/web start",
+    "lint": "bun --filter @gencv/web lint",
+    "type-check": "bun --filter @gencv/web type-check",
+    "test": "bun --filter @gencv/web test",
+    "test:e2e": "bun --filter @gencv/web test:e2e"
   },
   "workspaces": [
     "apps/*"
