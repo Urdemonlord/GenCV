@@ -14,7 +14,7 @@ import {
   saveDocument,
   type CvSummary,
 } from '@/lib/cv/storage';
-import { cvTitleForJob, parseHunterJobs, type HunterJob } from '@/lib/cv/hunter';
+import { HUNTER_PORTALS, cvTitleForJob, parseHunterJobs, type HunterJob } from '@/lib/cv/hunter';
 
 /**
  * Lowongan dari hunter VPS: impor file jobs.json, lalu buat satu CV per
@@ -85,6 +85,25 @@ export function JobList() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Lowongan hunter</h1>
+      <section aria-label="Portal lowongan yang tersedia" className="mt-6 rounded-xl border border-border bg-surface p-5">
+        <h2 className="text-lg font-semibold">Portal yang tersedia</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Hanya portal berstatus aktif yang benar-benar dicari hunter harian. Portal lain yang didukung alatnya belum
+          diaktifkan, dan JobStreet/Glints belum bisa dicari otomatis sama sekali.
+        </p>
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {HUNTER_PORTALS.map((portal) => (
+            <li key={portal.name} className="flex items-baseline gap-2 text-sm">
+              <Chip tone={portal.status === 'aktif' ? 'primary' : undefined}>
+                {portal.status === 'aktif' ? 'Aktif' : portal.status === 'didukung' ? 'Didukung' : 'Belum tersedia'}
+              </Chip>
+              <span>
+                <strong>{portal.name}</strong> <span className="text-muted-foreground">— {portal.note}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
       <p className="mt-2 max-w-2xl text-muted-foreground">
         Impor file <code>jobs.json</code> dari hunter VPS, pilih lowongan, lalu buat CV yang disesuaikan untuk lowongan itu.
         Deskripsi lowongan yang belum ada di file harus ditempel manual di editor sebelum menjalankan Job Match — GenCV

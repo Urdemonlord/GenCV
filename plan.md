@@ -223,7 +223,7 @@ Deterministik, tanpa AI, berjalan di browser.
   11. Footer
 - [x] Visual hero memakai output produk asli. CV dirender dari template sungguhan lewat script build menjadi gambar WebP, supaya landing tidak perlu memuat react-pdf. Kartu skor dihitung dengan engine R4 dari data contoh.
 - [x] Contoh AI sebelum/sesudah memakai placeholder, bukan angka karangan
-- [x] Menu: Beranda, Template, Artikel, Fitur, FAQ, CV saya. Masuk dan Harga disembunyikan sampai fiturnya ada.
+- [x] Menu: Beranda, Template, Artikel, Fitur, FAQ, CV saya. Masuk dan Harga disembunyikan sampai fiturnya ada; Masuk dibuka lagi setelah PR #64 (halaman /masuk + menu header), Harga masih disembunyikan.
 - [x] Section social proof palsu dihapus; metadata SEO dan gambar OG diperbarui
 
 ## R6. Template & galeri (selesai)
@@ -293,7 +293,7 @@ Artikel ditulis sebagai data di `apps/web/lib/blog/posts.ts`, bukan MDX: tanpa d
 
 ## Sengaja belum dibuat
 
-- **Akun dan sinkronisasi cloud (Masuk), Harga/pembayaran.** Semuanya butuh backend, autentikasi, dan payment. Sampai siap, menunya tidak ditampilkan. (Blog sudah dibuat di milestone B.)
+- **Harga/pembayaran.** Butuh backend dan payment; sampai siap, menunya tidak ditampilkan. (Akun dan sinkronisasi cloud sudah dibuat di PR #64, dan menu Masuk sudah ditampilkan lagi.)
 
 ## Catatan terhadap mockup
 
@@ -321,7 +321,7 @@ Semuanya sudah ditangani di `apps/web/lib/cv/pdf/document.tsx`.
 3. Foto opsional, mati default untuk preset internasional
 4. Contoh AI di landing memakai placeholder
 5. Copy "lolos ATS" diganti "ramah ATS"
-6. Masuk dan Harga disembunyikan sampai fiturnya ada (Blog dibuka di milestone B)
+6. Masuk dan Harga disembunyikan sampai fiturnya ada (Blog dibuka di milestone B); Masuk dibuka lagi setelah PR #64, Harga masih disembunyikan
 7. Tema gelap saja
 8. UI berbahasa Indonesia; isi CV bisa English atau Bahasa Indonesia
 9. Preset region: **Indonesia, US, UK, EU** (semua aktif)

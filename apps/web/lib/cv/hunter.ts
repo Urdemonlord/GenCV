@@ -74,3 +74,35 @@ export function parseHunterJobs(parsed: unknown): HunterParseResult {
 export function cvTitleForJob(job: HunterJob): string {
   return `CV ${job.title} \u2013 ${job.company}`;
 }
+
+/**
+ * Job boards, as honestly as the hunter can claim them.
+ *
+ * `aktif` boards are the ones the daily VPS cron actually searches.
+ * `didukung` boards are ones JobSpy can search but the daily cron does not
+ * run yet, so they must not be presented as covered. `belum` boards are the
+ * ones users keep asking about (JobStreet, Glints): no public search API and
+ * no JobSpy board, so the only honest route there is a manual search plus
+ * pasting the ad into the editor.
+ */
+export type HunterPortalStatus = 'aktif' | 'didukung' | 'belum';
+
+export interface HunterPortal {
+  name: string;
+  status: HunterPortalStatus;
+  note: string;
+}
+
+export const HUNTER_PORTALS: HunterPortal[] = [
+  { name: 'LinkedIn', status: 'aktif', note: 'Dicari hunter harian.' },
+  { name: 'Indeed', status: 'aktif', note: 'Dicari hunter harian.' },
+  { name: 'Glassdoor', status: 'aktif', note: 'Dicari hunter harian.' },
+  { name: 'ZipRecruiter', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'Bayt', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'Naukri', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'BDJobs', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'HelloWork', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'Google Jobs', status: 'didukung', note: 'Didukung JobSpy, belum diaktifkan di cron harian.' },
+  { name: 'JobStreet', status: 'belum', note: 'Tidak ada API publik / board JobSpy — cari manual, tempel deskripsi di editor.' },
+  { name: 'Glints', status: 'belum', note: 'Tidak ada API publik / board JobSpy — cari manual, tempel deskripsi di editor.' },
+];
