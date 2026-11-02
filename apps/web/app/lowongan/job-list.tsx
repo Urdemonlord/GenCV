@@ -125,8 +125,8 @@ export function JobList() {
       <section aria-label="Portal lowongan yang tersedia" className="mt-6 rounded-xl border border-border bg-surface p-5">
         <h2 className="text-lg font-semibold">Portal yang tersedia</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Hanya portal berstatus aktif yang benar-benar dicari hunter harian. Portal lain yang didukung alatnya belum
-          diaktifkan, dan JobStreet/Glints belum bisa dicari otomatis sama sekali.
+          Semua portal berstatus aktif dicari hunter harian; hasilnya ditampilkan jadi satu tanpa label sumber.
+          JobStreet/Glints belum bisa dicari otomatis sama sekali.
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {HUNTER_PORTALS.map((portal) => (
@@ -215,7 +215,6 @@ export function JobList() {
                   {[job.company, job.location].filter(Boolean).join(' \u00b7 ')}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {job.site && <Chip>{job.site}</Chip>}
                   {job.isRemote && <Chip tone="primary">Remote</Chip>}
                   {job.datePosted && <Chip>{job.datePosted}</Chip>}
                   {job.flagDemoLike && <Chip>Perlu dicek — mirip lowongan demo</Chip>}
