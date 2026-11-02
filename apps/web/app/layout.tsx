@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Anton, Plus_Jakarta_Sans } from 'next/font/google';
 import { FEED_ALTERNATES, SITE_DESCRIPTION, SITE_URL } from '@/lib/seo';
 import { Analytics } from './components/analytics';
 import { Toaster } from './components/ui/toaster';
@@ -9,6 +9,14 @@ import { Toaster } from './components/ui/toaster';
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
   variable: '--font-jakarta',
+  display: 'swap',
+});
+
+// Condensed display face for the landing hero headline (mockup typography).
+const fontDisplay = Anton({
+  subsets: ['latin', 'latin-ext'],
+  weight: '400',
+  variable: '--font-anton',
   display: 'swap',
 });
 
@@ -41,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={fontSans.variable}>
+    <html lang="id" className={`${fontSans.variable} ${fontDisplay.variable}`}>
       <body className="min-h-screen font-sans">
         {children}
         <Toaster />
