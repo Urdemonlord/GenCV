@@ -4,6 +4,7 @@ import { emptyCV, type CV } from '@/lib/cv/model';
 import { hashText, winsOver, type SyncRecord } from './merge';
 import { readTombstones, recordDeletion, saveTombstones } from './local';
 import { runSyncRound } from './client';
+import { syncStatusLabel } from './messages';
 
 /**
  * Tests for one sync round.
@@ -350,11 +351,29 @@ describe('deleting a document locally', () => {
       hash: 'h',
     };
 
-    recordDeletion(record, storage);
+    // The deletion time is passed in rather than left to `Date.now()`: the default reads the
+    // clock, so an assertion against the *save* time is off by however many milliseconds
+    // passed between the two calls — a flake that only shows up on a loaded machine.
+    const deletedAt = record.updatedAt + 5_000;
+    recordDeletion(record, storage, deletedAt);
     deleteDocument('cv-a', storage);
 
     expect(loadDocument('cv-a', storage)).toBeNull();
-    expect(readTombstones(storage)).toEqual([{ ...record, deleted: true }]);
+    // Stamped with the deletion time, not the last-save time: keeping the old timestamp would
+    // let a server copy written after that save outrank the deletion and come back.
+    expect(readTombstones(storage)).toEqual([{ ...record, deleted: true, updatedAt: deletedAt }]);
+  });
+
+  it('never stamps a deletion earlier than the save it follows', () => {
+    // A clock that jumps backwards must not produce a tombstone that loses to the very copy it
+    // is meant to replace.
+    const storage = useDevice();
+    saveDocument('cv-b', titled('B'), storage);
+    const record: SyncRecord = { id: 'cv-b', updatedAt: 5_000, deleted: false, hash: 'h' };
+
+    recordDeletion(record, storage, 1_000);
+
+    expect(readTombstones(storage)[0].updatedAt).toBe(5_000);
   });
 });
 describe('runSyncRound robustness', () => {
@@ -652,5 +671,27 @@ describe('late winners', () => {
     const result = await runSyncRound(fetchImpl);
 
     expect(result).toMatchObject({ ok: true, downloaded: 0 });
+  });
+
+  it('counts a deletion applied mid-round, so the panel does not say nothing happened', async () => {
+    // Without this the round reports `deleted: 0` and the label reads "tidak ada perubahan",
+    // hiding the one outcome a user is most likely to ask about.
+    const storage = useDevice();
+    const id = 'cv-a';
+    saveDocument(id, titled('Dihapus di tempat lain'), storage, 1_000);
+
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jsonResponse({ success: true, records: [{ id, updatedAt: 1_000, deleted: false, hash: 'z' }] });
+      }
+      return jsonResponse({ success: true, records: [{ id, updatedAt: 2_000, deleted: true, hash: 'z' }] });
+    }) as unknown as typeof fetch;
+
+    const result = await runSyncRound(fetchImpl);
+
+    expect(result).toMatchObject({ ok: true, deleted: 1 });
+    expect(syncStatusLabel(result)).toBe('Selesai: 1 dihapus.');
   });
 });

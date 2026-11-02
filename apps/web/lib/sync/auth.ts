@@ -4,7 +4,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { getDb } from './db';
 import { account, session, user, verification } from './schema';
-import { AUTH_SECRET_ENV, authBaseUrl, isSyncConfigured } from './config';
+import { AUTH_SECRET_ENV, authBaseUrl, isSyncConfigured, trustedOrigins } from './config';
 
 /**
  * Better Auth instance, or `null` when sync is not configured.
@@ -19,6 +19,9 @@ function buildAuth() {
 
   return betterAuth({
     baseURL: authBaseUrl(),
+    // Preview deployments serve from their own hostname, so the browser's origin would not match
+    // `baseURL` and every sign-in would be rejected there.
+    trustedOrigins: trustedOrigins(),
     secret: process.env[AUTH_SECRET_ENV],
     database: drizzleAdapter(db, {
       provider: 'pg',
