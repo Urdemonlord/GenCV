@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test';
 
 test('landing page leads into a new CV in the editor', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('ramah ATS');
+  // Headline tracks the mockup hero; update it when the hero headline changes.
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your career');
   // Tailwind must be compiled: a missing PostCSS config once shipped raw "@tailwind" CSS.
   // The value tracks --background (neon theme #080B14); update it when the theme changes.
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(7, 10, 18)');
