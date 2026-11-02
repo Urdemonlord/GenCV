@@ -24,7 +24,8 @@ import {
 
 /**
  * Lowongan dari hunter VPS: impor file jobs.json, lalu buat satu CV per
- * lowongan dari CV dasar yang sudah ada (atau dari CV kosong).
+ * lowongan dari CV terbaru yang sudah ada di perangkat ini (atau dari
+ * CV kosong kalau belum ada CV sama sekali).
  *
  * Tidak ada yang dikirim ke server dan tidak ada lamaran yang dikirim:
  * tombol "Lihat lowongan" hanya membuka halaman asli lowongannya, dan
@@ -38,13 +39,19 @@ export function JobList() {
   const [skipped, setSkipped] = useState(0);
   const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>('loading');
   const [feedSource, setFeedSource] = useState<'otomatis' | 'manual'>('otomatis');
-  const [baseId, setBaseId] = useState('');
+  // null = belum dipilih: begitu daftar CV terbaca, default-nya adalah CV
+  // terbaru (yang terakhir diisi/diubah user), bukan CV kosong — supaya
+  // "Buat CV dari lowongan ini" langsung membawa data user dan pratinjau
+  // tidak tampil kosong. "CV kosong" tetap bisa dipilih eksplisit.
+  const [baseId, setBaseId] = useState<string | null>(null);
   // localStorage only exists in the browser: reading it during render would
   // break the static prerender of this page, the same reason CvList reads
   // its list inside an effect.
   const [bases, setBases] = useState<CvSummary[]>([]);
   useEffect(() => {
-    setBases(listDocuments());
+    const docs = listDocuments();
+    setBases(docs);
+    setBaseId((prev) => prev ?? (docs[0]?.id ?? ''));
   }, []);
 
   // Feed otomatis: hunter harian mempublikasikan jobs.json ke repo data
@@ -113,7 +120,13 @@ export function JobList() {
         cv.jobDescription = job.description;
         id = createDocument(cv);
       }
-      router.push(`/editor?id=${encodeURIComponent(id)}`);
+      // Lowongan feed tidak membawa deskripsi, dan Job Match hanya bisa
+      // menghitung skor dari deskripsi: kalau deskripsi kosong, beri tahu
+      // editor agar menampilkan panduan tempel deskripsi, bukan diam-diam
+      // membiarkan Job Match tampil kosong.
+      const needsDescription = !job.description?.trim();
+      const target = `/editor?id=${encodeURIComponent(id)}${needsDescription ? `&fromJob=1&jobTitle=${encodeURIComponent(job.title)}&jobUrl=${encodeURIComponent(job.jobUrl)}` : ''}`;
+      router.push(target);
     } catch {
       toast({ variant: 'destructive', title: 'Gagal membuat CV', description: 'Penyimpanan perangkat mungkin penuh.' });
     }
@@ -168,7 +181,7 @@ export function JobList() {
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             CV dasar
             <select
-              value={baseId}
+              value={baseId ?? ''}
               onChange={(e) => setBaseId(e.target.value)}
               className="rounded-md border border-input bg-background px-2 py-1 text-foreground"
             >
