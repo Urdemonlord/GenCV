@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { FileText, Upload } from 'lucide-react';
 import { Button, Chip } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
+import { authClient } from '@/lib/sync/auth-client';
+import { runSyncRound } from '@/lib/sync/client';
 import { emptyCV } from '@/lib/cv/model';
 import {
   createDocument,
@@ -31,9 +33,10 @@ import {
  * tombol "Lihat lowongan" hanya membuka halaman asli lowongannya, dan
  * lamaran tetap dikirim manual oleh user dari sana.
  */
-export function JobList() {
+export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { data: session, isPending: sessionPending, error: sessionError } = authClient.useSession();
   const fileInput = useRef<HTMLInputElement>(null);
   const [jobs, setJobs] = useState<HunterJob[] | null>(null);
   const [skipped, setSkipped] = useState(0);
@@ -103,7 +106,20 @@ export function JobList() {
     reader.readAsText(file);
   };
 
-  const createCv = (job: HunterJob) => {
+  const createCv = async (job: HunterJob) => {
+    // Membuat CV baru wajib login (kalau login tersedia di deployment ini):
+    // tanpa akun, CV hanya hidup di perangkat ini dan tidak pernah sinkron
+    // ke profil. Pemeriksaan sesi yang gagal total (server tidak terjangkau)
+    // tidak mengunci user: pembuatan lanjut lokal, sinkronisasi bisa susulan
+    // dari panel dashboard.
+    if (syncConfigured && sessionPending) {
+      toast({ title: 'Memeriksa status masuk…', description: 'Tunggu sebentar lalu coba lagi.' });
+      return;
+    }
+    if (syncConfigured && !sessionError && !session) {
+      router.push(`/masuk?callbackURL=${encodeURIComponent('/lowongan')}`);
+      return;
+    }
     try {
       let id: string;
       if (baseId) {
@@ -119,6 +135,16 @@ export function JobList() {
         cv.title = cvTitleForJob(job);
         cv.jobDescription = job.description;
         id = createDocument(cv);
+      }
+      // Langsung sinkronkan ke akun supaya CV baru ini ada di profil, bukan
+      // hanya di perangkat ini. Gagal sinkron tidak membatalkan pembuatan:
+      // salinan lokal tetap ada dan panel dashboard bisa mencoba lagi.
+      if (syncConfigured && session) {
+        try {
+          await runSyncRound();
+        } catch {
+          // Best-effort: kegagalan sinkron dilaporkan lewat panel dashboard.
+        }
       }
       // Lowongan feed tidak membawa deskripsi, dan Job Match hanya bisa
       // menghitung skor dari deskripsi: kalau deskripsi kosong, beri tahu
