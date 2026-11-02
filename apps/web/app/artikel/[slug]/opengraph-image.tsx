@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { getPost } from '@/lib/blog/posts';
+import { OG, ogFonts } from '@/lib/og';
 
 export const alt = 'Artikel GenCV';
 export const size = { width: 1200, height: 630 };
@@ -23,27 +24,27 @@ export default async function OpengraphImage({ params }: { params: Params }) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: 72,
-          background: 'linear-gradient(135deg, #0B1020 55%, #2e1065)',
-          color: '#F8FAFC',
-          fontFamily: 'sans-serif',
+          background: OG.background,
+          color: OG.text,
+          fontFamily: OG.font,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ fontSize: 34, fontWeight: 700, display: 'flex' }}>
-            Gen<span style={{ color: '#C084FC' }}>CV</span>
+          <div style={{ fontSize: 34, fontWeight: 800, display: 'flex' }}>
+            Gen<span style={{ color: OG.accent }}>CV</span>
           </div>
-          <div style={{ fontSize: 24, color: '#94A3B8', display: 'flex' }}>· Artikel</div>
+          <div style={{ fontSize: 24, color: OG.muted, display: 'flex' }}>· Artikel</div>
         </div>
 
-        <div style={{ fontSize, fontWeight: 700, lineHeight: 1.15, maxWidth: 1000, display: 'flex' }}>
+        <div style={{ fontSize, fontWeight: 800, lineHeight: 1.15, maxWidth: 1000, display: 'flex' }}>
           {title}
         </div>
 
-        <div style={{ fontSize: 26, color: '#94A3B8', display: 'flex' }}>
+        <div style={{ fontSize: 26, color: OG.muted, display: 'flex' }}>
           Template ramah ATS · Analisis ATS · Job Match · Gratis
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts: await ogFonts() },
   );
 }

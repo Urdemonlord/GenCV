@@ -13,8 +13,8 @@ export function LegalPage({ title, updated, intro, sections }: { title: string; 
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">Terakhir diperbarui {updated}</p>
         <div className="mt-6 leading-relaxed text-muted-foreground">{intro}</div>
         <div className="mt-8 space-y-10">

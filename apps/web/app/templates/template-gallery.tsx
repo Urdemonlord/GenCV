@@ -20,7 +20,7 @@ export function TemplateGallery() {
   const ids = TEMPLATE_IDS.filter((id) => filter === 'all' || TEMPLATE_INFO[id].audiences.includes(filter));
 
   return (
-    <section className="py-16">
+    <section className="py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Template CV</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">

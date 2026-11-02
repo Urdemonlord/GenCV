@@ -78,8 +78,8 @@ export function AuthForm({
   const isSignUp = mode === 'daftar';
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-16">
-      <h1 className="text-3xl font-bold tracking-tight">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
+    <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
+      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {isSignUp
           ? 'Akun diperlukan untuk membuat CV baru. CV tersimpan di akunmu dan bisa dibuka dari perangkat lain.'
