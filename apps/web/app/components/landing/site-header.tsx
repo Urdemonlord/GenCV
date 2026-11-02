@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FileText } from 'lucide-react';
+import { FileText, User } from 'lucide-react';
 import { Button } from '@/components/ds';
 import { authClient } from '@/lib/sync/auth-client';
 
@@ -24,16 +23,10 @@ const NAV = [
  * tidak ada kedip hydration; begitu sesi ketemu, ganti ke versi masuk.
  */
 export function SiteHeader() {
-  const router = useRouter();
   const { data: session } = authClient.useSession();
 
-  // Sudah masuk: jangan tawarkan Masuk/Daftar lagi — tampilkan profilnya.
+  // Sudah masuk: jangan tawarkan Masuk/Daftar lagi, cukup satu tombol Profil.
   const nav = session ? NAV.filter((item) => item.href !== '/masuk') : NAV;
-
-  const signOut = async () => {
-    await authClient.signOut();
-    router.refresh();
-  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -57,20 +50,14 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {session ? (
-            <>
-              <span
-                className="hidden max-w-44 truncate text-sm text-muted-foreground sm:block"
-                title={session.user.email}
-              >
-                {session.user.email}
-              </span>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                Keluar
-              </Button>
-              <Button asChild variant="primary" size="sm">
-                <Link href="/dashboard">CV saya</Link>
-              </Button>
-            </>
+            // Sengaja pendek: email yang panjang membuat header kepanjangan.
+            // Identitas, sinkron, dan keluar pindah ke halaman /profil.
+            <Button asChild variant="outline" size="sm">
+              <Link href="/profil">
+                <User aria-hidden="true" />
+                Profil
+              </Link>
+            </Button>
           ) : (
             <>
               <Button asChild variant="outline" size="sm">
