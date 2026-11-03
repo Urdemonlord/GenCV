@@ -1,10 +1,20 @@
 import { randomUUID } from 'node:crypto';
+import { after } from 'next/server';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { getDb } from './db';
 import { account, session, user, verification } from './schema';
+import { sendIrisAuthEmail, type IrisTemplateId } from './iris-email';
 import { AUTH_SECRET_ENV, authBaseUrl, isSyncConfigured, trustedOrigins } from './config';
+
+function deferIrisAuthEmail(templateId: IrisTemplateId, recipient: string, actionUrl: string) {
+  after(() =>
+    sendIrisAuthEmail({ templateId, recipient, actionUrl }).catch(() => {
+      console.error('GenCV Iris auth email request failed', { template_id: templateId });
+    }),
+  );
+}
 
 /**
  * Better Auth instance, or `null` when sync is not configured.
@@ -29,10 +39,18 @@ function buildAuth() {
     }),
     emailAndPassword: {
       enabled: true,
-      // No email provider is wired up yet, so accounts are usable immediately. Enabling
-      // verification is a follow-up once transactional email is configured.
+      // Email verification remains opt-in: existing accounts still work without Iris credentials.
       requireEmailVerification: false,
+      sendResetPassword: async ({ user, url }) => {
+        deferIrisAuthEmail('auth.recovery', user.email, url);
+      },
       minPasswordLength: 8,
+    },
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url }) => {
+        deferIrisAuthEmail('auth.verify', user.email, url);
+      },
+      sendOnSignUp: false,
     },
     session: {
       // Cookie cache: a short window where the session is trusted without a DB round trip.
