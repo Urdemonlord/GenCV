@@ -55,6 +55,60 @@ describe('Iris transactional email client', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it('rejects unknown delivery outcomes instead of treating HTTP 202 as accepted', async () => {
+    const send = createIrisEmailClient({
+      apiUrl: 'https://iris.example.test',
+      apiKey: 'test-only-key',
+      fetchImpl: async () => new Response(JSON.stringify({ status: 'unknown' }), { status: 202 }),
+    });
+
+    await expect(send({
+      templateId: 'auth.verify',
+      recipient: 'user@example.test',
+      actionUrl: 'https://gencv.meowlabs.id/verify-email/opaque-test-token',
+    })).rejects.toThrow(/delivery status unknown/);
+  });
+
+  it('rejects malformed recipient local parts before making an API request', async () => {
+    for (const recipient of [
+      'bad,other@example.test',
+      'bad;local@example.test',
+      'bad..local@example.test',
+      '.leading@example.test',
+      'trailing.@example.test',
+    ]) {
+      const fetchImpl = vi.fn<typeof fetch>();
+      const send = createIrisEmailClient({ apiUrl: 'https://iris.example.test', apiKey: 'test-only-key', fetchImpl });
+      await expect(send({
+        templateId: 'auth.verify',
+        recipient,
+        actionUrl: 'https://gencv.meowlabs.id/verify-email/opaque-test-token',
+      })).rejects.toThrow(/recipient is invalid/);
+      expect(fetchImpl).not.toHaveBeenCalled();
+    }
+  });
+
+  it('allows more than the relay timeout for API processing', async () => {
+    const originalTimeout = AbortSignal.timeout;
+    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockImplementation((milliseconds) => originalTimeout(milliseconds));
+    const send = createIrisEmailClient({
+      apiUrl: 'https://iris.example.test',
+      apiKey: 'test-only-key',
+      fetchImpl: async () => new Response(JSON.stringify({ status: 'accepted' }), { status: 202 }),
+    });
+
+    try {
+      await send({
+        templateId: 'auth.verify',
+        recipient: 'user@example.test',
+        actionUrl: 'https://gencv.meowlabs.id/verify-email/opaque-test-token',
+      });
+      expect(timeoutSpy).toHaveBeenCalledWith(30_000);
+    } finally {
+      timeoutSpy.mockRestore();
+    }
+  });
+
   it('does not expose provider response content when API rejects a request', async () => {
     const fetchImpl: typeof fetch = async () =>
       new Response('test-only-secret-response', { status: 401 });

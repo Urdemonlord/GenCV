@@ -17,6 +17,41 @@ interface IrisEmailClientConfig {
 
 const TEMPLATE_IDS = new Set<IrisTemplateId>(['auth.verify', 'auth.recovery']);
 const ACTION_ORIGIN = 'https://gencv.meowlabs.id';
+const LOCAL_PART_SPECIALS = "!#$%&'*+-/=?^_`{|}~.";
+
+function isValidRecipient(value: string): boolean {
+  if (
+    !value ||
+    value.trim() !== value ||
+    value.length > 254 ||
+    [...value].some((char) => char.charCodeAt(0) <= 32 || char.charCodeAt(0) === 127 || char === '<' || char === '>')
+  ) {
+    return false;
+  }
+
+  const parts = value.split('@');
+  if (parts.length !== 2) return false;
+  const [local, domain] = parts;
+  if (
+    !local ||
+    local.length > 64 ||
+    local.startsWith('.') ||
+    local.endsWith('.') ||
+    local.includes('..') ||
+    [...local].some((char) => !/[A-Za-z0-9]/.test(char) && !LOCAL_PART_SPECIALS.includes(char))
+  ) {
+    return false;
+  }
+
+  const labels = domain.split('.');
+  return labels.length >= 2 && labels.every((label) =>
+    label.length > 0 &&
+    label.length <= 63 &&
+    /^[A-Za-z0-9]/.test(label) &&
+    /[A-Za-z0-9]$/.test(label) &&
+    [...label].every((char) => /[A-Za-z0-9-]/.test(char))
+  );
+}
 
 export function createIrisEmailClient({
   apiUrl,
@@ -49,13 +84,7 @@ export function createIrisEmailClient({
     if (!TEMPLATE_IDS.has(email.templateId)) {
       throw new Error('Iris email template is not allowed');
     }
-    if (
-      !email.recipient ||
-      email.recipient.trim() !== email.recipient ||
-      email.recipient.length > 254 ||
-      [...email.recipient].some((char) => char.charCodeAt(0) <= 32 || char.charCodeAt(0) === 127 || char === '<' || char === '>') ||
-      email.recipient.split('@').length !== 2
-    ) {
+    if (!isValidRecipient(email.recipient)) {
       throw new Error('Iris email recipient is invalid');
     }
 
@@ -84,7 +113,7 @@ export function createIrisEmailClient({
     const response = await fetchImpl(endpoint, {
       method: 'POST',
       redirect: 'error',
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(30_000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -96,8 +125,16 @@ export function createIrisEmailClient({
         action_url: email.actionUrl,
       }),
     });
-    if (!response.ok) {
+    if (response.status !== 202) {
       throw new Error(`Iris email API returned HTTP ${response.status}`);
+    }
+    const payload: unknown = await response.json().catch(() => null);
+    const status =
+      payload && typeof payload === 'object' && 'status' in payload && typeof payload.status === 'string'
+        ? payload.status
+        : 'invalid';
+    if (status !== 'accepted') {
+      throw new Error(`Iris email API delivery status ${status} is not accepted`);
     }
   };
 }
