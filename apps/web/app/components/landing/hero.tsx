@@ -12,7 +12,7 @@ const CARDS = [
     href: '/editor',
     icon: FileText,
     iconClass: 'text-brand-accent',
-    borderClass: 'border-t-[#FF00FF]',
+    borderClass: 'border-t-primary',
     title: 'CV Workspace',
     description: 'Susun, edit, dan optimalkan CV-mu dengan bantuan AI.',
   },
@@ -28,7 +28,7 @@ const CARDS = [
     href: '/#fitur',
     icon: BarChart3,
     iconClass: 'text-brand-accent',
-    borderClass: 'border-t-[#FF00FF]',
+    borderClass: 'border-t-primary',
     title: 'Career Intelligence',
     description: 'Analisis kecocokan, skill gap, dan rencana pengembangan karier.',
   },
@@ -42,11 +42,16 @@ export function Hero() {
   const info = SAMPLE_CV.personalInfo;
 
   return (
-    <section className="relative overflow-hidden">
-      {/* Neon decorations from the mockup: ring, plus marks, dots. Purely decorative. */}
-      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-24 hidden size-[560px] rounded-full border border-primary/40 lg:block" />
-      <div aria-hidden="true" className="pointer-events-none absolute right-[38%] top-16 hidden text-3xl font-light text-brand-accent lg:block">+</div>
-      <div aria-hidden="true" className="pointer-events-none absolute bottom-64 right-6 hidden size-3 bg-primary lg:block" />
+    <section className="relative overflow-hidden bg-brand-accent text-foreground">
+      {/* Ayo Kerja decorations: starburst burst + megaphone. Purely decorative. */}
+      <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 hidden size-40 rotate-12 text-primary lg:block">
+        <svg viewBox="0 0 100 100" className="size-full">
+          <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" fill="currentColor" />
+        </svg>
+      </div>
+      <div aria-hidden="true" className="pointer-events-none absolute bottom-10 right-10 hidden text-6xl lg:block">📣</div>
+      <div aria-hidden="true" className="pointer-events-none absolute right-[28%] top-24 hidden rotate-[-8deg] rounded-md bg-primary px-3 py-1 text-xs font-bold text-white lg:block">design</div>
+      <div aria-hidden="true" className="pointer-events-none absolute right-[12%] top-40 hidden rotate-[6deg] rounded-md bg-white px-3 py-1 text-xs font-bold text-primary lg:block">portfolio</div>
 
       <div className="relative mx-auto max-w-6xl px-4 py-16 lg:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr]">
@@ -57,8 +62,8 @@ export function Hero() {
             </p>
             <h1 className="mt-6 font-display text-[clamp(3.75rem,7.5vw,6.5rem)] uppercase leading-[0.92]">
               <span className="block text-foreground">Your career,</span>
-              <span className="block text-brand-accent">Intelligently</span>
-              <span className="block text-primary">Designed.</span>
+              <span className="block text-primary">Intelligently</span>
+              <span className="block text-foreground">Designed.</span>
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground">
               Buat CV profesional, temukan lowongan yang relevan, dan pahami langkah kariermu berikutnya dengan AI,

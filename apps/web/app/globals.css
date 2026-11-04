@@ -2,11 +2,10 @@
 @import 'tw-animate-css';
 
 /*
- * GenCV design tokens (dark only), Tailwind v4.
+ * GenCV design tokens — Ayo Kerja palette (yellow + royal blue), light theme.
  * Raw HSL channel values live in :root; @theme maps them to utilities.
- *   background #0B1020 · surface #111827 · border #253047 · text #F8FAFC · muted #94A3B8
- *   primary #4F46E5 (text on dark: #A5B4FC) · accent #A855F7 (text: #C084FC) · success #22C55E · warning #F59E0B · danger #EF4444
- * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
+ *   background #FFFFFF · surface #EAF0FF · border #D9E1F2 · text #071A4A · muted #5E6B88
+ *   primary #0035AD (royal blue) · brand-accent #F4E11B (bright yellow) · success #16834A · warning #A65B00 · danger #B42336
  */
 @theme {
   /* --font-jakarta and --font-anton are injected by next/font on <html>. */
@@ -79,40 +78,40 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  --background: 226 49% 8%;
-  --foreground: 210 40% 98%;
-  --surface: 221 39% 11%;
-  --surface-raised: 222 33% 15%;
-  --card: var(--surface);
-  --card-foreground: var(--foreground);
-  --popover: var(--surface-raised);
-  --popover-foreground: var(--foreground);
+  --background: 0 0% 100%;
+  --foreground: 226 87% 16%;
+  --surface: 220 100% 96%;
+  --surface-raised: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 226 87% 16%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 226 87% 16%;
 
-  --primary: 243 75% 59%;
+  --primary: 220 100% 34%;
   --primary-foreground: 0 0% 100%;
-  --brand-accent: 271 91% 65%;
-  /* Lighter variants for text on dark surfaces (WCAG AA: >= 4.5:1). */
-  --primary-soft: 230 94% 82%;
-  --brand-accent-soft: 270 95% 75%;
+  --brand-accent: 56 91% 53%;
+  /* Variants for text/icons on light surfaces. */
+  --primary-soft: 220 100% 45%;
+  --brand-accent-soft: 56 91% 70%;
 
-  --secondary: 222 33% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 222 33% 15%;
-  --muted-foreground: 215 20% 65%;
-  /* shadcn "accent" is the hover/selected background, not the brand purple */
-  --accent: 222 33% 18%;
-  --accent-foreground: 210 40% 98%;
+  --secondary: 220 100% 96%;
+  --secondary-foreground: 226 87% 16%;
+  --muted: 220 100% 96%;
+  --muted-foreground: 220 18% 45%;
+  /* shadcn "accent" is the hover/selected background */
+  --accent: 220 100% 96%;
+  --accent-foreground: 226 87% 16%;
 
-  --success: 142 71% 45%;
-  --warning: 38 92% 50%;
-  --destructive: 0 84% 60%;
+  --success: 145 70% 30%;
+  --warning: 32 100% 33%;
+  --destructive: 352 68% 42%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 220 31% 21%;
-  --input: 220 31% 21%;
-  --ring: 239 84% 67%;
+  --border: 220 60% 90%;
+  --input: 220 60% 90%;
+  --ring: 220 100% 34%;
   --radius: 0.75rem;
 }
 
@@ -131,19 +130,18 @@
 
 @layer components {
   .text-gradient {
-    /* Plain gradient (not bg-linear-to-r) so it stays sRGB, matching v3 exactly. */
     background-image: linear-gradient(
       to right,
-      hsl(var(--primary-soft)),
-      hsl(var(--brand-accent-soft))
+      hsl(var(--primary)),
+      hsl(var(--brand-accent))
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
-  /* Darker stops than the tokens so white labels stay above 4.5:1 across the gradient. */
+  /* Darker stops so white labels stay above 4.5:1 across the gradient. */
   .bg-gradient-brand {
-    background-image: linear-gradient(to right, hsl(243 75% 59%), hsl(271 81% 56%));
+    background-image: linear-gradient(to right, hsl(220 100% 34%), hsl(56 91% 53%));
   }
 }
 

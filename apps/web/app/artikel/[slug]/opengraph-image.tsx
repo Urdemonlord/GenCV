@@ -23,23 +23,23 @@ export default async function OpengraphImage({ params }: { params: Params }) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: 72,
-          background: 'linear-gradient(135deg, #0B1020 55%, #2e1065)',
-          color: '#F8FAFC',
+          background: 'linear-gradient(135deg, #F4E11B 55%, #0035AD)',
+          color: '#071A4A',
           fontFamily: 'sans-serif',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 34, fontWeight: 700, display: 'flex' }}>
-            Gen<span style={{ color: '#C084FC' }}>CV</span>
+            Gen<span style={{ color: '#0035AD' }}>CV</span>
           </div>
-          <div style={{ fontSize: 24, color: '#94A3B8', display: 'flex' }}>· Artikel</div>
+          <div style={{ fontSize: 24, color: '#5E6B88', display: 'flex' }}>· Artikel</div>
         </div>
 
         <div style={{ fontSize, fontWeight: 700, lineHeight: 1.15, maxWidth: 1000, display: 'flex' }}>
           {title}
         </div>
 
-        <div style={{ fontSize: 26, color: '#94A3B8', display: 'flex' }}>
+        <div style={{ fontSize: 26, color: '#5E6B88', display: 'flex' }}>
           Template ramah ATS · Analisis ATS · Job Match · Gratis
         </div>
       </div>

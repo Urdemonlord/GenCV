@@ -80,10 +80,10 @@ const SITE_NAMES: Record<string, string> = {
 
 /** Tile monogram perusahaan ala mockup: warna tetap dari hash nama. */
 const TILE_COLORS = [
-  { bg: MAGENTA, fg: '#130014' },
-  { bg: GREEN, fg: '#081006' },
+  { bg: MAGENTA, fg: '#071A4A' },
+  { bg: GREEN, fg: '#FFFFFF' },
   { bg: '#DFE7FF', fg: '#3455E8' },
-  { bg: '#7137FF', fg: '#FFFFFF' },
+  { bg: '#002B91', fg: '#FFFFFF' },
 ];
 
 function tileFor(company: string) {

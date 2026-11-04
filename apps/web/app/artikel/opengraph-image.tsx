@@ -18,18 +18,18 @@ export default function OpengraphImage() {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: 80,
-          background: 'linear-gradient(135deg, #0B1020 55%, #2e1065)',
-          color: '#F8FAFC',
+          background: 'linear-gradient(135deg, #F4E11B 55%, #0035AD)',
+          color: '#071A4A',
           fontFamily: 'sans-serif',
         }}
       >
         <div style={{ fontSize: 40, fontWeight: 700, display: 'flex' }}>
-          Gen<span style={{ color: '#C084FC' }}>CV</span>
+          Gen<span style={{ color: '#0035AD' }}>CV</span>
         </div>
         <div style={{ marginTop: 36, fontSize: 68, fontWeight: 700, lineHeight: 1.1, maxWidth: 900, display: 'flex' }}>
           Artikel &amp; panduan CV
         </div>
-        <div style={{ marginTop: 28, fontSize: 30, color: '#94A3B8', maxWidth: 900, display: 'flex' }}>
+        <div style={{ marginTop: 28, fontSize: 30, color: '#5E6B88', maxWidth: 900, display: 'flex' }}>
           {`${count} panduan praktis: format ramah ATS, lamaran luar negeri, dan pengalaman`}
         </div>
       </div>

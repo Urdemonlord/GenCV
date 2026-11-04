@@ -13,8 +13,8 @@ const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.u
 const logo = (radius: number, inset = 4) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#4F46E5"/>
-      <stop offset="1" stop-color="#9333EA"/>
+      <stop offset="0" stop-color="#0035AD"/>
+      <stop offset="1" stop-color="#F4E11B"/>
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="${radius}" fill="url(#g)"/>
