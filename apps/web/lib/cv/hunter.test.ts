@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cvTitleForJob, parseHunterJobs } from './hunter';
+import { HUNTER_FEED_URL, HUNTER_PORTALS, cvTitleForJob, parseHunterJobs } from './hunter';
 
 const job = (overrides: Record<string, unknown> = {}) => ({
   site: 'linkedin',
@@ -36,6 +36,24 @@ describe('parseHunterJobs', () => {
     expect(jobs[0].description).toHaveLength(50_000);
   });
 
+  it('keeps a company logo from the feed, in either key spelling', () => {
+    const { jobs } = parseHunterJobs([
+      job({ company_logo: 'https://example.com/logo.png' }),
+      job({ job_url: 'https://example.com/jobs/2', companyLogo: 'https://example.com/logo2.png' }),
+    ]);
+    expect(jobs[0].companyLogo).toBe('https://example.com/logo.png');
+    expect(jobs[1].companyLogo).toBe('https://example.com/logo2.png');
+  });
+
+  it('drops a company logo that is not an absolute http(s) URL', () => {
+    const { jobs } = parseHunterJobs([
+      job({ company_logo: 'javascript:alert(1)' }),
+      job({ job_url: 'https://example.com/jobs/2', company_logo: '/logo.png' }),
+      job({ job_url: 'https://example.com/jobs/3' }),
+    ]);
+    expect(jobs.map((entry) => entry.companyLogo)).toEqual(['', '', '']);
+  });
+
   it('rejects a non-array feed without throwing', () => {
     expect(parseHunterJobs({})).toEqual({ jobs: [], skipped: 0 });
   });
@@ -43,5 +61,31 @@ describe('parseHunterJobs', () => {
   it('builds a per-company CV title', () => {
     const { jobs } = parseHunterJobs([job()]);
     expect(cvTitleForJob(jobs[0])).toBe('CV Golang Developer \u2013 Contoh Corp');
+  });
+});
+
+describe('HUNTER_FEED_URL', () => {
+  it('points at the public hunter feed repo', () => {
+    expect(HUNTER_FEED_URL).toBe('https://raw.githubusercontent.com/Urdemonlord/gencv-hunter-feed/main/jobs.json');
+  });
+});
+
+describe('HUNTER_PORTALS', () => {
+  it('marks exactly the daily cron boards as active and JobStreet/Glints as unavailable', () => {
+    const active = HUNTER_PORTALS.filter((portal) => portal.status === 'aktif').map((portal) => portal.name);
+    expect(active).toEqual([
+      'LinkedIn',
+      'Indeed',
+      'Glassdoor',
+      'ZipRecruiter',
+      'Bayt',
+      'Naukri',
+      'BDJobs',
+      'HelloWork',
+      'Google Jobs',
+    ]);
+    for (const name of ['JobStreet', 'Glints']) {
+      expect(HUNTER_PORTALS.find((portal) => portal.name === name)?.status).toBe('belum');
+    }
   });
 });
