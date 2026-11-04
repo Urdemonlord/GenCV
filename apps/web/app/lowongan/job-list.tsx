@@ -30,6 +30,8 @@ export function JobList() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [jobs, setJobs] = useState<HunterJob[] | null>(null);
   const [skipped, setSkipped] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [baseId, setBaseId] = useState('');
   // localStorage only exists in the browser: reading it during render would
   // break the static prerender of this page, the same reason CvList reads
@@ -37,6 +39,27 @@ export function JobList() {
   const [bases, setBases] = useState<CvSummary[]>([]);
   useEffect(() => {
     setBases(listDocuments());
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+    fetch('https://raw.githubusercontent.com/Urdemonlord/gencv-hunter-feed/main/jobs.json', { cache: 'no-store' })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        const { jobs: parsed, skipped: dropped } = parseHunterJobs(data);
+        setJobs(parsed);
+        setSkipped(dropped);
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setFetchError(e instanceof Error ? e.message : 'Gagal memuat');
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   const importFile = (file: File | undefined) => {
@@ -127,7 +150,19 @@ export function JobList() {
         )}
       </div>
 
-      {jobs === null ? (
+      {loading ? (
+        <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
+          <p className="text-sm text-muted-foreground">Memuat lowongan dari feed...</p>
+        </div>
+      ) : fetchError ? (
+        <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
+          <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
+          <h2 className="mt-4 text-lg font-semibold">Gagal memuat feed</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            {fetchError}. Coba impor file <code>jobs.json</code> manual, atau tempel deskripsi lowongan langsung di editor.
+          </p>
+        </div>
+      ) : jobs === null || jobs.length === 0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
           <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
           <h2 className="mt-4 text-lg font-semibold">Belum ada daftar lowongan</h2>
