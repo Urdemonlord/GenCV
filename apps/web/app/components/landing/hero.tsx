@@ -43,15 +43,18 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden bg-brand-accent text-foreground">
-      {/* Ayo Kerja decorations: starburst burst + megaphone. Purely decorative. */}
-      <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 hidden size-40 rotate-12 text-primary lg:block">
-        <svg viewBox="0 0 100 100" className="size-full">
-          <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" fill="currentColor" />
-        </svg>
+      {/* Ayo Kerja decorations: blue starburst burst + megaphone + art tags. Purely decorative. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-6 top-8 hidden size-[260px] bg-primary lg:block"
+        style={{ clipPath: 'polygon(50% 0,60% 25%,84% 8%,78% 35%,100% 42%,77% 57%,91% 83%,63% 76%,50% 100%,38% 76%,9% 88%,23% 59%,0 44%,25% 34%,16% 9%,41% 25%)', transform: 'rotate(-5deg)' }}
+      />
+      <div aria-hidden="true" className="pointer-events-none absolute bottom-10 right-28 hidden text-[118px] leading-none lg:block" style={{ filter: 'drop-shadow(7px 8px 0 rgba(0,0,0,.18))', transform: 'rotate(-15deg)' }}>📣</div>
+      <div aria-hidden="true" className="pointer-events-none absolute right-0 top-6 hidden grid gap-3 lg:grid">
+        <div className="rotate-[-4deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-sm font-black text-primary" style={{ boxShadow: '5px 5px 0 #0035AD' }}>✓ Cari lowongan</div>
+        <div className="rotate-[2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-sm font-black text-primary" style={{ boxShadow: '5px 5px 0 #0035AD' }}>✓ Cocokkan dengan CV</div>
+        <div className="rotate-[-2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-sm font-black text-primary" style={{ boxShadow: '5px 5px 0 #0035AD' }}>✓ Kembangkan karier</div>
       </div>
-      <div aria-hidden="true" className="pointer-events-none absolute bottom-10 right-10 hidden text-6xl lg:block">📣</div>
-      <div aria-hidden="true" className="pointer-events-none absolute right-[28%] top-24 hidden rotate-[-8deg] rounded-md bg-primary px-3 py-1 text-xs font-bold text-white lg:block">design</div>
-      <div aria-hidden="true" className="pointer-events-none absolute right-[12%] top-40 hidden rotate-[6deg] rounded-md bg-white px-3 py-1 text-xs font-bold text-primary lg:block">portfolio</div>
 
       <div className="relative mx-auto max-w-6xl px-4 py-16 lg:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr]">
