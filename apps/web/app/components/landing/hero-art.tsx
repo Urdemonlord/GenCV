@@ -6,7 +6,9 @@ import Image from 'next/image';
  * rotate -5deg), ilustrasi megaphone halftone biru yang dipotong dari
  * elemen-desain.png (bukan emoji), 3 garis suara segitiga biru di kiri
  * megaphone, dan 3 art-tag. Ukuran mengikuti mockup index.html: burst
- * 260x220 desktop / 175x150 mobile, megaphone 118px / 85px, rotate -15deg.
+ * 260x220 desktop / 175x150 mobile, megaphone 180px / 125px (diperbesar
+ * mengikuti rasio screenshot mockup; kode index.html menulis 118px tapi
+ * ilustrasi di screenshot lebih besar), rotate -15deg.
  */
 export function HeroArt() {
   return (
@@ -45,7 +47,7 @@ export function HeroArt() {
           width={336}
           height={377}
           priority
-          className="absolute left-1/2 top-1/2 z-[1] h-[85px] w-auto lg:h-[118px]"
+          className="absolute left-1/2 top-1/2 z-[1] h-[125px] w-auto lg:h-[180px]"
           style={{
             transform: 'translate(-50%, -50%) rotate(-15deg)',
             filter: 'drop-shadow(7px 8px 0 rgba(0,0,0,.18))',
