@@ -345,6 +345,17 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     setLimit(6);
   }, [query, locationFilter, typeFilter, experienceFilter, sourceFilter, tab, sort, view]);
 
+  // Baris tab portal & chip tipe di-scroll horizontal di mobile: pastikan
+  // tab yang aktif selalu terlihat utuh, bukan terpotong di tepi.
+  const portalNavButtons = useRef<Partial<Record<View, HTMLButtonElement | null>>>({});
+  const tabButtons = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  useEffect(() => {
+    portalNavButtons.current[view]?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, [view]);
+  useEffect(() => {
+    tabButtons.current[tab]?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, [tab]);
+
   const loadFeed = () => {
     setFeedState('loading');
     fetch(HUNTER_FEED_URL, { cache: 'no-store' })
@@ -562,7 +573,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   const filterSelectClass =
-    'w-full appearance-none bg-transparent py-3.5 text-sm font-extrabold text-primary outline-none [&>option]:bg-white [&>option]:text-[#071A4A]';
+    'w-full appearance-none bg-transparent py-3 text-[13px] font-extrabold text-primary outline-none sm:py-3.5 sm:text-sm [&>option]:bg-white [&>option]:text-[#071A4A]';
 
   return (
     <>
@@ -589,10 +600,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
 
           {/* Search + filter di dalam hero, seperti mockup. */}
           <form
-            className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(250px,1.65fr)_repeat(4,minmax(120px,auto))]"
+            className="mt-6 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-[minmax(250px,1.65fr)_repeat(4,minmax(120px,auto))]"
             onSubmit={(e) => e.preventDefault()}
           >
-            <label className="flex min-w-0 items-center gap-2.5 rounded-[14px] border-[1.5px] border-primary bg-white py-1.5 pl-4 pr-1.5 sm:col-span-2 lg:col-span-1">
+            <label className="col-span-2 flex min-w-0 items-center gap-2.5 rounded-[14px] border-[1.5px] border-primary bg-white py-1.5 pl-4 pr-1.5 lg:col-span-1">
               <Search className="size-5 shrink-0 text-primary" aria-hidden="true" />
               <span className="sr-only">Cari posisi, perusahaan, atau skill</span>
               <input
@@ -609,7 +620,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 Cari
               </button>
             </label>
-            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+            <label className="flex min-h-[46px] items-center gap-1.5 rounded-[13px] border-[1.5px] border-primary px-2.5 text-xs font-extrabold text-primary sm:min-h-[54px] sm:gap-2 sm:px-3 sm:text-[13px]">
               <MapPin className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter lokasi</span>
               <select
@@ -623,7 +634,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               </select>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
-            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+            <label className="flex min-h-[46px] items-center gap-1.5 rounded-[13px] border-[1.5px] border-primary px-2.5 text-xs font-extrabold text-primary sm:min-h-[54px] sm:gap-2 sm:px-3 sm:text-[13px]">
               <Briefcase className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter tipe kerja</span>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={filterSelectClass}>
@@ -635,7 +646,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               </select>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
-            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+            <label className="flex min-h-[46px] items-center gap-1.5 rounded-[13px] border-[1.5px] border-primary px-2.5 text-xs font-extrabold text-primary sm:min-h-[54px] sm:gap-2 sm:px-3 sm:text-[13px]">
               <BarChart3 className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter pengalaman</span>
               <select
@@ -652,7 +663,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               </select>
               <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
-            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+            <label className="flex min-h-[46px] items-center gap-1.5 rounded-[13px] border-[1.5px] border-primary px-2.5 text-xs font-extrabold text-primary sm:min-h-[54px] sm:gap-2 sm:px-3 sm:text-[13px]">
               <Layers className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter sumber</span>
               <select
@@ -707,9 +718,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
           <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
             {/* Sidebar ala mockup: di mobile jadi baris horizontal. */}
             <aside aria-label="Navigasi portal" className="min-w-0 lg:sticky lg:top-[90px]">
-              <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+              <nav className="flex gap-1 overflow-x-auto scrollbar-hide max-lg:fade-x lg:flex-col lg:overflow-visible">
                 <button
                   type="button"
+                  ref={(el) => {
+                    portalNavButtons.current.all = el;
+                  }}
                   onClick={() => setView('all')}
                   aria-current={view === 'all' ? 'page' : undefined}
                   className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
@@ -721,6 +735,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 </button>
                 <button
                   type="button"
+                  ref={(el) => {
+                    portalNavButtons.current.recommended = el;
+                  }}
                   onClick={() => setView('recommended')}
                   aria-current={view === 'recommended' ? 'page' : undefined}
                   className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
@@ -732,6 +749,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 </button>
                 <button
                   type="button"
+                  ref={(el) => {
+                    portalNavButtons.current.saved = el;
+                  }}
                   onClick={() => setView('saved')}
                   aria-current={view === 'saved' ? 'page' : undefined}
                   className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
@@ -744,6 +764,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 </button>
                 <button
                   type="button"
+                  ref={(el) => {
+                    portalNavButtons.current.applications = el;
+                  }}
                   onClick={() => setView('applications')}
                   aria-current={view === 'applications' ? 'page' : undefined}
                   className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
@@ -795,12 +818,15 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
             <section aria-label="Hasil lowongan">
               {/* Tab + sortir ala mockup. */}
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/30">
-                <div role="tablist" aria-label="Kategori lowongan" className="flex gap-6 overflow-x-auto">
+                <div role="tablist" aria-label="Kategori lowongan" className="flex gap-6 overflow-x-auto scrollbar-hide max-lg:fade-x">
                   {TAB_LABELS.map((t) => (
                     <button
                       key={t.id}
                       type="button"
                       role="tab"
+                      ref={(el) => {
+                        tabButtons.current[t.id] = el;
+                      }}
                       aria-selected={tab === t.id}
                       onClick={() => setTab(t.id)}
                       className={`relative whitespace-nowrap pb-[13px] text-[13px] font-extrabold ${
@@ -903,12 +929,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                       </button>
                     )}
                     {bases.length > 0 && (
-                      <label className="ml-auto flex items-center gap-2 text-sm text-white/80">
-                        CV dasar
+                      <label className="flex w-full min-w-0 items-center gap-2 text-sm text-white/80 sm:ml-auto sm:w-auto">
+                        <span className="shrink-0 whitespace-nowrap">CV dasar</span>
                         <select
                           value={baseId ?? ''}
                           onChange={(e) => setBaseId(e.target.value)}
-                          className="rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white [&>option]:bg-white [&>option]:text-[#071A4A]"
+                          className="min-w-0 flex-1 truncate rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white sm:flex-none sm:max-w-[300px] [&>option]:bg-white [&>option]:text-[#071A4A]"
                         >
                           <option value="">CV kosong</option>
                           {bases.map((doc) => (

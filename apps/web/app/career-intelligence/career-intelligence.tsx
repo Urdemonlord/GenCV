@@ -217,7 +217,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                 id="ci-base-cv"
                 value={baseId ?? ''}
                 onChange={(e) => setBaseId(e.target.value)}
-                className="rounded-lg border border-border bg-white px-3 py-2 text-sm font-semibold"
+                className="w-full min-w-0 flex-1 truncate rounded-lg border border-border bg-white px-3 py-2 text-sm font-semibold sm:w-auto sm:flex-none sm:max-w-[320px]"
               >
                 {bases.map((doc) => (
                   <option key={doc.id} value={doc.id}>

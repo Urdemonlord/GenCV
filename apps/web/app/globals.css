@@ -139,6 +139,23 @@
   }
 }
 
+/* Baris scroll horizontal di mobile (tab portal, chip tipe): sembunyikan
+   scrollbar abu-abu bawaan, dan beri fade di tepi kanan sebagai isyarat
+   bahwa baris bisa di-scroll. Dipakai dengan max-lg:fade-x supaya di
+   desktop — yang tidak butuh scroll — tab terakhir tidak ikut meredup. */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility fade-x {
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
