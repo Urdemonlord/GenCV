@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Bookmark, Briefcase, FileText, MapPin, Search, Sparkles, Upload } from 'lucide-react';
+import { BarChart3, Bookmark, Briefcase, FileText, MapPin, Search, Sparkles, Upload } from 'lucide-react';
+import { HeroArt } from '../components/landing/hero-art';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
 import { runSyncRound } from '@/lib/sync/client';
@@ -43,9 +44,10 @@ import {
  *   deskripsi), karena feed tidak membawa field pengalaman. Polanya
  *   didokumentasikan di experienceBand; kartu tidak pernah menampilkan
  *   pengalaman hasil perkiraan ini.
- * - Tombol utama tetap "Buat CV dari lowongan ini", bukan "Buat CV & Lamar":
- *   Ayo Kerja tidak mengirim lamaran, tombol itu membuat CV. "Lihat
- *   lowongan" membuka iklan asli, bukan halaman detail internal.
+ * - Tombol utama "Buat CV & Lamar ↗" (membuat CV dari lowongan, bukan
+ *   mengirim lamaran — Ayo Kerja tidak mengirim lamaran) dan "Lihat Detail"
+ *   membuka iklan asli di sumbernya, karena halaman detail internal belum
+ *   ada.
  * - "Lamaran Saya" adalah panel penjelasan, bukan daftar lamaran: pelacakan
  *   lamaran belum termasuk dalam portal ini (mockup pun menandainya
  *   placeholder).
@@ -198,6 +200,46 @@ function experienceBand(job: HunterJob): ExperienceBand | null {
   return null;
 }
 
+/**
+ * Pengalaman untuk ditampilkan di kartu — HANYA string literal dari teks
+ * iklan (judul + deskripsi), bukan hasil perkiraan experienceBand: rentang
+ * "X–Y tahun" tampil apa adanya, "X+ tahun" tetap "X+ tahun", "minimal X
+ * tahun" jadi "X+ tahun", "senior" jadi "Senior", entry/junior/fresh
+ * graduate jadi "Entry level". Null bila iklan tidak menyebutkannya.
+ */
+function experienceText(job: HunterJob): string | null {
+  const text = `${job.title} ${job.description ?? ''}`;
+  const unit = (raw: string) => (/tahun/i.test(raw) ? 'tahun' : 'years');
+  const range = text.match(/(\d+)\s*[-–]\s*(\d+)\s*(tahun|years?)\b/i);
+  if (range) return `${range[1]}–${range[2]} ${unit(range[3])}`;
+  const plus = text.match(/(\d+)\s*\+\s*(tahun|years?)\b/i);
+  if (plus) return `${plus[1]}+ ${unit(plus[2])}`;
+  const min = text.match(/\b(minimal|minimum|at least)\s*(\d+)\s*(tahun|years?)\b/i);
+  if (min) return `${min[2]}+ ${unit(min[3])}`;
+  if (/\bsenior\b/i.test(text)) return 'Senior';
+  if (/\b(entry level|fresh graduate|junior)\b/i.test(text)) return 'Entry level';
+  return null;
+}
+
+/**
+ * Waktu posting relatif dari ISO date vs sekarang ("X jam lalu" /
+ * "X hari lalu" / "X minggu lalu"). Null bila tanggal kosong, tak terurai,
+ * atau di masa depan — elemennya lalu disembunyikan, bukan menampilkan
+ * tanggal mentah.
+ */
+function relativePosted(datePosted: string): string | null {
+  const time = Date.parse(datePosted);
+  if (Number.isNaN(time)) return null;
+  const diffMs = Date.now() - time;
+  if (diffMs < 0) return null;
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours < 1) return 'Baru saja';
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} hari lalu`;
+  return `${Math.floor(days / 7)} minggu lalu`;
+}
+
 function isRemoteJob(job: HunterJob): boolean {
   return job.isRemote || /remote|jarak jauh/i.test(job.location ?? '');
 }
@@ -244,7 +286,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const [feedSource, setFeedSource] = useState<'otomatis' | 'manual'>('otomatis');
   // null = belum dipilih: begitu daftar CV terbaca, default-nya adalah CV
   // terbaru (yang terakhir diisi/diubah user), bukan CV kosong — supaya
-  // "Buat CV dari lowongan ini" langsung membawa data user dan pratinjau
+  // "Buat CV & Lamar" langsung membawa data user dan pratinjau
   // tidak tampil kosong. "CV kosong" tetap bisa dipilih eksplisit.
   const [baseId, setBaseId] = useState<string | null>(null);
   // localStorage only exists in the browser: reading it during render would
@@ -268,6 +310,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     setBases(docs);
     setBaseId((prev) => prev ?? (docs[0]?.id ?? ''));
     setSaved(loadSaved());
+    // Search box hero Beranda mengarahkan ke sini dengan ?q=: isi pencarian
+    // dari URL sekali saat mount (window.location, bukan useSearchParams,
+    // supaya tidak butuh Suspense boundary saat prerender).
+    const q = new URLSearchParams(window.location.search).get('q');
+    if (q) setQuery(q);
   }, []);
 
   useEffect(() => {
@@ -518,33 +565,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 langkah karier berikutnya.
               </p>
             </div>
-            <div aria-hidden="true" className="relative flex min-h-[190px] items-center justify-center lg:min-h-[245px]">
-              <div
-                className="absolute size-[175px] bg-primary lg:size-[260px]"
-                style={{
-                  clipPath:
-                    'polygon(50% 0,60% 25%,84% 8%,78% 35%,100% 42%,77% 57%,91% 83%,63% 76%,50% 100%,38% 76%,9% 88%,23% 59%,0 44%,25% 34%,16% 9%,41% 25%)',
-                  transform: 'rotate(-5deg)',
-                }}
-              />
-              <div
-                className="relative z-[1] text-[85px] leading-none lg:text-[118px]"
-                style={{ filter: 'drop-shadow(7px 8px 0 rgba(0,0,0,.18))', transform: 'rotate(-15deg)' }}
-              >
-                📣
-              </div>
-              <div className="absolute right-0 top-0 z-[2] grid gap-3 lg:top-[25px]">
-                <div className="rotate-[-4deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
-                  ✓ Cari lowongan
-                </div>
-                <div className="rotate-[2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
-                  ✓ Cocokkan dengan CV
-                </div>
-                <div className="rotate-[-2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
-                  ✓ Kembangkan karier
-                </div>
-              </div>
-            </div>
+            <HeroArt />
           </div>
 
           {/* Search + filter di dalam hero, seperti mockup. */}
@@ -922,6 +943,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                           const type = normalizedType(job);
                           const score = scores.get(job.jobUrl)?.score;
                           const isSaved = saved.has(job.jobUrl);
+                          const exp = experienceText(job);
+                          const posted = relativePosted(job.datePosted);
                           return (
                             <li
                               key={job.jobUrl}
@@ -946,6 +969,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     <span className="inline-flex items-center gap-1.5">
                                       <Briefcase className="size-[15px] text-primary" aria-hidden="true" />
                                       {TYPE_LABEL[type]}
+                                    </span>
+                                  )}
+                                  {exp && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <BarChart3 className="size-[15px] text-primary" aria-hidden="true" />
+                                      {exp}
                                     </span>
                                   )}
                                   {isRemoteJob(job) && !job.location && (
@@ -981,9 +1010,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     ✦ {score}% cocok
                                   </span>
                                 )}
-                                {job.datePosted && (
+                                {posted && (
                                   <span className="whitespace-nowrap text-[11px] font-semibold text-[#64718C]">
-                                    {job.datePosted}
+                                    {posted}
                                   </span>
                                 )}
                                 <button
@@ -1003,21 +1032,21 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                   />
                                 </button>
                                 <div className="flex w-full flex-wrap gap-2 lg:w-auto">
+                                  <button
+                                    type="button"
+                                    onClick={() => createCv(job)}
+                                    className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
+                                  >
+                                    Buat CV &amp; Lamar ↗
+                                  </button>
                                   <a
                                     href={job.jobUrl}
                                     target="_blank"
                                     rel="noreferrer"
                                     className={`${btnOutline} flex-1 px-3 py-2.5 text-xs lg:flex-none`}
                                   >
-                                    Lihat lowongan
+                                    Lihat Detail
                                   </a>
-                                  <button
-                                    type="button"
-                                    onClick={() => createCv(job)}
-                                    className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
-                                  >
-                                    Buat CV dari lowongan ini
-                                  </button>
                                 </div>
                               </div>
                             </li>
