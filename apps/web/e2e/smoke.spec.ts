@@ -4,11 +4,11 @@ import { expect, test } from '@playwright/test';
 test('landing page leads into a new CV in the editor', async ({ page }) => {
   await page.goto('/');
   // Headline tracks the mockup hero; update it when the hero headline changes.
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your career');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Temukan peluang kerja');
   // Tailwind must be compiled: a missing PostCSS config once shipped raw "@tailwind" CSS.
   // The value tracks --background (Ayo Kerja theme #FFFFFF); update it when the theme changes.
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-  await page.getByRole('link', { name: 'Mulai buat CV gratis' }).click();
+  await page.getByRole('link', { name: 'Mulai gratis' }).click();
   await expect(page).toHaveURL(/\/editor\?id=cv_/);
   await expect(page.getByRole('navigation', { name: 'Bagian CV' })).toBeVisible();
 });
