@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, User, X } from 'lucide-react';
@@ -17,15 +18,12 @@ const NAV = [
   { href: '/artikel', label: 'Artikel' },
 ];
 
-/** Lockup "AK" dari mockup index.html (brand-mark). */
-function BrandMark({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <path d="M3 33 13 6h10l-9 27H3Zm13 0L26 6h11L27 33H16Z" fill="currentColor" />
-      <path d="m12 21 8-8 7 8" stroke="currentColor" strokeWidth="3" strokeLinecap="square" />
-    </svg>
-  );
-}
+/**
+ * Logo header dipotong dari lembar elemen (elemen-desain.png): lockup AK +
+ * "Ayo Kerja" biru dengan outline putih, latar hitam dibuat transparan.
+ * Dipakai sebagai gambar — bentuk AK di lembar elemen berbeda dari
+ * brand-mark di kode mockup.
+ */
 
 /**
  * Header memakai sesi dari client: halaman-halaman di sini ada yang statis,
@@ -41,9 +39,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-primary/15 bg-brand-accent">
       <div className="mx-auto flex h-[70px] max-w-[1440px] items-center gap-6 px-4">
-        <Link href="/" className="flex items-center gap-2.5 text-2xl font-black tracking-tight text-foreground" aria-label="Ayo Kerja Beranda">
-          <BrandMark className="size-[34px] text-primary" />
-          <span>Ayo Kerja</span>
+        <Link href="/" className="flex shrink-0 items-center" aria-label="Ayo Kerja Beranda">
+          <Image
+            src="/ayo-kerja-logo.png"
+            alt=""
+            width={744}
+            height={178}
+            priority
+            className="h-[28px] w-auto sm:h-[34px]"
+          />
         </Link>
         <nav aria-label="Utama" className="hidden md:block">
           <ul className="flex items-center gap-1 text-sm text-foreground">
