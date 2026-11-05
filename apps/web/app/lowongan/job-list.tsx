@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Bookmark, Briefcase, FileText, MapPin, Search, Sparkles, Upload } from 'lucide-react';
+import { BarChart3, Bookmark, Briefcase, ChevronDown, FileText, Layers, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
@@ -77,6 +77,12 @@ const SITE_NAMES: Record<string, string> = {
   linkedin: 'LinkedIn',
   indeed: 'Indeed',
   glassdoor: 'Glassdoor',
+  zip_recruiter: 'ZipRecruiter',
+  hellowork: 'HelloWork',
+  bdjobs: 'BDJobs',
+  naukri: 'Naukri',
+  bayt: 'Bayt',
+  google: 'Google',
 };
 
 /** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */
@@ -133,7 +139,13 @@ function CompanyLogo({ job }: { job: HunterJob }) {
 
 function siteName(site: string) {
   const key = site.toLowerCase();
-  return SITE_NAMES[key] ?? (site ? site.charAt(0).toUpperCase() + site.slice(1) : 'Lainnya');
+  if (SITE_NAMES[key]) return SITE_NAMES[key];
+  if (!site) return 'Lainnya';
+  // Site baru yang belum dipetakan: "zip_recruiter" -> "Zip Recruiter".
+  return site
+    .split(/[_-]+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 /** jobType feed adalah teks bebas JobSpy ("fulltime", "parttime, contract", …). */
@@ -591,7 +603,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
               </button>
             </label>
             <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
-              <span aria-hidden="true">⌖</span>
+              <MapPin className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter lokasi</span>
               <select
                 value={locationFilter}
@@ -602,10 +614,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 <option value="remote">Remote</option>
                 <option value="indonesia">Indonesia</option>
               </select>
-              <span aria-hidden="true">⌄</span>
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
             <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
-              <span aria-hidden="true">▣</span>
+              <Briefcase className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter tipe kerja</span>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={filterSelectClass}>
                 <option value="">Tipe Kerja</option>
@@ -614,10 +626,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 <option value="contract">Contract</option>
                 <option value="internship">Magang</option>
               </select>
-              <span aria-hidden="true">⌄</span>
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
             <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
-              <span aria-hidden="true">▥</span>
+              <BarChart3 className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter pengalaman</span>
               <select
                 value={experienceFilter}
@@ -631,10 +643,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </option>
                 ))}
               </select>
-              <span aria-hidden="true">⌄</span>
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
             <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
-              <span aria-hidden="true">▱</span>
+              <Layers className="size-4 shrink-0" aria-hidden="true" />
               <span className="sr-only">Filter sumber</span>
               <select
                 value={sourceFilter}
@@ -648,7 +660,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </option>
                 ))}
               </select>
-              <span aria-hidden="true">⌄</span>
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
             </label>
           </form>
           {experienceFilter && (
@@ -685,9 +697,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
             </div>
           )}
 
-          <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
             {/* Sidebar ala mockup: di mobile jadi baris horizontal. */}
-            <aside aria-label="Navigasi portal" className="lg:sticky lg:top-[90px]">
+            <aside aria-label="Navigasi portal" className="min-w-0 lg:sticky lg:top-[90px]">
               <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
                 <button
                   type="button"
@@ -984,7 +996,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-1.5 text-[10px] text-[#75809A]">Sumber: {siteName(job.site)}</p>
+                                <p className="mt-1.5 text-[10px] text-[#75809A]">
+                                  Sumber: {siteName(job.site)}
+                                  {posted ? ` · ${posted}` : ''}
+                                </p>
                                 {(job.flagDemoLike || !job.description) && (
                                   <p className="mt-1 text-xs text-[#5E6B88]/80">
                                     {[
