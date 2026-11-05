@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { OG, ogFonts } from '@/lib/og';
 
-export const alt = 'GenCV · Buat CV profesional yang ramah ATS';
+export const alt = 'Ayo Kerja · Buat CV profesional yang ramah ATS';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

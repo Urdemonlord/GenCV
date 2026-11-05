@@ -78,8 +78,8 @@ export function HowItWorks() {
 
 const FAQS = [
   {
-    q: 'Apakah GenCV menjamin CV saya lolos ATS?',
-    a: 'Tidak ada yang bisa menjamin itu, karena setiap perusahaan memakai ATS dan pengaturan yang berbeda. GenCV memastikan formatnya mudah dibaca mesin (satu kolom, teks asli, judul section standar) dan memberi skor estimasi beserta alasannya.',
+    q: 'Apakah Ayo Kerja menjamin CV saya lolos ATS?',
+    a: 'Tidak ada yang bisa menjamin itu, karena setiap perusahaan memakai ATS dan pengaturan yang berbeda. Ayo Kerja memastikan formatnya mudah dibaca mesin (satu kolom, teks asli, judul section standar) dan memberi skor estimasi beserta alasannya.',
   },
   {
     q: 'Di mana data CV saya disimpan?',
@@ -152,15 +152,18 @@ const FOOTER_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/60 py-8 text-sm text-muted-foreground">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4 px-4">
+    <footer className="bg-[#002B91] py-5 text-xs text-[#dbe4ff]">
+      <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-4 px-4">
         <div className="space-y-1">
           <p>
-            © {new Date().getFullYear()} GenCV oleh {OPERATOR}
+            <b className="text-brand-accent">Ayo Kerja</b> · Portal Karier & Peluang Kerja
+          </p>
+          <p>
+            © {new Date().getFullYear()} Ayo Kerja oleh {OPERATOR}
           </p>
           <p>
             Kontak:{' '}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-foreground">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">
               {CONTACT_EMAIL}
             </a>
           </p>
@@ -169,7 +172,7 @@ export function SiteFooter() {
           <ul className="flex flex-wrap gap-x-4 gap-y-2">
             {FOOTER_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="hover:text-foreground">
+                <Link href={link.href} className="hover:text-white">
                   {link.label}
                 </Link>
               </li>

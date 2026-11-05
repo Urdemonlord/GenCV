@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 
 /**
  * Signed events from the MeowPay panel. The raw body is verified before it is parsed. Events
- * for orders that are not GenCV's (and webhook.test) get a 200 so the panel stops retrying.
+ * for orders that are not Ayo Kerja's (and webhook.test) get a 200 so the panel stops retrying.
  */
 export async function POST(request: Request) {
   const db = getDb();

@@ -9,7 +9,7 @@ import { ProfilAkun } from './profil-akun';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Profil',
-  description: 'Akun dan sinkronisasi cloud GenCV: nama, email, salinan CV di server, dan keluar.',
+  description: 'Akun dan sinkronisasi cloud Ayo Kerja: nama, email, salinan CV di server, dan keluar.',
   path: '/profil',
   index: false,
 });

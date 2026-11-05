@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { allPosts } from '@/lib/blog/posts';
 import { OG, ogFonts } from '@/lib/og';
 
-export const alt = 'Artikel & panduan CV · GenCV';
+export const alt = 'Artikel & panduan CV · Ayo Kerja';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

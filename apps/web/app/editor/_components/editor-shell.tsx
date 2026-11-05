@@ -69,7 +69,7 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
   return (
     <div className="flex h-dvh flex-col overflow-x-hidden">
       <header className="flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-2.5">
-        <Link href="/" className="flex items-center gap-2 text-lg font-bold" aria-label="GenCV beranda">
+        <Link href="/" className="flex items-center gap-2 text-lg font-bold" aria-label="Ayo Kerja beranda">
           <FileText className="size-5 text-primary-soft" aria-hidden="true" />
           <span>
             Gen<span className="text-gradient">CV</span>
@@ -127,7 +127,7 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
           <p className="min-w-0 flex-1 text-sm text-foreground">
             CV ini dibuat dari lowongan <strong>{jobNotice.title}</strong>. Deskripsi lowongan tidak dibawa feed, jadi Job
             Match belum bisa menghitung skor — buka lowongan aslinya, salin deskripsinya, lalu tempel di Job Match.
-            GenCV tidak mengarang deskripsi.
+            Ayo Kerja tidak mengarang deskripsi.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="primary" size="sm" onClick={openJobMatch}>

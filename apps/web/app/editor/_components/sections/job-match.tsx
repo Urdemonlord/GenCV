@@ -13,7 +13,7 @@ export function JobMatchSection({ cv, update }: SectionProps) {
     <div className="space-y-5">
       <SectionIntro
         title="Job Match"
-        description="Tempel deskripsi lowongan. GenCV mencari keyword keahlian di lowongan itu dan mengecek mana yang sudah ada di CV kamu."
+        description="Tempel deskripsi lowongan. Ayo Kerja mencari keyword keahlian di lowongan itu dan mengecek mana yang sudah ada di CV kamu."
       />
       <Field label="Deskripsi lowongan" hint="Disimpan bersama CV ini dan tidak ikut dicetak.">
         {(control) => (

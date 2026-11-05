@@ -71,7 +71,7 @@ export function ExportMenu({ cv, update, docId, onOpenJobMatch }: ExportMenuProp
         update(normalizeCV(parsed));
         toast({ title: 'CV berhasil diimpor' });
       } catch {
-        toast({ variant: 'destructive', title: 'File tidak valid', description: 'Pilih file JSON hasil ekspor GenCV.' });
+        toast({ variant: 'destructive', title: 'File tidak valid', description: 'Pilih file JSON hasil ekspor Ayo Kerja.' });
       }
     };
     reader.readAsText(file);

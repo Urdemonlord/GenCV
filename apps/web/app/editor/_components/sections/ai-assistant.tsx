@@ -169,7 +169,7 @@ export function AiAssistantSection({ cv, update }: SectionProps) {
       <p className="flex gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
         <ShieldCheck className="size-4 shrink-0" aria-hidden="true" />
         <span>
-          Teks yang ditinjau dikirim ke Google Gemini melalui server GenCV untuk diproses, dan tidak disimpan oleh GenCV.{' '}
+          Teks yang ditinjau dikirim ke Google Gemini melalui server Ayo Kerja untuk diproses, dan tidak disimpan oleh Ayo Kerja.{' '}
           <Link href="/privasi" className="underline hover:text-foreground">
             Kebijakan privasi
           </Link>

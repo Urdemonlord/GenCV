@@ -85,7 +85,7 @@ export function Hero() {
             </ul>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[520px]" aria-label="Contoh hasil GenCV" role="group">
+          <div className="relative mx-auto w-full max-w-[520px]" aria-label="Contoh hasil Ayo Kerja" role="group">
             {/* Magenta backing card, tilted like the mockup. */}
             <div aria-hidden="true" className="absolute inset-x-6 bottom-0 top-8 rotate-[4deg] rounded-2xl bg-brand-accent" />
             {/* Sample CV paper, built from the real sample data (not an image). */}

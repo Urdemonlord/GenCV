@@ -119,7 +119,7 @@ export const POSTS: Post[] = [
       {
         heading: 'Skor ATS bukan ramalan, tapi perhitungan',
         paragraphs: [
-          'Banyak alat menampilkan satu angka besar lalu menyebutnya skor ATS, tanpa menjelaskan dari mana angka itu datang. Di GenCV, angka itu dihitung dari aturan tetap yang bisa kamu periksa sendiri. Tidak ada model yang menebak, tidak ada data perusahaan mana pun yang dipakai.',
+          'Banyak alat menampilkan satu angka besar lalu menyebutnya skor ATS, tanpa menjelaskan dari mana angka itu datang. Di Ayo Kerja, angka itu dihitung dari aturan tetap yang bisa kamu periksa sendiri. Tidak ada model yang menebak, tidak ada data perusahaan mana pun yang dipakai.',
           'Perbedaan ini penting. Kalau skor berasal dari aturan yang terbuka, kamu bisa menilai apakah sarannya masuk akal untuk situasi kamu. Kalau skor berasal dari kotak hitam, satu-satunya cara mempercayainya adalah percaya begitu saja.',
         ],
         bullets: [
@@ -234,7 +234,7 @@ export const POSTS: Post[] = [
         heading: 'Cara menguji CV kamu sendiri',
         paragraphs: [
           'Sebelum melamar, periksa lima hal ini. Kelengkapan: apakah nama, email, telepon, lokasi, ringkasan, pengalaman, pendidikan, dan minimal lima keahlian sudah terisi? Format: apakah setiap posisi punya tanggal lengkap dan nama perusahaan? Keterbacaan: apakah kalimatnya tidak terlalu panjang — sekitar 14 sampai 22 kata per kalimat sudah nyaman. Kualitas isi: apakah poinnya dibuka kata kerja tindakan dan memuat angka nyata. Kecocokan kata kunci: apakah istilah keahlian yang diminta lowongan sudah muncul di CV kamu.',
-          'Lima hal itu juga yang dihitung GenCV di panel Analisis ATS. Skornya estimasi dari aturan yang bisa dilihat — bukan ramalan apakah kamu akan lolos di perusahaan tertentu.',
+          'Lima hal itu juga yang dihitung Ayo Kerja di panel Analisis ATS. Skornya estimasi dari aturan yang bisa dilihat — bukan ramalan apakah kamu akan lolos di perusahaan tertentu.',
         ],
       },
       {
@@ -287,7 +287,7 @@ export const POSTS: Post[] = [
         heading: 'Ringkasnya',
         paragraphs: [
           'Untuk lamaran ke Amerika Serikat: kertas US Letter, satu halaman, tanpa foto, judul bagian bahasa Inggris, maksimal sekitar 18 poin pencapaian. Untuk lamaran lokal: kertas A4, sampai dua halaman, foto opsional, maksimal sekitar 30 poin.',
-          'GenCV menyimpan pilihan ini sebagai pengaturan "Melamar ke" di editor, dan aturan analisisnya ikut menyesuaikan. Jadi kamu tidak perlu mengingat daftar di atas setiap kali.',
+          'Ayo Kerja menyimpan pilihan ini sebagai pengaturan "Melamar ke" di editor, dan aturan analisisnya ikut menyesuaikan. Jadi kamu tidak perlu mengingat daftar di atas setiap kali.',
         ],
       },
     ],

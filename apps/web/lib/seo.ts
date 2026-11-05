@@ -49,7 +49,7 @@ export function landingStructuredData() {
   const organization = {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
-    name: 'GenCV',
+    name: 'Ayo Kerja',
     url: SITE_URL,
     parentOrganization: { '@type': 'Organization', name: OPERATOR, url: 'https://www.meowlabs.id' },
     email: CONTACT_EMAIL,
@@ -58,7 +58,7 @@ export function landingStructuredData() {
   const application = {
     '@type': 'SoftwareApplication',
     '@id': `${SITE_URL}/#application`,
-    name: 'GenCV',
+    name: 'Ayo Kerja',
     url: SITE_URL,
     description: SITE_DESCRIPTION,
     applicationCategory: 'BusinessApplication',
@@ -74,7 +74,7 @@ export function landingStructuredData() {
   const howTo = {
     '@type': 'HowTo',
     '@id': `${SITE_URL}/#howto`,
-    name: 'Cara membuat CV ramah ATS dengan GenCV',
+    name: 'Cara membuat CV ramah ATS dengan Ayo Kerja',
     description:
       'Tiga langkah: susun isi CV per bagian, perbaiki temuan Analisis ATS dan tutup keyword yang kurang, lalu unduh PDF atau DOCX.',
     step: [
@@ -133,8 +133,8 @@ export function postStructuredData({
     inLanguage: 'id-ID',
     keywords: keywords.join(', '),
     // The author is the product team, not a named person: inventing a byline would be a fake claim.
-    author: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
-    publisher: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
+    author: { '@type': 'Organization', name: 'Ayo Kerja', url: SITE_URL },
+    publisher: { '@type': 'Organization', name: 'Ayo Kerja', url: SITE_URL },
   };
 }
 
@@ -149,12 +149,12 @@ export function blogStructuredData(
     '@context': 'https://schema.org',
     '@type': 'Blog',
     '@id': `${blogUrl}/#blog`,
-    name: 'Artikel GenCV',
+    name: 'Artikel Ayo Kerja',
     description:
       'Panduan praktis menyusun CV: format ramah ATS, aturan lamaran luar negeri, dan cara menulis pengalaman.',
     url: blogUrl,
     inLanguage: 'id-ID',
-    publisher: { '@type': 'Organization', name: 'GenCV', url: SITE_URL },
+    publisher: { '@type': 'Organization', name: 'Ayo Kerja', url: SITE_URL },
     blogPost: posts.map((post) => ({
       '@type': 'BlogPosting',
       headline: post.title,
@@ -166,7 +166,7 @@ export function blogStructuredData(
 
 /**
  * Per-page title, description, canonical URL and social cards. `title` goes through the
- * layout's "%s · GenCV" template; social cards need the full title themselves.
+ * layout's "%s · Ayo Kerja" template; social cards need the full title themselves.
  */
 export function pageMetadata({
   title,
@@ -179,12 +179,12 @@ export function pageMetadata({
   path: string;
   index?: boolean;
 }): Metadata {
-  const fullTitle = `${title} · GenCV`;
+  const fullTitle = `${title} · Ayo Kerja`;
   return {
     title,
     description,
     alternates: { canonical: path, ...FEED_ALTERNATES },
-    openGraph: { title: fullTitle, description, url: path, type: 'website', locale: 'id_ID', siteName: 'GenCV' },
+    openGraph: { title: fullTitle, description, url: path, type: 'website', locale: 'id_ID', siteName: 'Ayo Kerja' },
     twitter: { card: 'summary_large_image', title: fullTitle, description },
     robots: index ? undefined : { index: false, follow: false },
   };

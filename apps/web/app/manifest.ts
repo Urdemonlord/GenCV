@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'GenCV · Workspace CV ramah ATS',
-    short_name: 'GenCV',
+    name: 'Ayo Kerja · Workspace CV ramah ATS',
+    short_name: 'Ayo Kerja',
     description: 'Buat, optimalkan, dan sesuaikan CV dengan lowongan yang dituju.',
     lang: 'id',
     start_url: '/dashboard',

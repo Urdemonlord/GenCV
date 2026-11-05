@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { TEMPLATE_IDS } from '@/lib/cv/templates';
 import { OG, ogFonts } from '@/lib/og';
 
-export const alt = 'Template CV ramah ATS · GenCV';
+export const alt = 'Template CV ramah ATS · Ayo Kerja';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

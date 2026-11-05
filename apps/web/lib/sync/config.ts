@@ -1,5 +1,5 @@
 /**
- * Cloud sync configuration. Sync is optional: without these variables GenCV keeps working
+ * Cloud sync configuration. Sync is optional: without these variables Ayo Kerja keeps working
  * exactly as before, entirely on the device. Every entry point checks `isSyncConfigured()`
  * first and returns 503 instead of crashing, the same pattern as `isAiConfigured()` for AI.
  */
