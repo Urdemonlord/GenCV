@@ -110,6 +110,7 @@ const SECTIONS: LegalSection[] = [
 export default function TermsPage() {
   return (
     <LegalPage
+      eyebrow="Dokumen legal"
       title="Syarat dan ketentuan"
       updated="6 Oktober 2026"
       intro={<p>Dengan memakai Ayo Kerja, kamu menyetujui ketentuan berikut.</p>}

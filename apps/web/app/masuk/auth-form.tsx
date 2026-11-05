@@ -79,14 +79,19 @@ export function AuthForm({
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {isSignUp
-          ? 'Akun diperlukan untuk membuat CV baru. CV tersimpan di akunmu dan bisa dibuka dari perangkat lain.'
-          : 'Masuk supaya CV di perangkat ini ikut tersimpan di akunmu dan bisa dibuka dari perangkat lain.'}
-      </p>
+      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
+        <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
+          <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
+          Akun
+        </p>
+        <h1 className="mt-4 text-3xl font-black tracking-tight">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {isSignUp
+            ? 'Akun diperlukan untuk membuat CV baru. CV tersimpan di akunmu dan bisa dibuka dari perangkat lain.'
+            : 'Masuk supaya CV di perangkat ini ikut tersimpan di akunmu dan bisa dibuka dari perangkat lain.'}
+        </p>
 
-      <form onSubmit={submit} className="mt-8 space-y-4" noValidate>
+        <form onSubmit={submit} className="mt-8 space-y-4" noValidate>
         {isSignUp && (
           <Field label="Nama" hint="Dipakai untuk menyapa kamu. Boleh dikosongkan.">
             {(control) => (
@@ -155,6 +160,7 @@ export function AuthForm({
         </Link>{' '}
         — CV kamu tetap tersimpan di perangkat ini.
       </p>
+      </div>
     </div>
   );
 }

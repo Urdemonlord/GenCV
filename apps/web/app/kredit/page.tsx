@@ -15,7 +15,7 @@ export default function CreditPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto min-h-[60vh] w-full max-w-3xl px-4 py-10 sm:py-14">
+      <main className="min-h-[60vh]">
         <CreditStore />
       </main>
       <SiteFooter />

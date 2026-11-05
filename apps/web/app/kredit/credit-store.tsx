@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { CheckCircle2, Loader2, QrCode, Sparkles } from 'lucide-react';
 import { Button, Field, Input, Panel, PanelHeader, Skeleton } from '@/components/ds';
+import { PageHero } from '../components/landing/page-hero';
 import { authClient } from '@/lib/billing/auth-client';
 import { formatRupiah, type CreditPack } from '@/lib/billing/packs';
 
@@ -107,24 +108,31 @@ export function CreditStore() {
 
   if (!data) {
     return (
-      <div className="space-y-4" aria-busy="true">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-40 w-full" />
+      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+        <div className="space-y-4" aria-busy="true">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-40 w-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Kredit AI</h1>
-        <p className="text-muted-foreground">
-          Setiap hari kamu dapat {data.freePerDay} permintaan AI gratis. Setelah itu, satu permintaan (perbaiki ringkasan,
-          bullet, atau keahlian) memakai 1 kredit. Kredit tidak kedaluwarsa dan tidak dipotong jika AI gagal.
-        </p>
-      </header>
-
-      {!data.enabled ? (
+    <>
+      <PageHero
+        eyebrow="Kredit AI"
+        title="Kredit AI"
+        lead={
+          <>
+            Setiap hari kamu dapat {data.freePerDay} permintaan AI gratis. Setelah itu, satu permintaan (perbaiki
+            ringkasan, bullet, atau keahlian) memakai 1 kredit. Kredit tidak kedaluwarsa dan tidak dipotong jika AI
+            gagal.
+          </>
+        }
+      />
+      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+        <div className="space-y-8">
+          {!data.enabled ? (
         <Panel className="p-5 text-sm text-muted-foreground">Pembelian kredit belum dibuka. Kuota AI gratis tetap bisa dipakai.</Panel>
       ) : !data.signedIn ? (
         <AuthForm onSignedIn={load} />
@@ -209,7 +217,9 @@ export function CreditStore() {
           {error}
         </p>
       )}
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
 

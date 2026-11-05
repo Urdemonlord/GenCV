@@ -133,17 +133,6 @@
 }
 
 @layer components {
-  .text-gradient {
-    /* Plain gradient (not bg-linear-to-r) so it stays sRGB, matching v3 exactly. */
-    background-image: linear-gradient(
-      to right,
-      hsl(var(--primary-soft)),
-      hsl(var(--brand-accent-soft))
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
   /* Gradien merek Ayo Kerja: biru → kuning, hanya untuk progress bar. */
   .bg-gradient-brand {
     background-image: linear-gradient(to right, hsl(222 100% 34%), hsl(55 91% 53%));

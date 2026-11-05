@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Copy, FilePlus2, FileText, Pencil, Trash2, Upload } from 'lucide-react';
 import { Button, Chip, Skeleton } from '@/components/ds';
+import { PageHero } from '../components/landing/page-hero';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
 import { isCvLike, normalizeCV } from '@/lib/cv/normalize';
@@ -124,20 +125,21 @@ export function CvList() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">CV saya</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Tersimpan di perangkat ini saja. Buat satu CV per lowongan: duplikat CV yang sudah ada, lalu sesuaikan dengan
-            deskripsi pekerjaannya.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
+    <>
+      <PageHero
+        eyebrow="CV saya"
+        title="CV saya"
+        lead="Tersimpan di perangkat ini saja. Buat satu CV per lowongan: duplikat CV yang sudah ada, lalu sesuaikan dengan deskripsi pekerjaannya."
+      >
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary/10">
             <Link href="/lowongan">Lowongan hunter</Link>
           </Button>
-          <Button variant="outline" onClick={() => fileInput.current?.click()}>
+          <Button
+            variant="outline"
+            className="border-primary text-primary hover:bg-primary/10"
+            onClick={() => fileInput.current?.click()}
+          >
             <Upload aria-hidden="true" />
             Impor JSON
           </Button>
@@ -160,33 +162,34 @@ export function CvList() {
             </Link>
           </Button>
         </div>
-      </div>
+      </PageHero>
 
-      {items === null ? (
-        <div className="mt-10 grid gap-4 md:grid-cols-2" role="status">
-          <span className="sr-only">Memuat CV…</span>
-          <Skeleton className="h-48 rounded-xl" />
-          <Skeleton className="h-48 rounded-xl" />
-        </div>
-      ) : items.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center">
-          <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
-          <h2 className="mt-4 text-lg font-semibold">Belum ada CV di perangkat ini</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Mulai dari nol, atau impor file JSON yang pernah kamu ekspor dari Ayo Kerja.
-          </p>
-          <Button asChild variant="primary" className="mt-6">
-            <Link href="/editor?new=1">Buat CV pertama</Link>
-          </Button>
-        </div>
-      ) : (
-        <ul className="mt-10 grid gap-4 md:grid-cols-2">
-          {items.map((item) => {
-            const title = displayTitle(item);
-            // The title falls back to the headline or name; don't repeat it underneath.
-            const subtitle = [item.name, item.headline].filter((part) => part && part !== title).join(' · ');
-            return (
-              <li key={item.id} className="flex flex-col rounded-xl border border-border bg-surface p-5">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        {items === null ? (
+          <div className="grid gap-4 md:grid-cols-2" role="status">
+            <span className="sr-only">Memuat CV…</span>
+            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-48 rounded-xl" />
+          </div>
+        ) : items.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border p-10 text-center">
+            <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
+            <h2 className="mt-4 text-lg font-semibold">Belum ada CV di perangkat ini</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              Mulai dari nol, atau impor file JSON yang pernah kamu ekspor dari Ayo Kerja.
+            </p>
+            <Button asChild variant="primary" className="mt-6">
+              <Link href="/editor?new=1">Buat CV pertama</Link>
+            </Button>
+          </div>
+        ) : (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {items.map((item) => {
+              const title = displayTitle(item);
+              // The title falls back to the headline or name; don't repeat it underneath.
+              const subtitle = [item.name, item.headline].filter((part) => part && part !== title).join(' · ');
+              return (
+                <li key={item.id} className="flex flex-col rounded-xl border border-border bg-white p-5">
                 {renaming === item.id ? (
                   <form
                     onSubmit={(e) => {
@@ -261,6 +264,7 @@ export function CvList() {
           })}
         </ul>
       )}
-    </div>
+      </div>
+    </>
   );
 }
