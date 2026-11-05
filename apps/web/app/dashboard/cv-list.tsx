@@ -117,7 +117,7 @@ export function CvList() {
         const id = createDocument(normalizeCV(parsed));
         router.push(`/editor?id=${encodeURIComponent(id)}`);
       } catch {
-        toast({ variant: 'destructive', title: 'File tidak valid', description: 'Pilih file JSON hasil ekspor GenCV.' });
+        toast({ variant: 'destructive', title: 'File tidak valid', description: 'Pilih file JSON hasil ekspor Ayo Kerja.' });
       }
     };
     reader.readAsText(file);
@@ -173,7 +173,7 @@ export function CvList() {
           <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
           <h2 className="mt-4 text-lg font-semibold">Belum ada CV di perangkat ini</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Mulai dari nol, atau impor file JSON yang pernah kamu ekspor dari GenCV.
+            Mulai dari nol, atau impor file JSON yang pernah kamu ekspor dari Ayo Kerja.
           </p>
           <Button asChild variant="primary" className="mt-6">
             <Link href="/editor?new=1">Buat CV pertama</Link>

@@ -2,11 +2,13 @@
 @import 'tw-animate-css';
 
 /*
- * GenCV design tokens (dark only), Tailwind v4.
+ * Ayo Kerja design tokens (light only), Tailwind v4.
  * Raw HSL channel values live in :root; @theme maps them to utilities.
- *   background #0B1020 · surface #111827 · border #253047 · text #F8FAFC · muted #94A3B8
- *   primary #4F46E5 (text on dark: #A5B4FC) · accent #A855F7 (text: #C084FC) · success #22C55E · warning #F59E0B · danger #EF4444
- * Gradients are reserved for CTAs, ATS scores, AI highlights and hero accents.
+ *   background #FFFFFF · surface #EAF0FF · border #D9E1F2 · text #071A4A · muted #5E6B88
+ *   primary #0035AD (text on blue: #FFFFFF) · accent #F4E11B (text on yellow: #0035AD)
+ *   success #16834A · warning #A65B00 · danger #B42336
+ * Flat colors for CTAs (no gradients on buttons); gradients survive only for
+ * progress bars and text accents.
  */
 @theme {
   /* --font-jakarta and --font-anton are injected by next/font on <html>. */
@@ -79,43 +81,42 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Tema neon editorial mockup (design.md): berlaku global, bukan hanya
-     /lowongan — bg #080B14, hijau #39FF14, magenta #FF00FF. */
-  --background: 225 43% 5%;
-  --foreground: 230 37% 97%;
-  --surface: 223 40% 10%;
-  --surface-raised: 222 36% 14%;
-  --card: var(--surface);
+  /* Palet Ayo Kerja (design.md): kuning + biru royal, tema terang. */
+  --background: 0 0% 100%;
+  --foreground: 223 83% 16%;
+  --surface: 223 100% 96%;
+  --surface-raised: 221 49% 90%;
+  --card: 0 0% 100%;
   --card-foreground: var(--foreground);
-  --popover: var(--surface-raised);
+  --popover: 0 0% 100%;
   --popover-foreground: var(--foreground);
 
-  --primary: 111 100% 54%;
-  --primary-foreground: 114 45% 4%;
-  --brand-accent: 300 100% 50%;
-  /* Lighter variants for text on dark surfaces (WCAG AA: >= 4.5:1). */
-  --primary-soft: 111 100% 72%;
-  --brand-accent-soft: 300 100% 75%;
+  --primary: 222 100% 34%;
+  --primary-foreground: 0 0% 100%;
+  --brand-accent: 55 91% 53%;
+  /* Varian yang lebih terang untuk teks/gradien di atas permukaan terang. */
+  --primary-soft: 222 100% 45%;
+  --brand-accent-soft: 55 91% 65%;
 
-  --secondary: 222 33% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 222 33% 15%;
-  --muted-foreground: 221 19% 70%;
-  /* shadcn "accent" is the hover/selected background, not the brand magenta */
-  --accent: 222 36% 14%;
-  --accent-foreground: 210 40% 98%;
+  --secondary: 223 100% 96%;
+  --secondary-foreground: 223 83% 16%;
+  --muted: 221 49% 90%;
+  --muted-foreground: 221 18% 45%;
+  /* shadcn "accent" is the hover/selected background, not the brand yellow */
+  --accent: 223 100% 96%;
+  --accent-foreground: 223 83% 16%;
 
-  --success: 111 100% 54%;
-  --warning: 38 92% 50%;
-  --destructive: 0 84% 60%;
+  --success: 149 71% 30%;
+  --warning: 33 100% 33%;
+  --destructive: 352 67% 42%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 224 22% 24%;
-  --input: 224 22% 24%;
-  --ring: 111 100% 54%;
-  --radius: 0.75rem;
+  --border: 221 49% 90%;
+  --input: 221 49% 90%;
+  --ring: 222 100% 34%;
+  --radius: 0.8125rem;
 }
 
 @layer base {
@@ -143,9 +144,9 @@
     background-clip: text;
     color: transparent;
   }
-  /* Neon brand gradient: hijau → magenta, seperti aksen mockup. */
+  /* Gradien merek Ayo Kerja: biru → kuning, hanya untuk progress bar. */
   .bg-gradient-brand {
-    background-image: linear-gradient(to right, hsl(111 100% 54%), hsl(300 100% 50%));
+    background-image: linear-gradient(to right, hsl(222 100% 34%), hsl(55 91% 53%));
   }
 }
 

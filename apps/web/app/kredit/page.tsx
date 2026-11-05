@@ -6,7 +6,7 @@ import { CreditStore } from './credit-store';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Kredit AI',
-  description: 'Beli kredit AI GenCV lewat QRIS: perbaiki ringkasan, bullet pengalaman, dan keahlian dengan AI setelah kuota gratis harian habis.',
+  description: 'Beli kredit AI Ayo Kerja lewat QRIS: perbaiki ringkasan, bullet pengalaman, dan keahlian dengan AI setelah kuota gratis harian habis.',
   path: '/kredit',
   index: false,
 });

@@ -20,27 +20,27 @@ const fontDisplay = Anton({
   display: 'swap',
 });
 
-const title = 'GenCV · Buat CV profesional yang ramah ATS';
+const title = 'Ayo Kerja · Buat CV profesional yang ramah ATS';
 /** Shown on every page that has no description of its own. */
 const description = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: title, template: '%s · GenCV' },
+  title: { default: title, template: '%s · Ayo Kerja' },
   description,
-  applicationName: 'GenCV',
+  applicationName: 'Ayo Kerja',
   keywords: ['CV ATS', 'buat CV', 'CV generator', 'resume builder', 'contoh CV', 'Job Match', 'CV bahasa Inggris'],
   // Lets feed readers and browsers discover the feed. Pages that set `canonical` must spread
   // FEED_ALTERNATES too, because Next.js replaces the object rather than merging it.
   alternates: { ...FEED_ALTERNATES },
-  openGraph: { title, description, type: 'website', url: '/', locale: 'id_ID', siteName: 'GenCV' },
+  openGraph: { title, description, type: 'website', url: '/', locale: 'id_ID', siteName: 'Ayo Kerja' },
   twitter: { card: 'summary_large_image', title, description },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#080B14',
+  themeColor: '#F4E11B',
 };
 
 export default function RootLayout({

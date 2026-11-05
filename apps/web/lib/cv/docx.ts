@@ -146,7 +146,7 @@ export async function renderCvDocx(data: CV, template: TemplateId): Promise<Blob
   const contentWidth = page.width - MARGIN.x * 2;
 
   const doc = new Document({
-    creator: 'GenCV',
+    creator: 'Ayo Kerja',
     title: view.meta.title,
     subject: view.meta.subject,
     keywords: view.meta.keywords,

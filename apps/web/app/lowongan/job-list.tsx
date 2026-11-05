@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Bookmark, Briefcase, FileText, MapPin, Search, Upload } from 'lucide-react';
+import { Bookmark, Briefcase, FileText, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
 import { runSyncRound } from '@/lib/sync/client';
@@ -26,29 +26,29 @@ import {
 } from '@/lib/cv/hunter';
 
 /**
- * Portal lowongan GenCV — dibuat semirip mungkin dengan mockup design.md /
- * index.html (neon editorial: bg #080B14, hijau #39FF14, magenta #FF00FF,
- * hero + panel Job Match miring, sidebar sumber, tab berjumlah, kartu
- * dengan badge cocok). Palet mockup diterapkan ke seluruh halaman lewat
- * override variabel tema di page.tsx, jadi header/footer ikut gelap-neon.
+ * Portal lowongan Ayo Kerja — dibuat semirip mungkin dengan mockup design.md /
+ * index.html (kuning #F4E11B + biru royal #0035AD: hero kuning, seksi hasil
+ * biru, kartu putih, badge kuning, sidebar sumber, tab berjumlah).
  *
  * Yang tetap jujur dan TIDAK meniru angka mockup:
  * - Jumlah tab dan sumber dihitung dari feed yang nyata. Angka mockup
  *   (27.842, 12,4k, dst.) tidak pernah dipakai.
  * - Badge % cocok dihitung sungguhan dari kata kunci teks lowongan
  *   (deskripsi bila ada, judul bila tidak) vs CV dasar, pakai matchKeywords
- *   yang sama dengan Job Match editor. Bila tidak ada CV dasar, atau teks
- *   lowongan tidak mengandung kata kunci yang dikenali, badge tidak tampil.
- *   Keterangannya tertulis di bawah hero — skor judul saja itu sinyal lemah,
- *   skor penuh tetap dari deskripsi yang ditempel di editor.
- * - Tidak ada verifikasi perusahaan, gaji, atau tahun pengalaman: feed tidak
- *   membawa data itu, jadi tidak ditampilkan (filter Pengalaman mockup pun
- *   tidak dibuat karena tidak ada yang bisa difilter).
+ *   yang sama dengan Job Match editor. Tanpa CV dasar, kartu menampilkan
+ *   ajakan "Lengkapi profil untuk Job Match", bukan persentase karangan.
+ * - Tidak ada verifikasi perusahaan atau gaji: feed tidak membawa data itu,
+ *   jadi tidak ditampilkan.
+ * - Filter Pengalaman adalah perkiraan dari teks lowongan (judul +
+ *   deskripsi), karena feed tidak membawa field pengalaman. Polanya
+ *   didokumentasikan di experienceBand; kartu tidak pernah menampilkan
+ *   pengalaman hasil perkiraan ini.
  * - Tombol utama tetap "Buat CV dari lowongan ini", bukan "Buat CV & Lamar":
- *   GenCV tidak mengirim lamaran, tombol itu membuat CV.
- * - Kartu tetap tanpa label sumber (seperti mockup); sumber hanya terlihat
- *   di faset sidebar dan dropdown filter — ini sengaja membalik sebagian
- *   keputusan PR #70 atas permintaan eksplisit "persis mockup".
+ *   Ayo Kerja tidak mengirim lamaran, tombol itu membuat CV. "Lihat
+ *   lowongan" membuka iklan asli, bukan halaman detail internal.
+ * - "Lamaran Saya" adalah panel penjelasan, bukan daftar lamaran: pelacakan
+ *   lamaran belum termasuk dalam portal ini (mockup pun menandainya
+ *   placeholder).
  *
  * "Tersimpan" disimpan di perangkat ini (localStorage), seperti CV — bukan
  * di akun, jadi tidak butuh login dan tidak hilang saat keluar.
@@ -56,13 +56,12 @@ import {
 
 type Tab = 'all' | 'remote' | 'full-time' | 'part-time' | 'internship';
 type Sort = 'relevant' | 'newest' | 'title';
-type View = 'all' | 'saved';
+type View = 'all' | 'recommended' | 'saved' | 'applications';
 
 const SAVED_KEY = 'gencv:saved-jobs';
 
-const GREEN = 'hsl(var(--primary))';
-const MAGENTA = 'hsl(var(--brand-accent))';
-const GREEN_INK = 'hsl(var(--primary-foreground))';
+const BLUE = 'hsl(var(--primary))';
+const YELLOW = 'hsl(var(--brand-accent))';
 
 const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'all', label: 'Semua' },
@@ -78,12 +77,11 @@ const SITE_NAMES: Record<string, string> = {
   glassdoor: 'Glassdoor',
 };
 
-/** Tile monogram perusahaan ala mockup: warna tetap dari hash nama. */
+/** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */
 const TILE_COLORS = [
-  { bg: MAGENTA, fg: '#130014' },
-  { bg: GREEN, fg: '#081006' },
-  { bg: '#DFE7FF', fg: '#3455E8' },
-  { bg: '#7137FF', fg: '#FFFFFF' },
+  { bg: YELLOW, fg: '#0035AD' },
+  { bg: BLUE, fg: '#FFFFFF' },
+  { bg: '#EAF0FF', fg: '#0035AD' },
 ];
 
 function tileFor(company: string) {
@@ -95,7 +93,7 @@ function tileFor(company: string) {
 /**
  * Logo perusahaan bila feed membawanya, monogram bila tidak ada atau
  * logonya gagal dimuat. Logo dirender di kotak yang sama persis dengan
- * monogram (56px) supaya tata letak kartu tidak berubah.
+ * monogram (48px) supaya tata letak kartu tidak berubah.
  */
 function CompanyLogo({ job }: { job: HunterJob }) {
   const [failed, setFailed] = useState(false);
@@ -104,7 +102,7 @@ function CompanyLogo({ job }: { job: HunterJob }) {
     return (
       <span
         aria-hidden="true"
-        className="grid size-14 shrink-0 place-items-center rounded-[13px] text-[26px] font-black"
+        className="grid size-12 shrink-0 place-items-center rounded-[11px] text-[22px] font-black"
         style={{ background: tile.bg, color: tile.fg }}
       >
         {job.company.charAt(0).toUpperCase()}
@@ -112,7 +110,7 @@ function CompanyLogo({ job }: { job: HunterJob }) {
     );
   }
   return (
-    <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-[13px] bg-white">
+    <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-[11px] bg-white">
       {/* unoptimized: logo berasal dari banyak host (CDN LinkedIn, Glassdoor,
           dsb.) yang tidak bisa di-whitelist di remotePatterns, dan optimasi
           Next tidak diinginkan untuk logo pihak ketiga. */}
@@ -120,11 +118,11 @@ function CompanyLogo({ job }: { job: HunterJob }) {
         src={job.companyLogo}
         alt=""
         aria-hidden="true"
-        width={56}
-        height={56}
+        width={48}
+        height={48}
         unoptimized
         referrerPolicy="no-referrer"
-        className="size-14 object-contain p-1"
+        className="size-12 object-contain p-1"
         onError={() => setFailed(true)}
       />
     </span>
@@ -152,6 +150,53 @@ const TYPE_LABEL: Record<string, string> = {
   contract: 'Contract',
   internship: 'Magang',
 };
+
+type ExperienceBand = 'entry' | '1-3' | '2-5' | 'senior';
+
+const EXPERIENCE_OPTIONS: { id: ExperienceBand; label: string }[] = [
+  { id: 'entry', label: 'Entry level' },
+  { id: '1-3', label: '1–3 tahun' },
+  { id: '2-5', label: '2–5 tahun' },
+  { id: 'senior', label: 'Senior' },
+];
+
+/**
+ * Perkiraan band pengalaman dari teks lowongan (judul + deskripsi) — BUKAN
+ * data resmi sumber. Pola yang dikenali: "senior", "entry level",
+ * "fresh graduate", "junior", rentang "X–Y tahun/years", "X+ tahun/years",
+ * dan "minimal X tahun/years". Lowongan tanpa pola yang dikenali
+ * mengembalikan null dan tidak lolos filter pengalaman yang aktif.
+ */
+function experienceBand(job: HunterJob): ExperienceBand | null {
+  const text = `${job.title} ${job.description ?? ''}`;
+  if (/\bsenior\b/i.test(text)) return 'senior';
+  const plus = text.match(/(\d+)\s*\+\s*(tahun|years?)\b/i);
+  if (plus) {
+    const years = Number(plus[1]);
+    if (years >= 5) return 'senior';
+    if (years <= 1) return 'entry';
+    if (years <= 3) return '1-3';
+    return '2-5';
+  }
+  if (/\b(entry level|fresh graduate|junior)\b/i.test(text)) return 'entry';
+  const range = text.match(/(\d+)\s*[-–]\s*(\d+)\s*(tahun|years?)\b/i);
+  if (range) {
+    const hi = Number(range[2]);
+    if (hi <= 1) return 'entry';
+    if (hi <= 3) return '1-3';
+    if (hi <= 5) return '2-5';
+    return 'senior';
+  }
+  const min = text.match(/\b(minimal|minimum|at least|pengalaman)\s*(\d+)\s*(tahun|years?)\b/i);
+  if (min) {
+    const years = Number(min[2]);
+    if (years <= 1) return 'entry';
+    if (years <= 3) return '1-3';
+    if (years <= 5) return '2-5';
+    return 'senior';
+  }
+  return null;
+}
 
 function isRemoteJob(job: HunterJob): boolean {
   return job.isRemote || /remote|jarak jauh/i.test(job.location ?? '');
@@ -183,8 +228,10 @@ const btnGreen =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
 const btnOutline =
   'inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold transition hover:border-muted-foreground/60 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
-const btnGhost =
-  'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-surface-raised hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2';
+const btnWhite =
+  'inline-flex items-center justify-center gap-2 rounded-[13px] bg-white px-4 py-2.5 text-sm font-extrabold text-primary transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:opacity-50';
+const btnGhostLight =
+  'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2';
 
 export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const router = useRouter();
@@ -209,10 +256,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const [query, setQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [experienceFilter, setExperienceFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
   const [tab, setTab] = useState<Tab>('all');
   const [sort, setSort] = useState<Sort>('relevant');
   const [view, setView] = useState<View>('all');
+  const [limit, setLimit] = useState(6);
 
   useEffect(() => {
     const docs = listDocuments();
@@ -224,6 +273,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   useEffect(() => {
     setBaseDoc(baseId ? loadDocument(baseId) : null);
   }, [baseId]);
+
+  // Seperti mockup: ganti filter/tab/sort/view kembali menampilkan 6 pertama.
+  useEffect(() => {
+    setLimit(6);
+  }, [query, locationFilter, typeFilter, experienceFilter, sourceFilter, tab, sort, view]);
 
   const loadFeed = () => {
     setFeedState('loading');
@@ -293,13 +347,22 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     setQuery('');
     setLocationFilter('');
     setTypeFilter('');
+    setExperienceFilter('');
     setSourceFilter('');
     setTab('all');
     setSort('relevant');
+    setView('all');
+    setLimit(6);
   };
 
   const filtersActive =
-    query !== '' || locationFilter !== '' || typeFilter !== '' || sourceFilter !== '' || tab !== 'all' || sort !== 'relevant';
+    query !== '' ||
+    locationFilter !== '' ||
+    typeFilter !== '' ||
+    experienceFilter !== '' ||
+    sourceFilter !== '' ||
+    tab !== 'all' ||
+    sort !== 'relevant';
 
   /** Skor nyata per lowongan: deskripsi bila ada, judul bila tidak. */
   const scores = useMemo(() => {
@@ -350,7 +413,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     if (!jobs) return [];
     const q = query.trim().toLowerCase();
     const list = jobs.filter((job) => {
+      if (view === 'applications') return false;
       if (view === 'saved' && !saved.has(job.jobUrl)) return false;
+      if (view === 'recommended' && typeof scores.get(job.jobUrl)?.score !== 'number') return false;
       if (q && !(job.title + ' ' + job.company + ' ' + job.location).toLowerCase().includes(q)) return false;
       if (locationFilter === 'remote' && !isRemoteJob(job)) return false;
       if (locationFilter === 'indonesia' && !job.location.toLowerCase().includes('indonesia')) return false;
@@ -359,6 +424,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
       if (typeFilter === 'part-time' && type !== 'part-time') return false;
       if (typeFilter === 'contract' && type !== 'contract') return false;
       if (typeFilter === 'internship' && type !== 'internship') return false;
+      if (experienceFilter && experienceBand(job) !== experienceFilter) return false;
       if (sourceFilter && job.site.toLowerCase() !== sourceFilter) return false;
       if (!tabMatches(job, tab)) return false;
       return true;
@@ -373,7 +439,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
       if (sb === undefined || sb === null) return -1;
       return sb - sa;
     });
-  }, [jobs, view, saved, query, locationFilter, typeFilter, sourceFilter, tab, sort, scores]);
+  }, [jobs, view, saved, query, locationFilter, typeFilter, experienceFilter, sourceFilter, tab, sort, scores]);
+
+  const shownJobs = visibleJobs.slice(0, limit);
 
   const createCv = async (job: HunterJob) => {
     // Membuat CV baru wajib login (kalau login tersedia di deployment ini):
@@ -428,433 +496,553 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   const filterSelectClass =
-    'w-full appearance-none bg-transparent py-3.5 text-sm text-foreground outline-none [&>option]:bg-surface [&>option]:text-foreground';
+    'w-full appearance-none bg-transparent py-3.5 text-sm font-extrabold text-primary outline-none [&>option]:bg-white [&>option]:text-[#071A4A]';
 
   return (
-    <div className="mx-auto max-w-[1500px] px-4 py-10 md:px-[4.5%]">
-      {/* Hero ala mockup: headline + panel Job Match miring di kanan. */}
-      <section>
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
-          <div className="max-w-[760px]">
-            <p className="flex items-center gap-2.5 text-[13px] tracking-wide text-muted-foreground">
-              <span className="inline-block size-2.5 rounded-full bg-primary shadow-[0_0_18px_hsl(var(--primary)/0.4)]" />
-              Job Portal by GenCV
-            </p>
-            <h1 className="mt-4 text-[clamp(34px,4.2vw,60px)] font-extrabold leading-[1.04] tracking-[-0.055em]">
-              Temukan peluang kerja yang <span className="italic text-brand-accent">sesuai dengan profilmu.</span>
-            </h1>
-            <p className="mt-4 max-w-[690px] text-[17px] leading-[1.65] text-muted-foreground">
-              Jelajahi lowongan dari berbagai sumber, simpan yang menarik, dan cek kecocokan dengan CV-mu.
-            </p>
+    <>
+      {/* Hero portal ala mockup Ayo Kerja: seksi kuning, headline, megaphone. */}
+      <section className="bg-brand-accent text-foreground">
+        <div className="mx-auto max-w-[1440px] px-4 py-8 lg:py-10">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]">
+            <div>
+              <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
+                <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
+                Portal Karier &amp; Peluang Kerja
+              </p>
+              <h1 className="mt-4 max-w-[760px] text-[clamp(2.5rem,4.5vw,4.35rem)] font-black uppercase leading-[0.98] tracking-[-0.06em]">
+                <span className="block">Temukan peluang kerja yang sesuai</span>
+                <span className="mt-1 inline-block bg-primary px-2.5 pb-1 text-brand-accent">dengan profilmu.</span>
+              </h1>
+              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-[#10265A]">
+                Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk
+                langkah karier berikutnya.
+              </p>
+            </div>
+            <div aria-hidden="true" className="relative flex min-h-[190px] items-center justify-center lg:min-h-[245px]">
+              <div
+                className="absolute size-[175px] bg-primary lg:size-[260px]"
+                style={{
+                  clipPath:
+                    'polygon(50% 0,60% 25%,84% 8%,78% 35%,100% 42%,77% 57%,91% 83%,63% 76%,50% 100%,38% 76%,9% 88%,23% 59%,0 44%,25% 34%,16% 9%,41% 25%)',
+                  transform: 'rotate(-5deg)',
+                }}
+              />
+              <div
+                className="relative z-[1] text-[85px] leading-none lg:text-[118px]"
+                style={{ filter: 'drop-shadow(7px 8px 0 rgba(0,0,0,.18))', transform: 'rotate(-15deg)' }}
+              >
+                📣
+              </div>
+              <div className="absolute right-0 top-0 z-[2] grid gap-3 lg:top-[25px]">
+                <div className="rotate-[-4deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+                  ✓ Cari lowongan
+                </div>
+                <div className="rotate-[2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+                  ✓ Cocokkan dengan CV
+                </div>
+                <div className="rotate-[-2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+                  ✓ Kembangkan karier
+                </div>
+              </div>
+            </div>
           </div>
 
-          <aside
-            aria-label="Ringkasan Job Match"
-            className="w-full max-w-[370px] shrink-0 rounded-[18px] border border-border bg-surface p-[22px] shadow-[6px_6px_0_hsl(var(--brand-accent)/0.65)] lg:w-[370px] lg:min-w-[310px] lg:rotate-[-2deg] lg:shadow-[12px_12px_0_hsl(var(--brand-accent)/0.75)]"
+          {/* Search + filter di dalam hero, seperti mockup. */}
+          <form
+            className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(250px,1.65fr)_repeat(4,minmax(120px,auto))]"
+            onSubmit={(e) => e.preventDefault()}
           >
-            <h2 className="text-[15px] font-bold">Job Match dengan profilmu</h2>
-            {bestMatch ? (
-              <div className="mt-4 flex items-center gap-[18px]">
-                <div className="shrink-0">
-                  <div
-                    className="relative grid size-[88px] place-items-center rounded-full"
-                    style={{
-                      background: `conic-gradient(${GREEN} 0 ${bestMatch.score}%, hsl(var(--border)) ${bestMatch.score}% 100%)`,
-                    }}
-                  >
-                    <span className="absolute inset-[9px] rounded-full bg-surface" />
-                    <strong className="relative text-[25px]">{bestMatch.score}%</strong>
-                  </div>
-                  <p className="mt-2 text-center text-xs font-extrabold text-primary">
-                    {bestMatch.score >= 90 ? 'Sangat cocok' : bestMatch.score >= 50 ? 'Cocok' : 'Perlu dicek'}
-                  </p>
-                </div>
-                <ul className="grid gap-2 text-xs text-foreground">
-                  {bestMatch.result.matched.slice(0, 3).map((term) => (
-                    <li key={term} className="flex items-center gap-2">
-                      <span className="grid size-[17px] shrink-0 place-items-center rounded-full bg-primary text-[11px] font-black text-primary-foreground">
-                        ✓
-                      </span>
-                      {term}
-                    </li>
-                  ))}
-                  {bestMatch.result.matched.length === 0 && <li>Belum ada kata kunci yang cocok.</li>}
-                  <li className="text-muted-foreground">{bestMatch.job.title}</li>
-                </ul>
-              </div>
-            ) : baseDoc ? (
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                Belum ada kata kunci lowongan yang dikenali dari CV dasarmu. Tempel deskripsi lengkap di editor untuk
-                skor Job Match penuh.
-              </p>
-            ) : (
-              <>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  Buat atau pilih CV dasar untuk melihat kecocokanmu dengan lowongan di bawah.
-                </p>
-                <a href="/editor?new=1" className={`${btnGreen} mt-4`}>
-                  Buat CV
-                </a>
-              </>
-            )}
-          </aside>
+            <label className="flex min-w-0 items-center gap-2.5 rounded-[14px] border-[1.5px] border-primary bg-white py-1.5 pl-4 pr-1.5 sm:col-span-2 lg:col-span-1">
+              <Search className="size-5 shrink-0 text-primary" aria-hidden="true" />
+              <span className="sr-only">Cari posisi, perusahaan, atau skill</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari posisi, perusahaan, atau skill..."
+                className="w-full min-w-0 bg-transparent px-1 py-3 text-sm text-foreground outline-none placeholder:text-[#62708D]"
+              />
+              <button
+                type="submit"
+                className="h-11 shrink-0 rounded-[13px] bg-primary px-5 text-sm font-extrabold text-white transition hover:bg-[#002B91]"
+              >
+                Cari
+              </button>
+            </label>
+            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+              <span aria-hidden="true">⌖</span>
+              <span className="sr-only">Filter lokasi</span>
+              <select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className={filterSelectClass}
+              >
+                <option value="">Lokasi</option>
+                <option value="remote">Remote</option>
+                <option value="indonesia">Indonesia</option>
+              </select>
+              <span aria-hidden="true">⌄</span>
+            </label>
+            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+              <span aria-hidden="true">▣</span>
+              <span className="sr-only">Filter tipe kerja</span>
+              <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={filterSelectClass}>
+                <option value="">Tipe Kerja</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Magang</option>
+              </select>
+              <span aria-hidden="true">⌄</span>
+            </label>
+            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+              <span aria-hidden="true">▥</span>
+              <span className="sr-only">Filter pengalaman</span>
+              <select
+                value={experienceFilter}
+                onChange={(e) => setExperienceFilter(e.target.value)}
+                className={filterSelectClass}
+              >
+                <option value="">Pengalaman</option>
+                {EXPERIENCE_OPTIONS.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <span aria-hidden="true">⌄</span>
+            </label>
+            <label className="flex min-h-[54px] items-center gap-2 rounded-[13px] border-[1.5px] border-primary px-3 text-[13px] font-extrabold text-primary">
+              <span aria-hidden="true">▱</span>
+              <span className="sr-only">Filter sumber</span>
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className={filterSelectClass}
+              >
+                <option value="">Sumber</option>
+                {sourceCounts.map(([name]) => (
+                  <option key={name} value={name.toLowerCase()}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <span aria-hidden="true">⌄</span>
+            </label>
+          </form>
+          {experienceFilter && (
+            <p className="mt-3 text-xs font-semibold text-primary/80">
+              Filter pengalaman dicocokkan dari teks lowongan (perkiraan, bukan data resmi sumber).
+            </p>
+          )}
         </div>
-        <p className="mt-6 max-w-[760px] text-xs leading-relaxed text-muted-foreground/70">
-          Skor dihitung dari kata kunci deskripsi lowongan — atau judulnya bila deskripsi belum ada — dibandingkan
-          dengan CV dasarmu. Bukan angka contoh: lowongan tanpa kata kunci yang dikenali tidak menampilkan badge.
-        </p>
       </section>
 
-      {/* Search + filter ala mockup. */}
-      <form
-        className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(125px,0.5fr))]"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <label className="flex min-w-0 items-center gap-2 rounded-[14px] border border-border bg-surface py-1.5 pl-4 pr-1.5">
-          <Search className="size-[22px] shrink-0 text-foreground" aria-hidden="true" />
-          <span className="sr-only">Cari posisi, perusahaan, atau lokasi</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari posisi, perusahaan, atau skill…"
-            className="w-full min-w-0 bg-transparent px-2 py-3 text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
-          />
-          <button type="submit" className={`${btnGreen} h-11 shrink-0 px-6`}>
-            Cari
-          </button>
-        </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
-          <span className="sr-only">Filter lokasi</span>
-          <select
-            value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
-            className={filterSelectClass}
-          >
-            <option value="">⌖ Lokasi</option>
-            <option value="remote">Remote</option>
-            <option value="indonesia">Indonesia</option>
-          </select>
-          <span aria-hidden="true">⌄</span>
-        </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
-          <span className="sr-only">Filter tipe kerja</span>
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={filterSelectClass}>
-            <option value="">▣ Tipe kerja</option>
-            <option value="full-time">Full-time</option>
-            <option value="part-time">Part-time</option>
-            <option value="contract">Contract</option>
-            <option value="internship">Magang</option>
-          </select>
-          <span aria-hidden="true">⌄</span>
-        </label>
-        <label className="relative flex items-center justify-between gap-2 rounded-[13px] border border-border bg-surface px-3">
-          <span className="sr-only">Filter sumber</span>
-          <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className={filterSelectClass}>
-            <option value="">▱ Sumber</option>
-            {sourceCounts.map(([name]) => (
-              <option key={name} value={name.toLowerCase()}>
-                {name}
-              </option>
-            ))}
-          </select>
-          <span aria-hidden="true">⌄</span>
-        </label>
-      </form>
-
-      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] items-start gap-7 lg:grid-cols-[250px_minmax(0,1fr)]">
-        {/* Sidebar ala mockup: di mobile jadi baris horizontal. */}
-        <aside
-          aria-label="Navigasi lowongan"
-          className="rounded-[17px] border border-border bg-surface p-[15px] lg:sticky lg:top-4"
-        >
-          <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
-            <button
-              type="button"
-              onClick={() => setView('all')}
-              aria-current={view === 'all' ? 'page' : undefined}
-              className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[11px] px-3 py-3 text-sm font-semibold ${
-                view === 'all' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-surface-raised'
-              }`}
-            >
-              <Search className="size-[19px] shrink-0" aria-hidden="true" />
-              Jelajahi Lowongan
-            </button>
-            <button
-              type="button"
-              onClick={() => setView('saved')}
-              aria-current={view === 'saved' ? 'page' : undefined}
-              className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[11px] px-3 py-3 text-sm font-semibold ${
-                view === 'saved' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-surface-raised'
-              }`}
-            >
-              <Bookmark className="size-[19px] shrink-0" aria-hidden="true" />
-              Tersimpan
-              <span className="rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-muted-foreground">{saved.size}</span>
-            </button>
-          </nav>
-          <div className="mt-4 hidden lg:block">
-            <div className="mx-2 h-px bg-border" />
-            <p className="px-2.5 pb-2 pt-4 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
-              Sumber lowongan
-            </p>
-            {sourceCounts.map(([name, count]) => (
-              <div key={name} className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] text-foreground">
-                <span className="size-2 rounded-full bg-brand-accent" />
-                {name}
-                <span className="ml-auto rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-muted-foreground">{count}</span>
-              </div>
-            ))}
-            <p className="px-2.5 pt-3 text-xs leading-relaxed text-muted-foreground/70">
-              Jumlah dihitung dari lowongan yang benar-benar ada di feed saat ini.
-            </p>
-            <p className="px-2.5 pt-2 text-xs leading-relaxed text-muted-foreground/70">
-              Lowongan tersimpan hanya ada di perangkat ini. Masuk tidak diperlukan, dan keluar tidak menghapusnya.
-            </p>
-          </div>
-        </aside>
-
-        <section aria-label="Hasil lowongan">
-          {/* Tab + sortir ala mockup. */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border">
-            <div role="tablist" aria-label="Kategori lowongan" className="flex gap-6 overflow-x-auto">
-              {TAB_LABELS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === t.id}
-                  onClick={() => setTab(t.id)}
-                  className={`relative whitespace-nowrap pb-[15px] text-sm ${
-                    tab === t.id ? 'font-extrabold text-foreground' : 'text-muted-foreground'
-                  }`}
-                >
-                  {t.label} <strong>({tabCounts[t.id]})</strong>
-                  {tab === t.id && <span className="absolute -bottom-px left-0 right-0 h-[3px] rounded bg-primary" />}
-                </button>
-              ))}
-            </div>
-            <label className="mb-2.5 flex items-center gap-2 whitespace-nowrap rounded-[11px] border border-border bg-surface px-3 py-2.5 text-sm">
-              <span className="text-xs text-muted-foreground">Urutkan:</span>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as Sort)}
-                className="bg-transparent text-foreground outline-none [&>option]:bg-surface"
-              >
-                <option value="relevant">Paling relevan</option>
-                <option value="newest">Terbaru</option>
-                <option value="title">Nama posisi</option>
-              </select>
-            </label>
-          </div>
-
-          {jobs === null ? (
-            feedState === 'loading' ? (
-              <div aria-busy="true" className="mt-6 grid gap-[13px]" aria-label="Memuat lowongan">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="animate-pulse rounded-2xl border border-border bg-surface p-[18px]">
-                    <div className="h-5 w-2/3 rounded bg-surface-raised" />
-                    <div className="mt-3 h-4 w-1/3 rounded bg-surface-raised" />
-                    <div className="mt-4 h-9 w-40 rounded bg-surface-raised" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-6 rounded-2xl border border-dashed border-border p-10 text-center">
-                <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
-                <h2 className="mt-4 text-lg font-semibold">Feed otomatis hunter tidak bisa dijangkau</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Sebagai fallback, impor file jobs.json hasil hunter secara manual. Daftar ini tidak dikirim ke server
-                  mana pun.
-                </p>
-                <div className="mt-5 flex justify-center gap-2">
-                  <button type="button" onClick={() => fileInput.current?.click()} className={btnOutline}>
-                    <Upload aria-hidden="true" />
-                    Impor jobs.json
-                  </button>
-                  <button type="button" onClick={loadFeed} className={btnGhost}>
-                    Coba lagi
-                  </button>
-                </div>
-                <input
-                  ref={fileInput}
-                  type="file"
-                  accept="application/json,.json"
-                  className="sr-only"
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  onChange={(e) => {
-                    importFile(e.target.files?.[0]);
-                    e.target.value = '';
-                  }}
-                />
-              </div>
-            )
-          ) : (
-            <>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <p className="text-[13px] text-muted-foreground" aria-live="polite">
-                  <strong className="text-foreground">{visibleJobs.length} lowongan</strong>
-                  {skipped > 0 ? `, ${skipped} entri tidak valid dilewati` : ''}
-                  {feedSource === 'otomatis'
-                    ? ' — dimuat otomatis dari hunter (diperbarui tiap pagi).'
-                    : ' — dari file yang kamu impor.'}
-                </p>
-                {feedSource === 'manual' && (
-                  <button type="button" onClick={loadFeed} className={btnGhost}>
-                    Kembali ke feed otomatis
-                  </button>
-                )}
-                {filtersActive && (
-                  <button type="button" onClick={resetFilters} className={btnGhost}>
-                    Reset filter
-                  </button>
-                )}
-                {bases.length > 0 && (
-                  <label className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
-                    CV dasar
-                    <select
-                      value={baseId ?? ''}
-                      onChange={(e) => setBaseId(e.target.value)}
-                      className="rounded-lg border border-border bg-surface px-2 py-1.5 text-foreground"
-                    >
-                      <option value="">CV kosong</option>
-                      {bases.map((doc) => (
-                        <option key={doc.id} value={doc.id}>
-                          {doc.title || doc.headline || doc.name || 'CV tanpa judul'}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-              </div>
-
-              {visibleJobs.length === 0 ? (
-                <div className="mt-6 rounded-2xl border border-dashed border-border p-[50px_20px] text-center text-muted-foreground">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    {view === 'saved' ? 'Belum ada lowongan tersimpan' : 'Tidak ada lowongan yang cocok'}
-                  </h2>
-                  <p className="mx-auto mt-2 max-w-md text-sm">
-                    {view === 'saved'
-                      ? 'Ketuk ikon bookmark di kartu lowongan untuk menyimpannya di perangkat ini.'
-                      : 'Coba ubah kata kunci, hapus filter, atau pindah ke tab Semua.'}
+      {/* Seksi hasil ala mockup: latar biru, kartu putih. */}
+      <section className="bg-primary py-7 text-white lg:py-10">
+        <div className="mx-auto max-w-[1440px] px-4">
+          {jobs !== null && baseId !== null && (!baseDoc || !bestMatch) && (
+            <div className="mb-6 rounded-2xl bg-brand-accent p-5 text-primary">
+              {!baseDoc ? (
+                <div className="flex flex-wrap items-center gap-4">
+                  <p className="flex-1 text-sm font-bold leading-relaxed">
+                    Lengkapi profil dan CV untuk melihat kecocokan pekerjaan.
                   </p>
-                  <div className="mt-5 flex justify-center">
-                    {view === 'saved' ? (
-                      <button type="button" onClick={() => setView('all')} className={btnOutline}>
-                        Jelajahi lowongan
-                      </button>
-                    ) : (
-                      <button type="button" onClick={resetFilters} className={btnOutline}>
-                        Tampilkan semua lowongan
-                      </button>
-                    )}
-                  </div>
+                  <a
+                    href="/editor?new=1"
+                    className="rounded-[13px] bg-primary px-4 py-2.5 text-sm font-extrabold text-white"
+                  >
+                    Buat CV
+                  </a>
                 </div>
               ) : (
-                <ul className="mt-4 grid gap-[13px]" aria-live="polite">
-                  {visibleJobs.map((job) => {
-                    const type = normalizedType(job);
-                    const score = scores.get(job.jobUrl)?.score;
-                    const isSaved = saved.has(job.jobUrl);
-                    return (
-                      <li
-                        key={job.jobUrl}
-                        className="grid grid-cols-[56px_minmax(0,1fr)] gap-4 rounded-2xl border border-border bg-surface p-[18px] transition hover:-translate-y-px hover:border-muted-foreground/60 lg:grid-cols-[56px_minmax(0,1fr)_auto]"
+                <p className="text-sm font-bold leading-relaxed">
+                  Belum ada kata kunci lowongan yang dikenali dari CV dasarmu. Tempel deskripsi lengkap di editor untuk
+                  skor Job Match penuh.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+            {/* Sidebar ala mockup: di mobile jadi baris horizontal. */}
+            <aside aria-label="Navigasi portal" className="lg:sticky lg:top-[90px]">
+              <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+                <button
+                  type="button"
+                  onClick={() => setView('all')}
+                  aria-current={view === 'all' ? 'page' : undefined}
+                  className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
+                    view === 'all' ? 'bg-brand-accent text-primary' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Search className="size-5 shrink-0" aria-hidden="true" />
+                  Jelajahi Lowongan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView('recommended')}
+                  aria-current={view === 'recommended' ? 'page' : undefined}
+                  className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
+                    view === 'recommended' ? 'bg-brand-accent text-primary' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Sparkles className="size-5 shrink-0" aria-hidden="true" />
+                  Rekomendasi untukmu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView('saved')}
+                  aria-current={view === 'saved' ? 'page' : undefined}
+                  className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
+                    view === 'saved' ? 'bg-brand-accent text-primary' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Bookmark className="size-5 shrink-0" aria-hidden="true" />
+                  Tersimpan
+                  <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] text-white">{saved.size}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView('applications')}
+                  aria-current={view === 'applications' ? 'page' : undefined}
+                  className={`flex shrink-0 items-center gap-3 whitespace-nowrap rounded-[12px] px-3 py-3 text-sm font-bold ${
+                    view === 'applications' ? 'bg-brand-accent text-primary' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Briefcase className="size-5 shrink-0" aria-hidden="true" />
+                  Lamaran Saya
+                </button>
+              </nav>
+              <div className="mt-4 hidden lg:block">
+                <div className="mx-2 h-px bg-white/30" />
+                <p className="px-2.5 pb-2 pt-4 text-xs font-black uppercase tracking-[0.08em] text-white/80">
+                  Sumber Lowongan
+                </p>
+                {sourceCounts.map(([name, count]) => {
+                  const active = sourceFilter === name.toLowerCase();
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setSourceFilter(active ? '' : name.toLowerCase())}
+                      aria-pressed={active}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-semibold text-white hover:bg-white/10"
+                    >
+                      <span
+                        className={`grid size-[17px] shrink-0 place-items-center rounded-[5px] border-[1.5px] text-[12px] font-black ${
+                          active ? 'border-brand-accent bg-brand-accent text-primary' : 'border-white text-transparent'
+                        }`}
                       >
-                        <CompanyLogo job={job} />
-                        <div className="min-w-0">
-                          <h2 className="text-[18px] font-extrabold leading-[1.3] tracking-[-0.025em]">
-                            <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                              {job.title}
-                            </a>
-                          </h2>
-                          <p className="mt-1 text-sm text-muted-foreground">{job.company}</p>
-                          <div className="mt-2.5 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                            {job.location && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-foreground" aria-hidden="true" />
-                                {job.location}
-                              </span>
-                            )}
-                            {type && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <Briefcase className="size-[15px] text-foreground" aria-hidden="true" />
-                                {TYPE_LABEL[type]}
-                              </span>
-                            )}
-                            {isRemoteJob(job) && !job.location && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-foreground" aria-hidden="true" />
-                                Remote
-                              </span>
-                            )}
-                          </div>
-                          {(job.flagDemoLike || !job.description) && (
-                            <p className="mt-2 text-xs text-muted-foreground/70">
-                              {[
-                                job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
-                                !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
-                              ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                            </p>
-                          )}
-                        </div>
-                        <div className="col-span-2 flex flex-wrap items-center gap-3 lg:col-span-1 lg:justify-end">
-                          {score !== null && score !== undefined && (
-                            <span
-                              className={`whitespace-nowrap rounded-full border px-2.5 py-1.5 text-xs font-extrabold ${
-                                score < 93
-                                  ? 'border-brand-accent text-brand-accent'
-                                  : 'border-primary text-primary'
-                              }`}
+                        ✓
+                      </span>
+                      {name}
+                      <span className="ml-auto rounded-full bg-white/15 px-2 py-0.5 text-[11px] text-white">
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+                <p className="px-2.5 pt-3 text-xs leading-relaxed text-white/70">
+                  Jumlah dihitung dari lowongan yang benar-benar ada di feed saat ini.
+                </p>
+                <p className="px-2.5 pt-2 text-xs leading-relaxed text-white/70">
+                  Lowongan tersimpan hanya ada di perangkat ini. Masuk tidak diperlukan, dan keluar tidak menghapusnya.
+                </p>
+              </div>
+            </aside>
+
+            <section aria-label="Hasil lowongan">
+              {/* Tab + sortir ala mockup. */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/30">
+                <div role="tablist" aria-label="Kategori lowongan" className="flex gap-6 overflow-x-auto">
+                  {TAB_LABELS.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === t.id}
+                      onClick={() => setTab(t.id)}
+                      className={`relative whitespace-nowrap pb-[13px] text-[13px] font-extrabold ${
+                        tab === t.id ? 'text-brand-accent' : 'text-white/85'
+                      }`}
+                    >
+                      {t.label} <strong className="font-semibold opacity-80">({tabCounts[t.id]})</strong>
+                      {tab === t.id && (
+                        <span className="absolute -bottom-px left-0 right-0 h-1 rounded bg-brand-accent" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <label className="mb-2.5 flex items-center gap-2 whitespace-nowrap text-[13px] font-extrabold text-white">
+                  Urutkan:
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as Sort)}
+                    className="bg-transparent outline-none [&>option]:bg-white [&>option]:text-[#071A4A]"
+                  >
+                    <option value="relevant">Paling relevan</option>
+                    <option value="newest">Terbaru</option>
+                    <option value="title">Nama posisi</option>
+                  </select>
+                </label>
+              </div>
+
+              {jobs === null ? (
+                feedState === 'loading' ? (
+                  <div aria-busy="true" className="mt-6 grid gap-[13px]" aria-label="Memuat lowongan">
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="animate-pulse rounded-2xl border border-white/20 bg-white/10 p-[18px]">
+                        <div className="h-5 w-2/3 rounded bg-white/20" />
+                        <div className="mt-3 h-4 w-1/3 rounded bg-white/20" />
+                        <div className="mt-4 h-9 w-40 rounded bg-white/20" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-6 rounded-2xl border border-dashed border-white/40 p-10 text-center text-white">
+                    <FileText className="mx-auto size-10 text-white/70" aria-hidden="true" />
+                    <h2 className="mt-4 text-lg font-semibold">Feed otomatis hunter tidak bisa dijangkau</h2>
+                    <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
+                      Sebagai fallback, impor file jobs.json hasil hunter secara manual. Daftar ini tidak dikirim ke
+                      server mana pun.
+                    </p>
+                    <div className="mt-5 flex justify-center gap-2">
+                      <button type="button" onClick={() => fileInput.current?.click()} className={btnWhite}>
+                        <Upload aria-hidden="true" />
+                        Impor jobs.json
+                      </button>
+                      <button type="button" onClick={loadFeed} className={btnGhostLight}>
+                        Coba lagi
+                      </button>
+                    </div>
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept="application/json,.json"
+                      className="sr-only"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                      onChange={(e) => {
+                        importFile(e.target.files?.[0]);
+                        e.target.value = '';
+                      }}
+                    />
+                  </div>
+                )
+              ) : view === 'applications' ? (
+                <div className="mt-6 rounded-2xl bg-white p-8 text-center text-[#5E6B88]">
+                  <h2 className="text-lg font-bold text-[#071A4A]">Lamaran Saya belum tersedia</h2>
+                  <p className="mx-auto mt-2 max-w-md text-sm">
+                    Pelacakan lamaran belum termasuk dalam portal ini. Lowongan yang kamu simpan ada di Tersimpan.
+                  </p>
+                  <button type="button" onClick={() => setView('saved')} className={`${btnGreen} mt-5`}>
+                    Lihat Tersimpan
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <p className="text-[13px] text-white/80" aria-live="polite">
+                      <strong className="text-white">
+                        Menampilkan {shownJobs.length} dari {visibleJobs.length} lowongan
+                      </strong>
+                      {skipped > 0 ? `, ${skipped} entri tidak valid dilewati` : ''}
+                      {feedSource === 'otomatis'
+                        ? ' — dimuat otomatis dari hunter (diperbarui tiap pagi).'
+                        : ' — dari file yang kamu impor.'}
+                    </p>
+                    {feedSource === 'manual' && (
+                      <button type="button" onClick={loadFeed} className={btnGhostLight}>
+                        Kembali ke feed otomatis
+                      </button>
+                    )}
+                    {filtersActive && (
+                      <button type="button" onClick={resetFilters} className={btnGhostLight}>
+                        Reset filter
+                      </button>
+                    )}
+                    {bases.length > 0 && (
+                      <label className="ml-auto flex items-center gap-2 text-sm text-white/80">
+                        CV dasar
+                        <select
+                          value={baseId ?? ''}
+                          onChange={(e) => setBaseId(e.target.value)}
+                          className="rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white [&>option]:bg-white [&>option]:text-[#071A4A]"
+                        >
+                          <option value="">CV kosong</option>
+                          {bases.map((doc) => (
+                            <option key={doc.id} value={doc.id}>
+                              {doc.title || doc.headline || doc.name || 'CV tanpa judul'}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                  </div>
+
+                  {shownJobs.length === 0 ? (
+                    <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-[#5E6B88]">
+                      <h2 className="text-lg font-bold text-[#071A4A]">
+                        {view === 'saved'
+                          ? 'Belum ada lowongan tersimpan'
+                          : view === 'recommended'
+                            ? 'Belum ada rekomendasi'
+                            : 'Belum ada lowongan yang cocok.'}
+                      </h2>
+                      <p className="mx-auto mt-2 max-w-md text-sm">
+                        {view === 'saved'
+                          ? 'Ketuk ikon bookmark di kartu lowongan untuk menyimpannya di perangkat ini.'
+                          : view === 'recommended' && !baseDoc
+                            ? 'Lengkapi profil dan CV untuk melihat kecocokan pekerjaan.'
+                            : view === 'recommended'
+                              ? 'Belum ada kata kunci lowongan yang dikenali dari CV dasarmu. Tempel deskripsi lengkap di editor untuk skor Job Match penuh.'
+                              : 'Coba ubah kata kunci atau hapus beberapa filter.'}
+                      </p>
+                      <div className="mt-5 flex justify-center">
+                        {view === 'saved' ? (
+                          <button type="button" onClick={() => setView('all')} className={btnGreen}>
+                            Jelajahi lowongan
+                          </button>
+                        ) : view === 'recommended' && !baseDoc ? (
+                          <a href="/editor?new=1" className={btnGreen}>
+                            Buat CV
+                          </a>
+                        ) : (
+                          <button type="button" onClick={resetFilters} className={btnGreen}>
+                            {view === 'recommended' ? 'Tampilkan semua lowongan' : 'Hapus filter'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <ul className="mt-4 grid gap-[11px]" aria-live="polite">
+                        {shownJobs.map((job) => {
+                          const type = normalizedType(job);
+                          const score = scores.get(job.jobUrl)?.score;
+                          const isSaved = saved.has(job.jobUrl);
+                          return (
+                            <li
+                              key={job.jobUrl}
+                              className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-[#071A4A] shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
                             >
-                              ✧ {score}% cocok
-                            </span>
-                          )}
-                          {job.datePosted && (
-                            <span className="whitespace-nowrap text-center text-xs text-muted-foreground">{job.datePosted}</span>
-                          )}
+                              <CompanyLogo job={job} />
+                              <div className="min-w-0">
+                                <h2 className="text-[17px] font-black leading-[1.2] tracking-[-0.025em]">
+                                  <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
+                                    {job.title}
+                                  </a>
+                                </h2>
+                                <p className="mt-1 text-[13px] font-bold text-[#34466E]">{job.company}</p>
+                                <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-[#263B6A]">
+                                  {job.location && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
+                                      {job.location}
+                                    </span>
+                                  )}
+                                  {type && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Briefcase className="size-[15px] text-primary" aria-hidden="true" />
+                                      {TYPE_LABEL[type]}
+                                    </span>
+                                  )}
+                                  {isRemoteJob(job) && !job.location && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
+                                      Remote
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1.5 text-[10px] text-[#75809A]">Sumber: {siteName(job.site)}</p>
+                                {(job.flagDemoLike || !job.description) && (
+                                  <p className="mt-1 text-xs text-[#5E6B88]/80">
+                                    {[
+                                      job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
+                                      !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
+                                    ]
+                                      .filter(Boolean)
+                                      .join(' · ')}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-[#D9E1F2] pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
+                                {score === undefined ? (
+                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
+                                    Lengkapi profil untuk Job Match
+                                  </span>
+                                ) : score === null ? (
+                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
+                                    Belum ada kata kunci yang cocok
+                                  </span>
+                                ) : (
+                                  <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
+                                    ✦ {score}% cocok
+                                  </span>
+                                )}
+                                {job.datePosted && (
+                                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#64718C]">
+                                    {job.datePosted}
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleSaved(job.jobUrl)}
+                                  aria-pressed={isSaved}
+                                  aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
+                                  title={isSaved ? 'Tersimpan' : 'Simpan'}
+                                  className={`grid size-[38px] shrink-0 place-items-center rounded-[9px] text-primary transition hover:bg-[#EAF0FF] focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
+                                    isSaved ? 'bg-[#EAF0FF]' : ''
+                                  }`}
+                                >
+                                  <Bookmark
+                                    className="size-[21px]"
+                                    fill={isSaved ? 'currentColor' : 'none'}
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                                <div className="flex w-full flex-wrap gap-2 lg:w-auto">
+                                  <a
+                                    href={job.jobUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`${btnOutline} flex-1 px-3 py-2.5 text-xs lg:flex-none`}
+                                  >
+                                    Lihat lowongan
+                                  </a>
+                                  <button
+                                    type="button"
+                                    onClick={() => createCv(job)}
+                                    className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
+                                  >
+                                    Buat CV dari lowongan ini
+                                  </button>
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {visibleJobs.length > shownJobs.length && (
+                        <div className="mt-5 flex justify-center">
                           <button
                             type="button"
-                            onClick={() => toggleSaved(job.jobUrl)}
-                            aria-pressed={isSaved}
-                            aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
-                            title={isSaved ? 'Tersimpan' : 'Simpan'}
-                            className={`grid size-[38px] shrink-0 place-items-center rounded-lg transition hover:bg-[hsl(var(--brand-accent)/0.08)] hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
-                              isSaved ? 'bg-[hsl(var(--brand-accent)/0.08)] text-brand-accent' : 'text-foreground'
-                            }`}
+                            onClick={() => setLimit((n) => n + 4)}
+                            className="rounded-[13px] bg-brand-accent px-5 py-2.5 text-sm font-extrabold text-primary transition hover:brightness-105"
                           >
-                            <Bookmark className="size-[22px]" fill={isSaved ? 'currentColor' : 'none'} aria-hidden="true" />
+                            Muat lebih banyak
                           </button>
-                          <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                            <a
-                              href={job.jobUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={`${btnOutline} flex-1 px-3 py-2.5 text-xs lg:flex-none`}
-                            >
-                              Lihat lowongan
-                            </a>
-                            <button
-                              type="button"
-                              onClick={() => createCv(job)}
-                              className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
-                            >
-                              Buat CV dari lowongan ini
-                            </button>
-                          </div>
                         </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                      )}
+                    </>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </section>
-      </div>
-    </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

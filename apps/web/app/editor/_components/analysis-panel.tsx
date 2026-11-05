@@ -18,7 +18,7 @@ export function AnalysisPanel({ analysis, onOpenJobMatch }: { analysis: CvAnalys
           <h2 className="text-base font-semibold text-foreground">Skor kesiapan ATS</h2>
           <p className="text-sm font-medium text-success">{scoreLabel(overall)}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Estimasi GenCV dari aturan yang bisa kamu lihat di bawah, bukan jaminan lolos ATS tertentu.
+            Estimasi Ayo Kerja dari aturan yang bisa kamu lihat di bawah, bukan jaminan lolos ATS tertentu.
           </p>
         </div>
       </section>

@@ -53,7 +53,7 @@ export function buildFeed(posts: Post[] = allPosts()): string {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
     '  <channel>',
-    '    <title>GenCV · Artikel</title>',
+    '    <title>Ayo Kerja · Artikel</title>',
     `    <link>${escapeXml(SITE_URL)}</link>`,
     `    <description>${escapeXml(SITE_DESCRIPTION)}</description>`,
     '    <language>id-ID</language>',

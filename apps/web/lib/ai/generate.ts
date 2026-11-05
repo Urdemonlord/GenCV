@@ -3,7 +3,7 @@ import { postprocess } from './postprocess';
 import { buildPrompt } from './prompts';
 import { AI_OUTPUTS, type AiInput, type AiOutput, type AiTask } from './tasks';
 
-/** Server only: the single place GenCV talks to a model. */
+/** Server only: the single place Ayo Kerja talks to a model. */
 
 const MODEL = 'gemini-2.5-flash';
 

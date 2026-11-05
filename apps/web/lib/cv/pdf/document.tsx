@@ -298,8 +298,8 @@ export function CvDocument({ view, template }: { view: CvView; template: Templat
       author={view.meta.author}
       subject={view.meta.subject}
       keywords={view.meta.keywords}
-      creator="GenCV"
-      producer="GenCV"
+      creator="Ayo Kerja"
+      producer="Ayo Kerja"
       language={view.language}
     >
       <Page size={view.paper} style={s.page}>

@@ -15,7 +15,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Isi CV, deskripsi lowongan, dan foto disimpan di penyimpanan browser (localStorage) di perangkat yang kamu pakai. GenCV tidak
+          Isi CV, deskripsi lowongan, dan foto disimpan di penyimpanan browser (localStorage) di perangkat yang kamu pakai. Ayo Kerja tidak
           punya akun pengguna dan tidak menyimpan salinan CV kamu di server.
         </p>
         <p>
@@ -38,11 +38,11 @@ const SECTIONS: LegalSection[] = [
           email, nomor telepon, alamat, dan foto tidak ikut dikirim.
         </p>
         <p>
-          Teks itu dikirim ke server GenCV, lalu diteruskan ke Google Gemini API untuk diproses. Server GenCV tidak menyimpan dan tidak
+          Teks itu dikirim ke server Ayo Kerja, lalu diteruskan ke Google Gemini API untuk diproses. Server Ayo Kerja tidak menyimpan dan tidak
           mencatat isinya. Hasilnya muncul sebagai saran dan baru masuk ke CV jika kamu menerimanya.
         </p>
         <p>
-          GenCV memakai Gemini API berbayar. Untuk layanan berbayar, Google menyatakan tidak memakai teks yang dikirim untuk
+          Ayo Kerja memakai Gemini API berbayar. Untuk layanan berbayar, Google menyatakan tidak memakai teks yang dikirim untuk
           meningkatkan produknya, tetapi dapat menyimpannya untuk sementara guna mendeteksi penyalahgunaan. Rinciannya ada di{' '}
           <a href="https://ai.google.dev/gemini-api/terms" className="underline hover:text-foreground" rel="noopener noreferrer" target="_blank">
             ketentuan Gemini API
@@ -58,7 +58,7 @@ const SECTIONS: LegalSection[] = [
       <p>
         Akun hanya diperlukan untuk membeli kredit AI. Yang disimpan: nama, email, hash kata sandi, saldo kredit, serta riwayat
         pembelian (paket, nominal, ID order QRIS, status, dan waktunya). Pembayaran diproses oleh aplikasi bank atau e-wallet kamu;
-        GenCV tidak menerima nomor rekening, kartu, atau PIN.
+        Ayo Kerja tidak menerima nomor rekening, kartu, atau PIN.
       </p>
     ),
   },
@@ -67,7 +67,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Untuk mengetahui halaman mana yang dipakai, GenCV memakai Vercel Web Analytics, yang tidak memakai cookie. Yang dicatat:
+          Untuk mengetahui halaman mana yang dipakai, Ayo Kerja memakai Vercel Web Analytics, yang tidak memakai cookie. Yang dicatat:
           halaman yang dibuka (tanpa parameter di URL), situs perujuk, negara, serta jenis perangkat, sistem operasi, dan browser.
           Isi CV tidak pernah ikut dikirim.
         </p>
@@ -92,7 +92,7 @@ const SECTIONS: LegalSection[] = [
           manusia dari bot.
         </p>
         <p>
-          GenCV tidak memakai cookie pelacak atau iklan. Satu-satunya penyimpanan di browser adalah localStorage untuk menyimpan
+          Ayo Kerja tidak memakai cookie pelacak atau iklan. Satu-satunya penyimpanan di browser adalah localStorage untuk menyimpan
           CV kamu, dan itu diperlukan agar aplikasi berfungsi, jadi tidak ada banner persetujuan cookie.
         </p>
       </>
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
     <LegalPage
       title="Kebijakan privasi"
       updated="6 Oktober 2026"
-      intro={<p>Kebijakan ini menjelaskan data apa yang diproses GenCV, layanan milik {OPERATOR}, dan ke mana data itu pergi.</p>}
+      intro={<p>Kebijakan ini menjelaskan data apa yang diproses Ayo Kerja, layanan milik {OPERATOR}, dan ke mana data itu pergi.</p>}
       sections={SECTIONS}
     />
   );

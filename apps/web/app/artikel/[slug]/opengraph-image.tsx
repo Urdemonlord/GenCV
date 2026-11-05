@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { getPost } from '@/lib/blog/posts';
 import { OG, ogFonts } from '@/lib/og';
 
-export const alt = 'Artikel GenCV';
+export const alt = 'Artikel Ayo Kerja';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -10,7 +10,7 @@ type Params = Promise<{ slug: string }>;
 
 export default async function OpengraphImage({ params }: { params: Params }) {
   const { slug } = await params;
-  const title = getPost(slug)?.title ?? 'Artikel GenCV';
+  const title = getPost(slug)?.title ?? 'Artikel Ayo Kerja';
   // Long headlines need to shrink, or they overflow the 630px canvas.
   const fontSize = title.length > 68 ? 54 : title.length > 44 ? 62 : 70;
 

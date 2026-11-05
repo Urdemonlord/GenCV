@@ -29,7 +29,7 @@ export function LegalPage({ title, updated, intro, sections }: { title: string; 
           <section>
             <h2 className="text-xl font-semibold">Kontak</h2>
             <p className="mt-3 leading-relaxed text-muted-foreground">
-              GenCV dikelola oleh {OPERATOR}. Pertanyaan, permintaan, atau laporan bisa dikirim ke{' '}
+              Ayo Kerja dikelola oleh {OPERATOR}. Pertanyaan, permintaan, atau laporan bisa dikirim ke{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground underline">
                 {CONTACT_EMAIL}
               </a>
