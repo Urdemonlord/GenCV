@@ -183,13 +183,13 @@ export function CvList() {
             </Button>
           </div>
         ) : (
-          <ul className="grid gap-4 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {items.map((item) => {
               const title = displayTitle(item);
               // The title falls back to the headline or name; don't repeat it underneath.
               const subtitle = [item.name, item.headline].filter((part) => part && part !== title).join(' · ');
               return (
-                <li key={item.id} className="flex flex-col rounded-xl border border-border bg-white p-5">
+                <li key={item.id} className="flex min-w-0 flex-col rounded-xl border border-border bg-white p-5">
                 {renaming === item.id ? (
                   <form
                     onSubmit={(e) => {
