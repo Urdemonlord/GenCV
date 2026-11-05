@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { pageMetadata } from '@/lib/seo';
+import { PageHero } from '../components/landing/page-hero';
 import { SiteFooter } from '../components/landing/sections';
 import { SiteHeader } from '../components/landing/site-header';
 import { isSyncConfigured } from '@/lib/sync/config';
@@ -22,12 +23,13 @@ export default function ProfilPage() {
     <>
       <SiteHeader />
       <main className="min-h-[60vh]">
+        <PageHero
+          eyebrow="Profil"
+          title="Profil"
+          lead="Akun yang dipakai di perangkat ini, dan salinan CV yang tersimpan di server."
+        />
         <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Profil</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Akun yang dipakai di perangkat ini, dan salinan CV yang tersimpan di server.
-          </p>
-          <div className="mt-6">
+          <div>
             <ProfilAkun />
           </div>
           <SyncPanel configured={isSyncConfigured()} />

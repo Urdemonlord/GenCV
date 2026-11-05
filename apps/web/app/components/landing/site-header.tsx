@@ -13,7 +13,7 @@ const NAV = [
   { href: '/', label: 'Beranda' },
   { href: '/editor', label: 'CV Workspace' },
   { href: '/lowongan', label: 'Lowongan' },
-  { href: '/#fitur', label: 'Career Intelligence' },
+  { href: '/career-intelligence', label: 'Career Intelligence' },
   { href: '/templates', label: 'Template' },
   { href: '/artikel', label: 'Artikel' },
 ];
@@ -52,8 +52,7 @@ export function SiteHeader() {
         <nav aria-label="Utama" className="hidden md:block">
           <ul className="flex items-center gap-1 text-sm text-foreground">
             {NAV.map((item) => {
-              // Halaman aktif memakai pil biru seperti mockup; tautan jangkar
-              // (/#fitur) tidak pernah cocok dengan pathname.
+              // Halaman aktif memakai pil biru seperti mockup.
               const active = pathname === item.href;
               return (
                 <li key={item.href}>

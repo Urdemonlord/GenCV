@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { MobileCta } from '../../components/landing/mobile-cta';
+import { PageHero } from '../../components/landing/page-hero';
 import { SiteFooter } from '../../components/landing/sections';
 import { SiteHeader } from '../../components/landing/site-header';
 import { allPosts, getPost, readingMinutes } from '@/lib/blog/posts';
@@ -52,22 +53,30 @@ export default async function PostPage({ params }: { params: Params }) {
         }}
       />
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
-        <Link href="/artikel" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          Semua artikel
-        </Link>
-
-        <article className="mt-6">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
-          <p className="mt-3 text-lg text-muted-foreground">{post.description}</p>
-          <p className="mt-4 text-xs text-muted-foreground">
+      <main>
+        <PageHero
+          eyebrow="Artikel"
+          title={post.title}
+          lead={post.description}
+          top={
+            <Link
+              href="/artikel"
+              className="mb-6 inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              Semua artikel
+            </Link>
+          }
+        >
+          <p className="mt-4 text-sm font-semibold text-primary/80">
             <time dateTime={post.datePublished}>{formatDate(post.datePublished)}</time>
             {' · '}
             {readingMinutes(post)} menit baca
           </p>
+        </PageHero>
 
-          <div className="mt-10 space-y-10">
+        <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+          <div className="space-y-10">
             {post.sections.map((section) => (
               <section key={section.heading}>
                 <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">{section.heading}</h2>
@@ -89,36 +98,36 @@ export default async function PostPage({ params }: { params: Params }) {
               </section>
             ))}
           </div>
+
+          <aside className="mt-14 rounded-xl border border-border bg-surface p-6">
+            <h2 className="text-lg font-semibold">Susun CV-nya sekarang</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Gratis, tanpa daftar akun, dan data tersimpan di perangkatmu. Analisis ATS menunjukkan bagian mana yang
+              masih perlu diperbaiki.
+            </p>
+            <Link
+              href="/editor"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Buka editor
+            </Link>
+          </aside>
+
+          {others.length > 0 && (
+            <section className="mt-12">
+              <h2 className="text-lg font-semibold">Artikel lain</h2>
+              <ul className="mt-4 space-y-3">
+                {others.map((other) => (
+                  <li key={other.slug}>
+                    <Link href={`/artikel/${other.slug}`} className="text-primary-soft hover:underline">
+                      {other.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </article>
-
-        <aside className="mt-14 rounded-xl border border-border bg-surface p-6">
-          <h2 className="text-lg font-semibold">Susun CV-nya sekarang</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Gratis, tanpa daftar akun, dan data tersimpan di perangkatmu. Analisis ATS menunjukkan bagian mana yang masih
-            perlu diperbaiki.
-          </p>
-          <Link
-            href="/editor"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Buka editor
-          </Link>
-        </aside>
-
-        {others.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-lg font-semibold">Artikel lain</h2>
-            <ul className="mt-4 space-y-3">
-              {others.map((other) => (
-                <li key={other.slug}>
-                  <Link href={`/artikel/${other.slug}`} className="text-primary-soft hover:underline">
-                    {other.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
       </main>
       <SiteFooter />
       <MobileCta />

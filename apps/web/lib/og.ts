@@ -2,15 +2,15 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 /**
- * Gaya gambar OG, disamakan dengan token tema di globals.css (neon editorial):
- * latar #080B14, hijau #39FF14 (primary), magenta #FF00FF (brand accent).
+ * Gaya gambar OG, disamakan dengan token tema Ayo Kerja di globals.css:
+ * latar kuning #F4E11B, teks ink #071A4A, muted #5E6B88, biru #0035AD.
  */
 export const OG = {
-  background: 'linear-gradient(135deg, #080B14 58%, #1F0A24)',
-  text: '#F8FAFC',
-  muted: '#A5AEC2',
-  primary: '#39FF14',
-  accent: '#FF00FF',
+  background: '#F4E11B',
+  text: '#071A4A',
+  muted: '#5E6B88',
+  primary: '#0035AD',
+  accent: '#0035AD',
   font: 'Plus Jakarta Sans',
 } as const;
 

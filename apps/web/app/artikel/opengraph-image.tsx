@@ -25,7 +25,7 @@ export default async function OpengraphImage() {
         }}
       >
         <div style={{ fontSize: 40, fontWeight: 800, display: 'flex' }}>
-          Gen<span style={{ color: OG.accent }}>CV</span>
+          Ayo <span style={{ color: OG.accent }}>Kerja</span>
         </div>
         <div style={{ marginTop: 36, fontSize: 68, fontWeight: 800, lineHeight: 1.1, maxWidth: 900, display: 'flex' }}>
           Artikel &amp; panduan CV

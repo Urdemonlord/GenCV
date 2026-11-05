@@ -38,16 +38,22 @@ export default async function MasukPage({ searchParams }: { searchParams: Search
   return (
     <>
       <SiteHeader />
-      <main className="min-h-[60vh]">
+      <main className="min-h-[60vh] bg-surface">
         {configured ? (
           <AuthForm initialMode={initialMode} callbackURL={callbackURL} />
         ) : (
           <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Masuk belum tersedia</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Sinkronisasi cloud belum diaktifkan di server ini. Semua fitur lain tetap berjalan normal dan CV kamu tetap
-              tersimpan di perangkat ini.
-            </p>
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
+              <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
+                <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
+                Akun
+              </p>
+              <h1 className="mt-4 text-3xl font-black tracking-tight">Masuk belum tersedia</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sinkronisasi cloud belum diaktifkan di server ini. Semua fitur lain tetap berjalan normal dan CV kamu
+                tetap tersimpan di perangkat ini.
+              </p>
+            </div>
           </div>
         )}
       </main>

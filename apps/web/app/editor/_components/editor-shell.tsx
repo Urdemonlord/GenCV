@@ -1,8 +1,9 @@
 'use client';
 
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, FileText, Gauge, LayoutGrid, Pencil, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Gauge, LayoutGrid, Pencil, X } from 'lucide-react';
 import { Button, NavItem, Select, Skeleton, Tabs } from '@/components/ds';
 import { cn } from '@/lib/cn';
 import { analyzeCv } from '@/lib/cv/analysis/analyze';
@@ -70,10 +71,8 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
     <div className="flex h-dvh flex-col overflow-x-hidden">
       <header className="flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-2.5">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold" aria-label="Ayo Kerja beranda">
-          <FileText className="size-5 text-primary-soft" aria-hidden="true" />
-          <span>
-            Gen<span className="text-gradient">CV</span>
-          </span>
+          {/* Logo yang sama dengan header situs (dipotong dari elemen-desain.png). */}
+          <Image src="/ayo-kerja-logo.png" alt="" width={744} height={178} className="h-[26px] w-auto" />
         </Link>
         <Button asChild variant="ghost" size="sm">
           <Link href="/dashboard">

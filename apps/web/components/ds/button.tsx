@@ -8,7 +8,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Flat neon green, like the mockup CTAs (not a gradient).
+        // Flat biru royal, seperti CTA mockup Ayo Kerja (bukan gradien).
         primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:brightness-110',
         secondary: 'bg-surface-raised text-foreground hover:bg-accent',
         outline: 'border border-border bg-transparent text-foreground hover:border-primary/60 hover:bg-primary/10',

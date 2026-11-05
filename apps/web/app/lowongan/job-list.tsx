@@ -102,8 +102,11 @@ function tileFor(company: string) {
  * Logo perusahaan bila feed membawanya, monogram bila tidak ada atau
  * logonya gagal dimuat. Logo dirender di kotak yang sama persis dengan
  * monogram (48px) supaya tata letak kartu tidak berubah.
+ *
+ * Diekspor untuk dipakai halaman /career-intelligence, yang menampilkan
+ * kartu lowongan yang sama.
  */
-function CompanyLogo({ job }: { job: HunterJob }) {
+export function CompanyLogo({ job }: { job: HunterJob }) {
   const [failed, setFailed] = useState(false);
   const tile = tileFor(job.company);
   if (!job.companyLogo || failed) {
@@ -137,7 +140,7 @@ function CompanyLogo({ job }: { job: HunterJob }) {
   );
 }
 
-function siteName(site: string) {
+export function siteName(site: string) {
   const key = site.toLowerCase();
   if (SITE_NAMES[key]) return SITE_NAMES[key];
   if (!site) return 'Lainnya';
@@ -218,8 +221,10 @@ function experienceBand(job: HunterJob): ExperienceBand | null {
  * "X–Y tahun" tampil apa adanya, "X+ tahun" tetap "X+ tahun", "minimal X
  * tahun" jadi "X+ tahun", "senior" jadi "Senior", entry/junior/fresh
  * graduate jadi "Entry level". Null bila iklan tidak menyebutkannya.
+ *
+ * Diekspor untuk dipakai halaman /career-intelligence.
  */
-function experienceText(job: HunterJob): string | null {
+export function experienceText(job: HunterJob): string | null {
   const text = `${job.title} ${job.description ?? ''}`;
   const unit = (raw: string) => (/tahun/i.test(raw) ? 'tahun' : 'years');
   const range = text.match(/(\d+)\s*[-–]\s*(\d+)\s*(tahun|years?)\b/i);
@@ -238,8 +243,10 @@ function experienceText(job: HunterJob): string | null {
  * "X hari lalu" / "X minggu lalu"). Null bila tanggal kosong, tak terurai,
  * atau di masa depan — elemennya lalu disembunyikan, bukan menampilkan
  * tanggal mentah.
+ *
+ * Diekspor untuk dipakai halaman /career-intelligence.
  */
-function relativePosted(datePosted: string): string | null {
+export function relativePosted(datePosted: string): string | null {
   const time = Date.parse(datePosted);
   if (Number.isNaN(time)) return null;
   const diffMs = Date.now() - time;

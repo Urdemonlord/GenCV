@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button, Tabs } from '@/components/ds';
 import { TEMPLATE_IDS, TEMPLATE_INFO, type TemplateAudience } from '@/lib/cv/templates';
 import { TemplateCard } from '../components/landing/sections';
+import { PageHero } from '../components/landing/page-hero';
 
 const FILTERS: { value: 'all' | TemplateAudience; label: string }[] = [
   { value: 'all', label: 'Semua' },
@@ -20,30 +21,32 @@ export function TemplateGallery() {
   const ids = TEMPLATE_IDS.filter((id) => filter === 'all' || TEMPLATE_INFO[id].audiences.includes(filter));
 
   return (
-    <section className="py-10 sm:py-14">
-      <div className="mx-auto max-w-6xl px-4">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Template CV</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Semua template satu kolom dengan teks asli dan judul section standar, jadi tetap terbaca ATS. Pilih sesuai bidang;
-          kamu bisa ganti kapan saja di editor tanpa mengetik ulang.
-        </p>
-        <Tabs className="mt-8 flex-wrap" label="Filter bidang" panelId={panelId} value={filter} onChange={setFilter} tabs={FILTERS} />
-        <ul id={panelId} role="tabpanel" className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {ids.map((id) => (
-            <li key={id}>
-              <TemplateCard id={id} />
-              <Button asChild variant="outline" size="sm" className="mt-3">
-                <Link href={`/editor?new=1&template=${id}`}>Pakai template ini</Link>
-              </Button>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-12 text-center">
-          <Button asChild variant="primary" size="lg">
-            <Link href="/editor">Buka editor</Link>
-          </Button>
+    <>
+      <PageHero
+        eyebrow="Template CV"
+        title="Template CV"
+        lead="Semua template satu kolom dengan teks asli dan judul section standar, jadi tetap terbaca ATS. Pilih sesuai bidang; kamu bisa ganti kapan saja di editor tanpa mengetik ulang."
+      />
+      <section className="py-10 sm:py-14">
+        <div className="mx-auto max-w-6xl px-4">
+          <Tabs className="flex-wrap" label="Filter bidang" panelId={panelId} value={filter} onChange={setFilter} tabs={FILTERS} />
+          <ul id={panelId} role="tabpanel" className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {ids.map((id) => (
+              <li key={id}>
+                <TemplateCard id={id} />
+                <Button asChild variant="outline" size="sm" className="mt-3">
+                  <Link href={`/editor?new=1&template=${id}`}>Pakai template ini</Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-12 text-center">
+            <Button asChild variant="primary" size="lg">
+              <Link href="/editor">Buka editor</Link>
+            </Button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
