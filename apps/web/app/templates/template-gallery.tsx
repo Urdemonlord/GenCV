@@ -29,7 +29,7 @@ export function TemplateGallery() {
       />
       <section className="section-brand py-10 sm:py-14">
         <div className="mx-auto max-w-[1440px] px-4">
-          <Tabs className="flex-wrap" label="Filter bidang" panelId={panelId} value={filter} onChange={setFilter} tabs={FILTERS} />
+          <Tabs label="Filter bidang" panelId={panelId} value={filter} onChange={setFilter} tabs={FILTERS} />
           <ul id={panelId} role="tabpanel" className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {ids.map((id) => (
               <li key={id} className="card-brand flex flex-col p-4">

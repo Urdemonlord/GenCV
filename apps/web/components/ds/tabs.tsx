@@ -34,7 +34,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, 
     <div
       role={isTablist ? 'tablist' : 'group'}
       aria-label={label}
-      className={cn('inline-flex gap-1 rounded-full bg-surface p-1', className)}
+      className={cn('inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-surface p-1 scrollbar-hide', className)}
     >
       {tabs.map((tab, index) => {
         const selected = tab.value === value;
@@ -52,7 +52,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, 
             onKeyDown={isTablist ? (event) => onKeyDown(event, index) : undefined}
             className={cn(
               // Pil aktif biru, seperti navigasi header Ayo Kerja.
-              'rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors',
+              'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors',
               selected ? 'bg-primary text-primary-foreground' : 'text-foreground-soft hover:text-primary'
             )}
           >
