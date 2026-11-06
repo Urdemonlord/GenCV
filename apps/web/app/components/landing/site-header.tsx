@@ -31,6 +31,12 @@ const NAV = [
  * diperiksa, tampilkan versi belum masuk (sama dengan hasil prerender) supaya
  * tidak ada kedip hydration; begitu sesi ketemu, ganti ke versi masuk.
  */
+/** Menu aktif juga di sub-halamannya (/lowongan/remote, /artikel/slug). */
+function isActive(pathname: string | null, href: string) {
+  if (!pathname) return false;
+  return pathname === href || (href !== '/' && pathname.startsWith(`${href}/`));
+}
+
 export function SiteHeader() {
   const { data: session } = authClient.useSession();
   const pathname = usePathname();
@@ -53,7 +59,7 @@ export function SiteHeader() {
           <ul className="flex items-center gap-1 text-sm text-foreground">
             {NAV.map((item) => {
               // Halaman aktif memakai pil biru seperti mockup.
-              const active = pathname === item.href;
+              const active = isActive(pathname, item.href);
               return (
                 <li key={item.href}>
                   <Link
@@ -109,7 +115,7 @@ export function SiteHeader() {
         <nav aria-label="Menu" className="border-t border-primary/15 bg-brand-accent px-4 py-3 md:hidden">
           <ul className="flex flex-col gap-1">
             {NAV.map((item) => {
-              const active = pathname === item.href;
+              const active = isActive(pathname, item.href);
               return (
                 <li key={item.href}>
                   <Link

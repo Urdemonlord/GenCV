@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ds';
+import { cn } from '@/lib/cn';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { MobileCta } from '../../components/landing/mobile-cta';
@@ -75,11 +77,12 @@ export default async function PostPage({ params }: { params: Params }) {
           </p>
         </PageHero>
 
-        <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
+        <article className="max-w-3xl">
           <div className="space-y-10">
             {post.sections.map((section) => (
               <section key={section.heading}>
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">{section.heading}</h2>
+                <h2 className="font-display text-xl font-extrabold tracking-[-0.02em] sm:text-2xl">{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
                   <p key={paragraph} className="mt-4 leading-relaxed text-foreground/90">
                     {paragraph}
@@ -89,7 +92,7 @@ export default async function PostPage({ params }: { params: Params }) {
                   <ul className="mt-4 space-y-2">
                     {section.bullets.map((bullet) => (
                       <li key={bullet} className="flex gap-2.5 text-foreground/90">
-                        <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-primary-soft" />
+                        <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -99,15 +102,15 @@ export default async function PostPage({ params }: { params: Params }) {
             ))}
           </div>
 
-          <aside className="mt-14 rounded-xl border border-border bg-surface p-6">
-            <h2 className="text-lg font-semibold">Susun CV-nya sekarang</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <aside className="section-brand mt-14 rounded-2xl p-6">
+            <h2 className="text-lg font-extrabold">Susun CV-nya sekarang</h2>
+            <p className="mt-2 text-sm text-primary-foreground/85">
               Gratis, tanpa daftar akun, dan data tersimpan di perangkatmu. Analisis ATS menunjukkan bagian mana yang
               masih perlu diperbaiki.
             </p>
             <Link
               href="/editor"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className={cn(buttonVariants({ variant: 'accent' }), 'mt-4')}
             >
               Buka editor
             </Link>
@@ -115,11 +118,11 @@ export default async function PostPage({ params }: { params: Params }) {
 
           {others.length > 0 && (
             <section className="mt-12">
-              <h2 className="text-lg font-semibold">Artikel lain</h2>
+              <h2 className="text-lg font-extrabold">Artikel lain</h2>
               <ul className="mt-4 space-y-3">
                 {others.map((other) => (
                   <li key={other.slug}>
-                    <Link href={`/artikel/${other.slug}`} className="text-primary-soft hover:underline">
+                    <Link href={`/artikel/${other.slug}`} className="font-semibold text-primary hover:underline">
                       {other.title}
                     </Link>
                   </li>
@@ -128,6 +131,7 @@ export default async function PostPage({ params }: { params: Params }) {
             </section>
           )}
         </article>
+        </div>
       </main>
       <SiteFooter />
       <MobileCta />

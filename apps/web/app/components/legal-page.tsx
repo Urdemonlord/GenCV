@@ -28,28 +28,30 @@ export function LegalPage({
       <SiteHeader />
       <main>
         <PageHero eyebrow={eyebrow} title={title} lead={intro} />
-        <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
+        <div className="max-w-3xl">
           <p className="text-sm text-muted-foreground">Terakhir diperbarui {updated}</p>
           <div className="mt-8 space-y-10">
             {sections.map((section, index) => (
               <section key={section.title}>
-                <h2 className="text-xl font-semibold">
+                <h2 className="font-display text-xl font-extrabold tracking-[-0.02em]">
                   {index + 1}. {section.title}
                 </h2>
-                <div className="mt-3 space-y-3 leading-relaxed text-muted-foreground">{section.body}</div>
+                <div className="mt-3 space-y-3 leading-relaxed text-foreground-soft [&_a]:font-semibold [&_a]:text-primary">{section.body}</div>
               </section>
             ))}
             <section>
-              <h2 className="text-xl font-semibold">Kontak</h2>
-              <p className="mt-3 leading-relaxed text-muted-foreground">
+              <h2 className="font-display text-xl font-extrabold tracking-[-0.02em]">Kontak</h2>
+              <p className="mt-3 leading-relaxed text-foreground-soft">
                 Ayo Kerja dikelola oleh {OPERATOR}. Pertanyaan, permintaan, atau laporan bisa dikirim ke{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground underline">
+                <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-primary underline">
                   {CONTACT_EMAIL}
                 </a>
                 .
               </p>
             </section>
           </div>
+        </div>
         </div>
       </main>
       <SiteFooter />

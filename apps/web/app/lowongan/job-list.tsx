@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Bookmark, Briefcase, ChevronDown, FileText, Layers, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
+import { JobCard, isRemoteJob, normalizedType, siteName } from './job-card';
+import { HERO_TITLE_BAR, HERO_TITLE_DISPLAY } from '../components/landing/page-hero';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
 import { runSyncRound } from '@/lib/sync/client';
@@ -24,11 +26,12 @@ import {
   cvTitleForJob,
   parseHunterJobs,
   type HunterJob,
+  type HunterParseResult,
 } from '@/lib/cv/hunter';
 
 /**
  * Portal lowongan Ayo Kerja — dibuat semirip mungkin dengan mockup design.md /
- * index.html (kuning #F4E11B + biru royal #0035AD: hero kuning, seksi hasil
+ * index.html (token brand-accent kuning + primary biru royal: hero kuning, seksi hasil
  * biru, kartu putih, badge kuning, sidebar sumber, tab berjumlah).
  *
  * Yang tetap jujur dan TIDAK meniru angka mockup:
@@ -62,8 +65,26 @@ type View = 'all' | 'recommended' | 'saved' | 'applications';
 
 const SAVED_KEY = 'gencv:saved-jobs';
 
-const BLUE = 'hsl(var(--primary))';
-const YELLOW = 'hsl(var(--brand-accent))';
+/** Jumlah kartu yang tampil di awal dan tiap klik "Muat lebih banyak". */
+const PAGE_SIZE = 12;
+
+/** Halaman portal: semua lowongan (/lowongan) atau hanya remote (/lowongan/remote). */
+export type JobListVariant = 'all' | 'remote';
+
+const HERO_COPY: Record<JobListVariant, { eyebrow: string; title: string; bar: string; lead: string }> = {
+  all: {
+    eyebrow: 'Portal Karier & Peluang Kerja',
+    title: 'Temukan peluang kerja yang sesuai',
+    bar: 'dengan profilmu.',
+    lead: 'Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk langkah karier berikutnya.',
+  },
+  remote: {
+    eyebrow: 'Lowongan Remote',
+    title: 'Lowongan kerja remote,',
+    bar: 'dari mana saja.',
+    lead: 'Lowongan kerja remote dari LinkedIn, Indeed, dan Glassdoor, diperbarui tiap hari. Cek kecocokannya dengan CV-mu, lalu buat CV khusus untuk tiap lowongan.',
+  },
+};
 
 const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'all', label: 'Semua' },
@@ -72,101 +93,6 @@ const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'part-time', label: 'Part-time' },
   { id: 'internship', label: 'Magang' },
 ];
-
-const SITE_NAMES: Record<string, string> = {
-  linkedin: 'LinkedIn',
-  indeed: 'Indeed',
-  glassdoor: 'Glassdoor',
-  zip_recruiter: 'ZipRecruiter',
-  hellowork: 'HelloWork',
-  bdjobs: 'BDJobs',
-  naukri: 'Naukri',
-  bayt: 'Bayt',
-  google: 'Google',
-};
-
-/** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */
-const TILE_COLORS = [
-  { bg: YELLOW, fg: '#0035AD' },
-  { bg: BLUE, fg: '#FFFFFF' },
-  { bg: '#EAF0FF', fg: '#0035AD' },
-];
-
-function tileFor(company: string) {
-  let hash = 0;
-  for (let i = 0; i < company.length; i += 1) hash = (hash + company.charCodeAt(i)) % 997;
-  return TILE_COLORS[hash % TILE_COLORS.length];
-}
-
-/**
- * Logo perusahaan bila feed membawanya, monogram bila tidak ada atau
- * logonya gagal dimuat. Logo dirender di kotak yang sama persis dengan
- * monogram (48px) supaya tata letak kartu tidak berubah.
- *
- * Diekspor untuk dipakai halaman /career-intelligence, yang menampilkan
- * kartu lowongan yang sama.
- */
-export function CompanyLogo({ job }: { job: HunterJob }) {
-  const [failed, setFailed] = useState(false);
-  const tile = tileFor(job.company);
-  if (!job.companyLogo || failed) {
-    return (
-      <span
-        aria-hidden="true"
-        className="grid size-12 shrink-0 place-items-center rounded-[11px] text-[22px] font-black"
-        style={{ background: tile.bg, color: tile.fg }}
-      >
-        {job.company.charAt(0).toUpperCase()}
-      </span>
-    );
-  }
-  return (
-    <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-[11px] bg-white">
-      {/* unoptimized: logo berasal dari banyak host (CDN LinkedIn, Glassdoor,
-          dsb.) yang tidak bisa di-whitelist di remotePatterns, dan optimasi
-          Next tidak diinginkan untuk logo pihak ketiga. */}
-      <Image
-        src={job.companyLogo}
-        alt=""
-        aria-hidden="true"
-        width={48}
-        height={48}
-        unoptimized
-        referrerPolicy="no-referrer"
-        className="size-12 object-contain p-1"
-        onError={() => setFailed(true)}
-      />
-    </span>
-  );
-}
-
-export function siteName(site: string) {
-  const key = site.toLowerCase();
-  if (SITE_NAMES[key]) return SITE_NAMES[key];
-  if (!site) return 'Lainnya';
-  // Site baru yang belum dipetakan: "zip_recruiter" -> "Zip Recruiter".
-  return site
-    .split(/[_-]+/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-/** jobType feed adalah teks bebas JobSpy ("fulltime", "parttime, contract", …). */
-function normalizedType(job: HunterJob): Tab | 'contract' | null {
-  const raw = job.jobType.toLowerCase();
-  if (raw.includes('full')) return 'full-time';
-  if (raw.includes('part')) return 'part-time';
-  if (raw.includes('intern')) return 'internship';
-  if (raw.includes('contract')) return 'contract';
-  return null;
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  'full-time': 'Full-time',
-  'part-time': 'Part-time',
-  contract: 'Contract',
-  internship: 'Magang',
-};
 
 type ExperienceBand = 'entry' | '1-3' | '2-5' | 'senior';
 
@@ -215,54 +141,6 @@ function experienceBand(job: HunterJob): ExperienceBand | null {
   return null;
 }
 
-/**
- * Pengalaman untuk ditampilkan di kartu — HANYA string literal dari teks
- * iklan (judul + deskripsi), bukan hasil perkiraan experienceBand: rentang
- * "X–Y tahun" tampil apa adanya, "X+ tahun" tetap "X+ tahun", "minimal X
- * tahun" jadi "X+ tahun", "senior" jadi "Senior", entry/junior/fresh
- * graduate jadi "Entry level". Null bila iklan tidak menyebutkannya.
- *
- * Diekspor untuk dipakai halaman /career-intelligence.
- */
-export function experienceText(job: HunterJob): string | null {
-  const text = `${job.title} ${job.description ?? ''}`;
-  const unit = (raw: string) => (/tahun/i.test(raw) ? 'tahun' : 'years');
-  const range = text.match(/(\d+)\s*[-–]\s*(\d+)\s*(tahun|years?)\b/i);
-  if (range) return `${range[1]}–${range[2]} ${unit(range[3])}`;
-  const plus = text.match(/(\d+)\s*\+\s*(tahun|years?)\b/i);
-  if (plus) return `${plus[1]}+ ${unit(plus[2])}`;
-  const min = text.match(/\b(minimal|minimum|at least)\s*(\d+)\s*(tahun|years?)\b/i);
-  if (min) return `${min[2]}+ ${unit(min[3])}`;
-  if (/\bsenior\b/i.test(text)) return 'Senior';
-  if (/\b(entry level|fresh graduate|junior)\b/i.test(text)) return 'Entry level';
-  return null;
-}
-
-/**
- * Waktu posting relatif dari ISO date vs sekarang ("X jam lalu" /
- * "X hari lalu" / "X minggu lalu"). Null bila tanggal kosong, tak terurai,
- * atau di masa depan — elemennya lalu disembunyikan, bukan menampilkan
- * tanggal mentah.
- *
- * Diekspor untuk dipakai halaman /career-intelligence.
- */
-export function relativePosted(datePosted: string): string | null {
-  const time = Date.parse(datePosted);
-  if (Number.isNaN(time)) return null;
-  const diffMs = Date.now() - time;
-  if (diffMs < 0) return null;
-  const hours = Math.floor(diffMs / 3_600_000);
-  if (hours < 1) return 'Baru saja';
-  if (hours < 24) return `${hours} jam lalu`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} hari lalu`;
-  return `${Math.floor(days / 7)} minggu lalu`;
-}
-
-function isRemoteJob(job: HunterJob): boolean {
-  return job.isRemote || /remote|jarak jauh/i.test(job.location ?? '');
-}
-
 function tabMatches(job: HunterJob, tab: Tab): boolean {
   if (tab === 'all') return true;
   if (tab === 'remote') return isRemoteJob(job);
@@ -285,23 +163,30 @@ function loadSaved(): Set<string> {
   }
 }
 
-const btnGreen =
+const btnPrimary =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
-const btnOutline =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold transition hover:border-muted-foreground/60 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
 const btnWhite =
   'inline-flex items-center justify-center gap-2 rounded-[13px] bg-white px-4 py-2.5 text-sm font-extrabold text-primary transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:opacity-50';
 const btnGhostLight =
   'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2';
 
-export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
+export function JobList({
+  syncConfigured,
+  initialFeed,
+  variant = 'all',
+}: {
+  syncConfigured: boolean;
+  variant?: JobListVariant;
+  /** Feed yang sudah diambil server; null bila gagal, lalu browser mencoba sendiri. */
+  initialFeed: HunterParseResult | null;
+}) {
   const router = useRouter();
   const { toast } = useToast();
   const { data: session, isPending: sessionPending, error: sessionError } = authClient.useSession();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [jobs, setJobs] = useState<HunterJob[] | null>(null);
-  const [skipped, setSkipped] = useState(0);
-  const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>('loading');
+  const [jobs, setJobs] = useState<HunterJob[] | null>(initialFeed?.jobs ?? null);
+  const [skipped, setSkipped] = useState(initialFeed?.skipped ?? 0);
+  const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>(initialFeed ? 'loaded' : 'loading');
   const [feedSource, setFeedSource] = useState<'otomatis' | 'manual'>('otomatis');
   // null = belum dipilih: begitu daftar CV terbaca, default-nya adalah CV
   // terbaru (yang terakhir diisi/diubah user), bukan CV kosong — supaya
@@ -319,10 +204,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   const [typeFilter, setTypeFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
-  const [tab, setTab] = useState<Tab>('all');
+  const hero = HERO_COPY[variant];
+  const initialTab: Tab = variant === 'remote' ? 'remote' : 'all';
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [sort, setSort] = useState<Sort>('relevant');
   const [view, setView] = useState<View>('all');
-  const [limit, setLimit] = useState(6);
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   useEffect(() => {
     const docs = listDocuments();
@@ -340,9 +227,9 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     setBaseDoc(baseId ? loadDocument(baseId) : null);
   }, [baseId]);
 
-  // Seperti mockup: ganti filter/tab/sort/view kembali menampilkan 6 pertama.
+  // Ganti filter/tab/sort/view kembali menampilkan halaman pertama.
   useEffect(() => {
-    setLimit(6);
+    setLimit(PAGE_SIZE);
   }, [query, locationFilter, typeFilter, experienceFilter, sourceFilter, tab, sort, view]);
 
   // Baris tab portal & chip tipe di-scroll horizontal di mobile: pastikan
@@ -375,9 +262,13 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   // Feed otomatis: hunter harian mempublikasikan jobs.json ke repo data
-  // publik, dan halaman ini memuatnya langsung. Impor manual hanya jadi
-  // fallback kalau feed tidak bisa dijangkau.
-  useEffect(loadFeed, []);
+  // publik. Server sudah memuatnya (initialFeed); browser hanya mengambil
+  // sendiri bila server gagal. Impor manual jadi fallback terakhir.
+  useEffect(() => {
+    if (!initialFeed) loadFeed();
+    // Sekali saat mount: initialFeed tidak berubah selama halaman terbuka.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const importFile = (file: File | undefined) => {
     if (!file) return;
@@ -426,10 +317,10 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     setTypeFilter('');
     setExperienceFilter('');
     setSourceFilter('');
-    setTab('all');
+    setTab(initialTab);
     setSort('relevant');
     setView('all');
-    setLimit(6);
+    setLimit(PAGE_SIZE);
   };
 
   const filtersActive =
@@ -438,7 +329,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
     typeFilter !== '' ||
     experienceFilter !== '' ||
     sourceFilter !== '' ||
-    tab !== 'all' ||
+    tab !== initialTab ||
     sort !== 'relevant';
 
   /** Skor nyata per lowongan: deskripsi bila ada, judul bila tidak. */
@@ -573,7 +464,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   const filterSelectClass =
-    'w-full appearance-none bg-transparent py-3 text-[13px] font-extrabold text-primary outline-none sm:py-3.5 sm:text-sm [&>option]:bg-white [&>option]:text-[#071A4A]';
+    'w-full appearance-none bg-transparent py-3 text-[13px] font-extrabold text-primary outline-none sm:py-3.5 sm:text-sm [&>option]:bg-white [&>option]:text-foreground';
 
   return (
     <>
@@ -584,15 +475,23 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
             <div>
               <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
                 <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
-                Portal Karier &amp; Peluang Kerja
+                {hero.eyebrow}
               </p>
-              <h1 className="mt-4 max-w-[760px] text-[clamp(2.5rem,4.5vw,4.35rem)] font-black uppercase leading-[0.98] tracking-[-0.06em]">
-                <span className="block">Temukan peluang kerja yang sesuai</span>
-                <span className="mt-1 inline-block bg-primary px-2.5 pb-1 text-brand-accent">dengan profilmu.</span>
+              <h1 className={HERO_TITLE_DISPLAY}>
+                <span className="block">{hero.title}</span>
+                <span className={HERO_TITLE_BAR}>{hero.bar}</span>
               </h1>
-              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-[#10265A]">
-                Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk
-                langkah karier berikutnya.
+              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-foreground-soft">{hero.lead}</p>
+              <p className="mt-3 text-sm font-bold text-primary">
+                {variant === 'remote' ? (
+                  <Link href="/lowongan" className="underline-offset-4 hover:underline">
+                    ← Lihat semua lowongan
+                  </Link>
+                ) : (
+                  <Link href="/lowongan/remote" className="underline-offset-4 hover:underline">
+                    Lihat lowongan remote →
+                  </Link>
+                )}
               </p>
             </div>
             <HeroArt />
@@ -611,11 +510,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari posisi, perusahaan, atau skill..."
-                className="w-full min-w-0 bg-transparent px-1 py-3 text-sm text-foreground outline-none placeholder:text-[#62708D]"
+                className="w-full min-w-0 bg-transparent px-1 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
               <button
                 type="submit"
-                className="h-11 shrink-0 rounded-[13px] bg-primary px-5 text-sm font-extrabold text-white transition hover:bg-[#002B91]"
+                className="h-11 shrink-0 rounded-[13px] bg-primary px-5 text-sm font-extrabold text-white transition hover:bg-primary-strong"
               >
                 Cari
               </button>
@@ -845,7 +744,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value as Sort)}
-                    className="bg-transparent outline-none [&>option]:bg-white [&>option]:text-[#071A4A]"
+                    className="bg-transparent outline-none [&>option]:bg-white [&>option]:text-foreground"
                   >
                     <option value="relevant">Paling relevan</option>
                     <option value="newest">Terbaru</option>
@@ -868,7 +767,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 ) : (
                   <div className="mt-6 rounded-2xl border border-dashed border-white/40 p-10 text-center text-white">
                     <FileText className="mx-auto size-10 text-white/70" aria-hidden="true" />
-                    <h2 className="mt-4 text-lg font-semibold">Feed otomatis hunter tidak bisa dijangkau</h2>
+                    <h2 className="mt-4 text-lg font-extrabold">Feed otomatis hunter tidak bisa dijangkau</h2>
                     <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
                       Sebagai fallback, impor file jobs.json hasil hunter secara manual. Daftar ini tidak dikirim ke
                       server mana pun.
@@ -897,12 +796,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </div>
                 )
               ) : view === 'applications' ? (
-                <div className="mt-6 rounded-2xl bg-white p-8 text-center text-[#5E6B88]">
-                  <h2 className="text-lg font-bold text-[#071A4A]">Lamaran Saya belum tersedia</h2>
+                <div className="mt-6 rounded-2xl bg-white p-8 text-center text-muted-foreground">
+                  <h2 className="text-lg font-bold text-foreground">Lamaran Saya belum tersedia</h2>
                   <p className="mx-auto mt-2 max-w-md text-sm">
                     Pelacakan lamaran belum termasuk dalam portal ini. Lowongan yang kamu simpan ada di Tersimpan.
                   </p>
-                  <button type="button" onClick={() => setView('saved')} className={`${btnGreen} mt-5`}>
+                  <button type="button" onClick={() => setView('saved')} className={`${btnPrimary} mt-5`}>
                     Lihat Tersimpan
                   </button>
                 </div>
@@ -934,7 +833,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                         <select
                           value={baseId ?? ''}
                           onChange={(e) => setBaseId(e.target.value)}
-                          className="min-w-0 flex-1 truncate rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white sm:flex-none sm:max-w-[300px] [&>option]:bg-white [&>option]:text-[#071A4A]"
+                          className="min-w-0 flex-1 truncate rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white sm:flex-none sm:max-w-[300px] [&>option]:bg-white [&>option]:text-foreground"
                         >
                           <option value="">CV kosong</option>
                           {bases.map((doc) => (
@@ -948,8 +847,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </div>
 
                   {shownJobs.length === 0 ? (
-                    <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-[#5E6B88]">
-                      <h2 className="text-lg font-bold text-[#071A4A]">
+                    <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-muted-foreground">
+                      <h2 className="text-lg font-bold text-foreground">
                         {view === 'saved'
                           ? 'Belum ada lowongan tersimpan'
                           : view === 'recommended'
@@ -967,15 +866,15 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                       </p>
                       <div className="mt-5 flex justify-center">
                         {view === 'saved' ? (
-                          <button type="button" onClick={() => setView('all')} className={btnGreen}>
+                          <button type="button" onClick={() => setView('all')} className={btnPrimary}>
                             Jelajahi lowongan
                           </button>
                         ) : view === 'recommended' && !baseDoc ? (
-                          <a href="/editor?new=1" className={btnGreen}>
+                          <a href="/editor?new=1" className={btnPrimary}>
                             Buat CV
                           </a>
                         ) : (
-                          <button type="button" onClick={resetFilters} className={btnGreen}>
+                          <button type="button" onClick={resetFilters} className={btnPrimary}>
                             {view === 'recommended' ? 'Tampilkan semua lowongan' : 'Hapus filter'}
                           </button>
                         )}
@@ -984,128 +883,21 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   ) : (
                     <>
                       <ul className="mt-4 grid gap-[11px]" aria-live="polite">
-                        {shownJobs.map((job) => {
-                          const type = normalizedType(job);
-                          const score = scores.get(job.jobUrl)?.score;
-                          const isSaved = saved.has(job.jobUrl);
-                          const exp = experienceText(job);
-                          const posted = relativePosted(job.datePosted);
-                          return (
-                            <li
+                        {shownJobs.map((job) => (
+                            <JobCard
                               key={job.jobUrl}
-                              className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-[#071A4A] shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
-                            >
-                              <CompanyLogo job={job} />
-                              <div className="min-w-0">
-                                <h2 className="text-[17px] font-black leading-[1.2] tracking-[-0.025em]">
-                                  <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                                    {job.title}
-                                  </a>
-                                </h2>
-                                <p className="mt-1 text-[13px] font-bold text-[#34466E]">{job.company}</p>
-                                <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-[#263B6A]">
-                                  {job.location && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                      {job.location}
-                                    </span>
-                                  )}
-                                  {type && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <Briefcase className="size-[15px] text-primary" aria-hidden="true" />
-                                      {TYPE_LABEL[type]}
-                                    </span>
-                                  )}
-                                  {exp && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <BarChart3 className="size-[15px] text-primary" aria-hidden="true" />
-                                      {exp}
-                                    </span>
-                                  )}
-                                  {isRemoteJob(job) && !job.location && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                      Remote
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="mt-1.5 text-[10px] text-[#75809A]">
-                                  Sumber: {siteName(job.site)}
-                                  {posted ? ` · ${posted}` : ''}
-                                </p>
-                                {(job.flagDemoLike || !job.description) && (
-                                  <p className="mt-1 text-xs text-[#5E6B88]/80">
-                                    {[
-                                      job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
-                                      !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
-                                    ]
-                                      .filter(Boolean)
-                                      .join(' · ')}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-[#D9E1F2] pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
-                                {score === undefined ? (
-                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
-                                    Lengkapi profil untuk Job Match
-                                  </span>
-                                ) : score === null ? (
-                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
-                                    Belum ada kata kunci yang cocok
-                                  </span>
-                                ) : (
-                                  <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
-                                    ✦ {score}% cocok
-                                  </span>
-                                )}
-                                {posted && (
-                                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#64718C]">
-                                    {posted}
-                                  </span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => toggleSaved(job.jobUrl)}
-                                  aria-pressed={isSaved}
-                                  aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
-                                  title={isSaved ? 'Tersimpan' : 'Simpan'}
-                                  className={`grid size-[38px] shrink-0 place-items-center rounded-[9px] text-primary transition hover:bg-[#EAF0FF] focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
-                                    isSaved ? 'bg-[#EAF0FF]' : ''
-                                  }`}
-                                >
-                                  <Bookmark
-                                    className="size-[21px]"
-                                    fill={isSaved ? 'currentColor' : 'none'}
-                                    aria-hidden="true"
-                                  />
-                                </button>
-                                <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                                  <button
-                                    type="button"
-                                    onClick={() => createCv(job)}
-                                    className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
-                                  >
-                                    Buat CV &amp; Lamar ↗
-                                  </button>
-                                  <a
-                                    href={job.jobUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className={`${btnOutline} flex-1 px-3 py-2.5 text-xs lg:flex-none`}
-                                  >
-                                    Lihat Detail
-                                  </a>
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })}
+                              job={job}
+                              score={scores.get(job.jobUrl)?.score}
+                              onCreateCv={createCv}
+                              saved={{ isSaved: saved.has(job.jobUrl), onToggle: () => toggleSaved(job.jobUrl) }}
+                            />
+                        ))}
                       </ul>
                       {visibleJobs.length > shownJobs.length && (
                         <div className="mt-5 flex justify-center">
                           <button
                             type="button"
-                            onClick={() => setLimit((n) => n + 4)}
+                            onClick={() => setLimit((n) => n + PAGE_SIZE)}
                             className="rounded-[13px] bg-brand-accent px-5 py-2.5 text-sm font-extrabold text-primary transition hover:brightness-105"
                           >
                             Muat lebih banyak

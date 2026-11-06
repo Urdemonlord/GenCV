@@ -79,12 +79,12 @@ export function AuthForm({
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
-      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
+      <div className="card-sticker p-6 sm:p-8">
         <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
           <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
           Akun
         </p>
-        <h1 className="mt-4 text-3xl font-black tracking-tight">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
+        <h1 className="mt-4 font-display text-3xl font-black tracking-[-0.02em]">{isSignUp ? 'Buat akun' : 'Masuk'}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {isSignUp
             ? 'Akun diperlukan untuk membuat CV baru. CV tersimpan di akunmu dan bisa dibuka dari perangkat lain.'
@@ -143,7 +143,7 @@ export function AuthForm({
       <div className="mt-6 text-sm">
         <button
           type="button"
-          className="text-primary-soft hover:underline"
+          className="text-primary hover:underline"
           disabled={busy}
           onClick={() => {
             setMode(isSignUp ? 'masuk' : 'daftar');

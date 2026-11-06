@@ -169,6 +169,19 @@ export interface ContactItem {
   href?: string;
 }
 
+/**
+ * Baris kontak di header CV. Kalau kontak banyak, satu baris akan patah di tengah dan baris
+ * berikutnya diawali pemisah "|". Jadi data diri (kota, telepon, email) dan tautan (LinkedIn,
+ * GitHub, situs) dipisah ke dua baris; daftar pendek (≤ 3) tetap satu baris.
+ */
+export function contactLines(contacts: ContactItem[]): ContactItem[][] {
+  const isWebLink = (contact: ContactItem) => /^https?:/i.test(contact.href ?? '');
+  const personal = contacts.filter((contact) => !isWebLink(contact));
+  const links = contacts.filter(isWebLink);
+  if (contacts.length <= 3 || personal.length === 0 || links.length === 0) return contacts.length ? [contacts] : [];
+  return [personal, links];
+}
+
 export interface EntryView {
   title: string;
   subtitle: string;

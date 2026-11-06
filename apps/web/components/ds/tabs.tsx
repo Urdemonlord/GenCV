@@ -34,7 +34,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, 
     <div
       role={isTablist ? 'tablist' : 'group'}
       aria-label={label}
-      className={cn('inline-flex gap-1 rounded-lg bg-background/60 p-1', className)}
+      className={cn('inline-flex gap-1 rounded-full bg-surface p-1', className)}
     >
       {tabs.map((tab, index) => {
         const selected = tab.value === value;
@@ -51,8 +51,9 @@ export function Tabs<T extends string>({ tabs, value, onChange, label, panelId, 
             onClick={() => onChange(tab.value)}
             onKeyDown={isTablist ? (event) => onKeyDown(event, index) : undefined}
             className={cn(
-              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              selected ? 'bg-surface-raised text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+              // Pil aktif biru, seperti navigasi header Ayo Kerja.
+              'rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors',
+              selected ? 'bg-primary text-primary-foreground' : 'text-foreground-soft hover:text-primary'
             )}
           >
             {tab.label}

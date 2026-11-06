@@ -5,15 +5,20 @@
  * Ayo Kerja design tokens (light only), Tailwind v4.
  * Raw HSL channel values live in :root; @theme maps them to utilities.
  *   background #FFFFFF · surface #EAF0FF · border #D9E1F2 · text #071A4A · muted #5E6B88
- *   primary #0035AD (text on blue: #FFFFFF) · accent #F4E11B (text on yellow: #0035AD)
+ *   foreground-soft #263B6A (lead, company, meta lines)
+ *   primary #0035AD (text on blue: #FFFFFF) · primary-strong #002B91 (hover, footer)
+ *   accent #F4E11B (text on yellow: #0035AD)
+ * lib/og.ts mirrors these as hex for OG images (ImageResponse cannot read CSS vars).
+ * Fonts: Plus Jakarta Sans for UI/body; Archivo (heavy, variable width) for the
+ * display headline, sticker labels and other poster-style accents (font-display).
  *   success #16834A · warning #A65B00 · danger #B42336
  * Flat colors for CTAs (no gradients on buttons); gradients survive only for
  * progress bars and text accents.
  */
 @theme {
-  /* --font-jakarta and --font-anton are injected by next/font on <html>. */
+  /* --font-jakarta and --font-archivo are injected by next/font on <html>. */
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-anton), 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), 'Arial Black', ui-sans-serif, system-ui, sans-serif;
 
   --color-surface: hsl(var(--surface));
   --color-surface-raised: hsl(var(--surface-raised));
@@ -23,12 +28,13 @@
   --color-warning: hsl(var(--warning));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
+  --color-foreground-soft: hsl(var(--foreground-soft));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
-  --color-primary-soft: hsl(var(--primary-soft));
+  --color-primary-strong: hsl(var(--primary-strong));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -86,6 +92,7 @@
   /* Palet Ayo Kerja (design.md): kuning + biru royal, tema terang. */
   --background: 0 0% 100%;
   --foreground: 223 83% 16%;
+  --foreground-soft: 221 47% 28%;
   --surface: 223 100% 96%;
   --surface-raised: 221 49% 90%;
   --card: 0 0% 100%;
@@ -95,9 +102,9 @@
 
   --primary: 222 100% 34%;
   --primary-foreground: 0 0% 100%;
+  --primary-strong: 222 100% 28%;
   --brand-accent: 55 91% 53%;
-  /* Varian yang lebih terang untuk teks/gradien di atas permukaan terang. */
-  --primary-soft: 222 100% 45%;
+  /* Varian kuning yang lebih lembut untuk gradien/aksen. */
   --brand-accent-soft: 55 91% 65%;
 
   --secondary: 223 100% 96%;
@@ -135,7 +142,7 @@
 @layer components {
   /* Gradien merek Ayo Kerja: biru → kuning, hanya untuk progress bar. */
   .bg-gradient-brand {
-    background-image: linear-gradient(to right, hsl(222 100% 34%), hsl(55 91% 53%));
+    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--brand-accent)));
   }
 }
 
@@ -143,6 +150,30 @@
    scrollbar abu-abu bawaan, dan beri fade di tepi kanan sebagai isyarat
    bahwa baris bisa di-scroll. Dipakai dengan max-lg:fade-x supaya di
    desktop — yang tidak butuh scroll — tab terakhir tidak ikut meredup. */
+/* Bahasa visual mockup: seksi biru royal berisi kartu putih (lihat /lowongan).
+   section-brand = latar seksi; card-brand = kartu putih dengan bayangan pejal tipis. */
+@utility section-brand {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+@utility card-brand {
+  border-radius: 1rem;
+  background-color: #fff;
+  color: hsl(var(--foreground));
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.08);
+}
+
+/* Kartu "stiker" mockup (stiker cek di hero): bingkai biru + bayangan biru pejal.
+   Untuk kartu tunggal di atas latar kuning (masuk, 404). */
+@utility card-sticker {
+  border-radius: 1rem;
+  border: 2px solid hsl(var(--primary));
+  background-color: #fff;
+  color: hsl(var(--foreground));
+  box-shadow: 6px 6px 0 hsl(var(--primary));
+}
+
 @utility scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

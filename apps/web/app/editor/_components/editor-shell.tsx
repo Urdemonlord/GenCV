@@ -69,7 +69,7 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
 
   return (
     <div className="flex h-dvh flex-col overflow-x-hidden">
-      <header className="flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-2.5">
+      <header className="flex flex-wrap items-center gap-3 border-b border-primary/15 bg-brand-accent px-4 py-2.5">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold" aria-label="Ayo Kerja beranda">
           {/* Logo yang sama dengan header situs (dipotong dari elemen-desain.png). */}
           <Image src="/ayo-kerja-logo.png" alt="" width={744} height={178} className="h-[26px] w-auto" />
@@ -82,7 +82,7 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
           </Link>
         </Button>
 
-        <div className="hidden min-w-0 items-center gap-2 border-l border-border pl-3 sm:flex">
+        <div className="hidden min-w-0 items-center gap-2 border-l border-primary/20 pl-3 sm:flex">
           <label htmlFor="cv-title" className="sr-only">
             Nama dokumen
           </label>
@@ -91,10 +91,10 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
             value={cv.title}
             placeholder="CV Saya"
             onChange={(e) => update((p) => ({ ...p, title: e.target.value }))}
-            className="w-48 min-w-0 truncate rounded-md bg-transparent px-1 py-0.5 text-sm font-semibold text-foreground placeholder:text-foreground hover:bg-accent"
+            className="w-48 min-w-0 truncate rounded-md bg-transparent px-1 py-0.5 text-sm font-bold text-foreground placeholder:text-foreground hover:bg-white/60"
           />
-          <Pencil className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className={cn('hidden text-xs md:inline', saveError ? 'text-warning' : 'text-muted-foreground')} aria-live="polite">
+          <Pencil className="size-3.5 shrink-0 text-foreground-soft" aria-hidden="true" />
+          <span className={cn('hidden text-xs md:inline', saveError ? 'text-destructive' : 'text-foreground-soft')} aria-live="polite">
             {saveError ? 'Gagal menyimpan di perangkat (penyimpanan penuh?)' : ready ? savedLabel(savedAt, now) : ''}
           </span>
         </div>
@@ -114,7 +114,7 @@ export function EditorShell({ id, jobNotice }: { id: string; jobNotice?: { title
             <Button variant="outline" size="sm" onClick={openAnalysis} aria-label={`Analisis ATS, skor ${analysis.overall} dari 100`}>
               <Gauge aria-hidden="true" />
               <span className="hidden sm:inline">Analisis ATS</span>
-              <span className="rounded bg-surface-raised px-1.5 text-xs font-semibold">{analysis.overall}</span>
+              <span className="rounded bg-primary px-1.5 text-xs font-bold text-primary-foreground">{analysis.overall}</span>
             </Button>
           )}
           <ExportMenu cv={cv} update={update} docId={id} onOpenJobMatch={openJobMatch} />

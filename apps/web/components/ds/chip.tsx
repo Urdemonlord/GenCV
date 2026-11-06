@@ -8,7 +8,7 @@ const chipVariants = cva(
     variants: {
       tone: {
         neutral: 'border-border bg-surface-raised text-foreground/90',
-        primary: 'border-primary/30 bg-primary/15 text-primary-soft',
+        primary: 'border-primary/25 bg-surface font-semibold text-primary',
         success: 'border-success/30 bg-success/10 text-success',
         warning: 'border-warning/30 bg-warning/10 text-warning',
         danger: 'border-destructive/30 bg-destructive/10 text-destructive',

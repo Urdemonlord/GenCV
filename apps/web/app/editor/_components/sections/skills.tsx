@@ -89,7 +89,7 @@ export function SkillsSection({ cv, update }: SectionProps) {
         if (!skills.length) return null;
         return (
           <section key={cat}>
-            <h2 className="mb-2 text-sm font-medium text-foreground/90">{CATEGORY_LABELS[cat]}</h2>
+            <h2 className="mb-2 text-sm font-bold text-foreground/90">{CATEGORY_LABELS[cat]}</h2>
             <ul className="flex flex-wrap gap-2">
               {skills.map((skill) => (
                 <li key={skill.id}>

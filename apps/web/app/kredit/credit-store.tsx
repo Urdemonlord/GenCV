@@ -108,7 +108,7 @@ export function CreditStore() {
 
   if (!data) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14 *:max-w-3xl">
         <div className="space-y-4" aria-busy="true">
           <Skeleton className="h-10 w-48" />
           <Skeleton className="h-40 w-full" />
@@ -130,7 +130,7 @@ export function CreditStore() {
           </>
         }
       />
-      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14 *:max-w-3xl">
         <div className="space-y-8">
           {!data.enabled ? (
         <Panel className="p-5 text-sm text-muted-foreground">Pembelian kredit belum dibuka. Kuota AI gratis tetap bisa dipakai.</Panel>
@@ -179,7 +179,7 @@ export function CreditStore() {
               {data.packs.map((pack) => (
                 <li key={pack.id}>
                   <Panel className="flex h-full flex-col gap-2 p-5">
-                    <h2 className="font-semibold">{pack.name}</h2>
+                    <h2 className="font-extrabold">{pack.name}</h2>
                     <p className="text-2xl font-bold">{pack.credits} kredit</p>
                     <p className="text-sm text-muted-foreground">
                       {formatRupiah(pack.price)} · {formatRupiah(Math.round(pack.price / pack.credits))}/kredit

@@ -115,7 +115,7 @@ export default function PrivacyPage() {
       eyebrow="Dokumen legal"
       title="Kebijakan privasi"
       updated="6 Oktober 2026"
-      intro={<p>Kebijakan ini menjelaskan data apa yang diproses Ayo Kerja, layanan milik {OPERATOR}, dan ke mana data itu pergi.</p>}
+      intro={<>Kebijakan ini menjelaskan data apa yang diproses Ayo Kerja, layanan milik {OPERATOR}, dan ke mana data itu pergi.</>}
       sections={SECTIONS}
     />
   );

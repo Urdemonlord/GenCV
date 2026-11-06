@@ -10,6 +10,10 @@ import Image from 'next/image';
  * mengikuti rasio screenshot mockup; kode index.html menulis 118px tapi
  * ilustrasi di screenshot lebih besar), rotate -15deg.
  */
+/** Stiker cek mockup: Archivo miring + ramping, bingkai dan bayangan biru pejal. */
+const STICKER =
+  'rounded-md border-2 border-primary bg-white px-3 py-2 font-display text-[11px] font-extrabold italic tracking-[-0.01em] text-primary font-stretch-condensed shadow-[3px_3px_0_var(--color-primary)] lg:text-lg lg:shadow-[5px_5px_0_var(--color-primary)]';
+
 export function HeroArt() {
   return (
     <div
@@ -55,13 +59,13 @@ export function HeroArt() {
         />
       </div>
       <div className="absolute right-0 top-0 z-[2] grid gap-3 lg:top-[25px]">
-        <div className="rotate-[-4deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+        <div className={`rotate-[-4deg] ${STICKER}`}>
           ✓ Cari lowongan
         </div>
-        <div className="rotate-[2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+        <div className={`rotate-[2deg] ${STICKER}`}>
           ✓ Cocokkan dengan CV
         </div>
-        <div className="rotate-[-2deg] rounded-md border-2 border-primary bg-white px-3 py-2 text-[10px] font-black text-primary shadow-[3px_3px_0_#0035AD] lg:text-sm lg:shadow-[5px_5px_0_#0035AD]">
+        <div className={`rotate-[-2deg] ${STICKER}`}>
           ✓ Kembangkan karier
         </div>
       </div>

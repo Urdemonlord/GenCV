@@ -1,5 +1,13 @@
 import type { ReactNode } from 'react';
 
+/** Headline poster ala mockup: Archivo black, huruf kapital. */
+export const HERO_TITLE_DISPLAY =
+  'mt-4 max-w-[760px] font-display text-[clamp(2.2rem,4.2vw,4rem)] font-black uppercase leading-[0.96] tracking-[-0.025em]';
+
+/** Bar biru miring di baris terakhir headline ("DENGAN PROFILMU."). */
+export const HERO_TITLE_BAR =
+  'mt-1.5 inline-block -rotate-1 bg-primary px-3 pb-1 pt-0.5 text-brand-accent shadow-[4px_4px_0_hsl(var(--foreground)/0.25)] sm:whitespace-nowrap';
+
 /**
  * Hero halaman konten Ayo Kerja — bahasa yang sama dengan hero portal
  * /lowongan dan Beranda (latar kuning, eyebrow biru dengan kotak kecil,
@@ -43,14 +51,14 @@ export function PageHero({
             <h1
               className={
                 size === 'display'
-                  ? 'mt-4 max-w-[760px] text-[clamp(2.5rem,4.5vw,4.35rem)] font-black uppercase leading-[0.98] tracking-[-0.06em]'
-                  : 'mt-4 max-w-[760px] text-[clamp(2rem,3.5vw,3rem)] font-black leading-[1.05] tracking-[-0.03em]'
+                  ? HERO_TITLE_DISPLAY
+                  : 'mt-4 max-w-[760px] font-display text-[clamp(2rem,3.5vw,3rem)] font-black leading-[1.05] tracking-[-0.02em]'
               }
             >
               {title}
             </h1>
             {lead ? (
-              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-[#10265A]">{lead}</p>
+              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-foreground-soft">{lead}</p>
             ) : null}
             {children}
           </div>

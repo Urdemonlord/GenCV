@@ -12,7 +12,7 @@ import {
   TabStopType,
   TextRun,
 } from 'docx';
-import { buildCvView, orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
+import { buildCvView, contactLines, orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from './format';
 import type { CV } from './model';
 import type { TemplateId } from './templates';
 
@@ -34,17 +34,22 @@ const THEMES: Record<TemplateId, DocxTheme> = {
   executive: { font: 'Georgia', accent: '111827', muted: '374151', centered: true },
   tech: { font: 'Calibri', accent: '0F766E', muted: '4B5563', centered: false },
   academic: { font: 'Georgia', accent: '1E3A8A', muted: '374151', centered: false },
-  creative: { font: 'Calibri', accent: '6D28D9', muted: '4B5563', centered: false },
+  creative: { font: 'Calibri', accent: '0035AD', muted: '4B5563', centered: false },
 };
 
 const link = (text: string, href: string) =>
   new ExternalHyperlink({ link: href, children: [new TextRun({ text, style: 'Hyperlink' })] });
 
 function contactRuns(contacts: ContactItem[], theme: DocxTheme) {
-  return contacts.flatMap((contact, index) => [
-    ...(index > 0 ? [new TextRun({ text: '  |  ', color: theme.muted })] : []),
-    contact.href ? link(contact.text, contact.href) : new TextRun({ text: contact.text, color: theme.muted }),
-  ]);
+  // Satu baris per kelompok (lihat contactLines), dipisah line break, supaya tidak ada
+  // baris yang diawali "|".
+  return contactLines(contacts).flatMap((line, lineIndex) =>
+    line.flatMap((contact, index) => [
+      ...(lineIndex > 0 && index === 0 ? [new TextRun({ break: 1 })] : []),
+      ...(index > 0 ? [new TextRun({ text: '  |  ', color: theme.muted })] : []),
+      contact.href ? link(contact.text, contact.href) : new TextRun({ text: contact.text, color: theme.muted }),
+    ])
+  );
 }
 
 function photoBytes(dataUrl: string): Uint8Array | null {

@@ -3,10 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, MapPin } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
-import { PageHero } from '../components/landing/page-hero';
-import { CompanyLogo, experienceText, relativePosted, siteName } from '../lowongan/job-list';
+import { HERO_TITLE_BAR, PageHero } from '../components/landing/page-hero';
+import { JobCard, siteName } from '../lowongan/job-card';
 import { Button, Chip, Panel, ProgressBar, ScoreRing } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
@@ -184,7 +183,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
         title={
           <>
             <span className="block">Seberapa siap CV-mu</span>
-            <span className="mt-1 inline-block bg-primary px-2.5 pb-1 text-brand-accent">untuk melamar?</span>
+            <span className={HERO_TITLE_BAR}>untuk melamar?</span>
           </>
         }
         lead="Skor ATS, lowongan paling cocok, dan skill yang belum ada di CV — semuanya dihitung dari CV dan feed lowongan yang kamu punya, bukan dari angka demo."
@@ -193,7 +192,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
       />
 
       {!baseDoc ? (
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
           <Panel className="p-6 text-center sm:p-10">
             <h2 className="text-xl font-bold">Belum ada CV di perangkat ini</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -208,7 +207,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
       ) : (
         <>
           {/* CV dasar yang dipakai semua perhitungan di halaman ini. */}
-          <div className="mx-auto w-full max-w-6xl px-4 pt-10 sm:pt-14">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pt-10 sm:pt-14">
             <div className="flex flex-wrap items-center gap-3">
               <label htmlFor="ci-base-cv" className="text-sm font-semibold text-muted-foreground">
                 CV dasar
@@ -232,8 +231,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           </div>
 
           {/* Kesiapan ATS — dari analyzeCv, tidak butuh feed. */}
-          <section aria-label="Kesiapan ATS" className="mx-auto w-full max-w-6xl px-4 py-10">
-            <h2 className="text-2xl font-black tracking-tight">Kesiapan ATS</h2>
+          <section aria-label="Kesiapan ATS" className="mx-auto w-full max-w-[1440px] px-4 py-10">
+            <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Kesiapan ATS</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Estimasi dari aturan yang bisa dilihat — bukan ramalan apakah kamu lolos di perusahaan tertentu.
             </p>
@@ -249,7 +248,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                     <li key={component.id}>
                       <Panel className="p-5">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <h3 className="font-semibold">{component.label}</h3>
+                          <h3 className="font-extrabold">{component.label}</h3>
                           <span className="text-sm font-bold">{component.score}%</span>
                         </div>
                         <ProgressBar className="mt-3" value={component.score} label={`Skor ${component.label}`} />
@@ -274,7 +273,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           {/* Lowongan paling cocok — seksi biru seperti hasil /lowongan. */}
           <section aria-label="Lowongan paling cocok" className="bg-primary py-7 text-white lg:py-10">
             <div className="mx-auto max-w-[1440px] px-4">
-              <h2 className="text-2xl font-black tracking-tight">Lowongan paling cocok</h2>
+              <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Lowongan paling cocok</h2>
               <p className="mt-1 max-w-2xl text-sm text-white/80">
                 {topJobs.length > 0
                   ? `${topJobs.length} lowongan dengan skor tertinggi dari CV dasarmu. Skor dihitung dari deskripsi lowongan bila ada, judul bila tidak — sama seperti Job Match di /lowongan.`
@@ -292,7 +291,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                 </div>
               ) : feedState === 'failed' ? (
                 <div className="mt-6 rounded-2xl border border-dashed border-white/40 p-10 text-center text-white">
-                  <h3 className="text-lg font-semibold">Feed lowongan tidak bisa dijangkau</h3>
+                  <h3 className="text-lg font-extrabold">Feed lowongan tidak bisa dijangkau</h3>
                   <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
                     Bagian kesiapan ATS di atas tetap tampil, karena tidak butuh feed. Coba muat ulang feed, atau
                     buka /lowongan untuk impor manual.
@@ -307,8 +306,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                   </div>
                 </div>
               ) : topJobs.length === 0 ? (
-                <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-[#5E6B88]">
-                  <h3 className="text-lg font-bold text-[#071A4A]">Belum ada kata kunci yang cocok</h3>
+                <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-muted-foreground">
+                  <h3 className="text-lg font-bold text-foreground">Belum ada kata kunci yang cocok</h3>
                   <p className="mx-auto mt-2 max-w-md text-sm">
                     Tidak ada kata kunci keahlian yang dikenali dari lowongan di feed saat ini bila dibandingkan
                     dengan CV dasarmu. Tempel deskripsi lengkap di editor untuk skor Job Match penuh.
@@ -319,67 +318,17 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                 </div>
               ) : (
                 <ul className="mt-6 grid gap-[11px]" aria-live="polite">
-                  {topJobs.map(({ job, score }) => {
-                    const exp = experienceText(job);
-                    const posted = relativePosted(job.datePosted);
-                    return (
-                      <li
-                        key={job.jobUrl}
-                        className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-[#071A4A] shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
-                      >
-                        <CompanyLogo job={job} />
-                        <div className="min-w-0">
-                          <h3 className="text-[17px] font-black leading-[1.2] tracking-[-0.025em]">
-                            <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                              {job.title}
-                            </a>
-                          </h3>
-                          <p className="mt-1 text-[13px] font-bold text-[#34466E]">{job.company}</p>
-                          <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-[#263B6A]">
-                            {job.location && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                {job.location}
-                              </span>
-                            )}
-                            {exp && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <BarChart3 className="size-[15px] text-primary" aria-hidden="true" />
-                                {exp}
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-1.5 text-[10px] text-[#75809A]">
-                            Sumber: {siteName(job.site)}
-                            {posted ? ` · ${posted}` : ''}
-                          </p>
-                        </div>
-                        <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-[#D9E1F2] pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
-                          <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
-                            ✦ {score}% cocok
-                          </span>
-                          <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                            <Button variant="primary" size="sm" className="flex-1 lg:flex-none" onClick={() => createCv(job)}>
-                              Buat CV &amp; Lamar ↗
-                            </Button>
-                            <Button asChild variant="outline" size="sm" className="flex-1 lg:flex-none">
-                              <a href={job.jobUrl} target="_blank" rel="noreferrer">
-                                Lihat Detail
-                              </a>
-                            </Button>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {topJobs.map(({ job, score }) => (
+                    <JobCard key={job.jobUrl} job={job} score={score} onCreateCv={createCv} headingLevel="h3" />
+                  ))}
                 </ul>
               )}
             </div>
           </section>
 
           {/* Skill gap — dari teks lowongan teratas vs CV dasar. */}
-          <section aria-label="Skill yang belum ada di CV" className="mx-auto w-full max-w-6xl px-4 py-10">
-            <h2 className="text-2xl font-black tracking-tight">Skill yang belum ada di CV</h2>
+          <section aria-label="Skill yang belum ada di CV" className="mx-auto w-full max-w-[1440px] px-4 py-10">
+            <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Skill yang belum ada di CV</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Keyword ini muncul di teks lowongan teratas, tapi belum disebut di CV dasarmu. Tambahkan hanya jika
               memang kamu kuasai.
@@ -414,9 +363,9 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           </section>
 
           {/* Dari mana data ini — cakupan feed dan board hunter. */}
-          <section aria-label="Dari mana data ini" className="mx-auto w-full max-w-6xl px-4 pb-14">
+          <section aria-label="Dari mana data ini" className="mx-auto w-full max-w-[1440px] px-4 pb-14">
             <Panel className="p-5">
-              <h2 className="font-semibold">Dari mana data ini</h2>
+              <h2 className="font-extrabold">Dari mana data ini</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {jobs
                   ? `Feed saat ini berisi ${jobs.length} lowongan${sourceCounts.length ? ` dari ${sourceCounts.map(([name, count]) => `${name} (${count})`).join(', ')}` : ''} — dihitung dari feed yang dimuat halaman ini.`

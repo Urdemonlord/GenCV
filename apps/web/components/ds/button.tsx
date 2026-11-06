@@ -4,15 +4,22 @@ import type { ComponentProps } from 'react';
 import { cn } from '@/lib/cn';
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-[background-color,border-color,color,box-shadow,filter] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-bold transition-[background-color,border-color,color,box-shadow,filter] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         // Flat biru royal, seperti CTA mockup Ayo Kerja (bukan gradien).
-        primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:brightness-110',
-        secondary: 'bg-surface-raised text-foreground hover:bg-accent',
-        outline: 'border border-border bg-transparent text-foreground hover:border-primary/60 hover:bg-primary/10',
-        ghost: 'text-muted-foreground hover:bg-accent hover:text-foreground',
+        primary: 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary-strong',
+        // Kuning + bingkai biru: CTA kartu lowongan mockup ("Buat CV & Lamar").
+        accent:
+          'border-[1.5px] border-primary bg-brand-accent font-extrabold text-primary hover:brightness-105',
+        // Putih + bingkai biru: aksi kedua kartu lowongan mockup ("Lihat Detail").
+        'brand-outline':
+          'border-[1.5px] border-primary bg-white font-extrabold text-primary hover:bg-surface',
+        secondary: 'bg-surface text-primary hover:bg-surface-raised',
+        // Bingkai biru seperti tombol "Masuk" dan filter di mockup.
+        outline: 'border-[1.5px] border-primary bg-transparent text-primary hover:bg-primary/10',
+        ghost: 'text-foreground-soft hover:bg-surface hover:text-primary',
         danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
       },
       size: {

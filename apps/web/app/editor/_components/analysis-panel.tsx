@@ -15,7 +15,7 @@ export function AnalysisPanel({ analysis, onOpenJobMatch }: { analysis: CvAnalys
       <section className="flex items-center gap-4 rounded-xl border border-border p-4">
         <ScoreRing value={overall} size={88} label="Skor kesiapan ATS" caption="/ 100" />
         <div>
-          <h2 className="text-base font-semibold text-foreground">Skor kesiapan ATS</h2>
+          <h2 className="text-base font-bold text-foreground">Skor kesiapan ATS</h2>
           <p className="text-sm font-medium text-success">{scoreLabel(overall)}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Estimasi Ayo Kerja dari aturan yang bisa kamu lihat di bawah, bukan jaminan lolos ATS tertentu.
@@ -25,13 +25,13 @@ export function AnalysisPanel({ analysis, onOpenJobMatch }: { analysis: CvAnalys
 
       <section className="rounded-xl border border-border p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Job Match</h2>
+          <h2 className="text-sm font-bold text-foreground">Job Match</h2>
           {keywords.score !== null && <span className="text-sm font-semibold text-foreground">{keywords.score}%</span>}
         </div>
         {keywords.score === null ? (
           <p className="text-sm text-muted-foreground">
             Tempel deskripsi lowongan untuk melihat keyword keahlian yang sudah dan belum ada di CV.{' '}
-            <button type="button" className="font-medium text-primary-soft underline-offset-2 hover:underline" onClick={onOpenJobMatch}>
+            <button type="button" className="font-medium text-primary underline-offset-2 hover:underline" onClick={onOpenJobMatch}>
               Buka Job Match
             </button>
           </p>
