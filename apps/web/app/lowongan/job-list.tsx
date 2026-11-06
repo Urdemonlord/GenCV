@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Bookmark, Briefcase, ChevronDown, FileText, Layers, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
@@ -63,6 +64,27 @@ type Sort = 'relevant' | 'newest' | 'title';
 type View = 'all' | 'recommended' | 'saved' | 'applications';
 
 const SAVED_KEY = 'gencv:saved-jobs';
+
+/** Jumlah kartu yang tampil di awal dan tiap klik "Muat lebih banyak". */
+const PAGE_SIZE = 12;
+
+/** Halaman portal: semua lowongan (/lowongan) atau hanya remote (/lowongan/remote). */
+export type JobListVariant = 'all' | 'remote';
+
+const HERO_COPY: Record<JobListVariant, { eyebrow: string; title: string; bar: string; lead: string }> = {
+  all: {
+    eyebrow: 'Portal Karier & Peluang Kerja',
+    title: 'Temukan peluang kerja yang sesuai',
+    bar: 'dengan profilmu.',
+    lead: 'Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk langkah karier berikutnya.',
+  },
+  remote: {
+    eyebrow: 'Lowongan Remote',
+    title: 'Lowongan kerja remote,',
+    bar: 'dari mana saja.',
+    lead: 'Lowongan kerja remote dari LinkedIn, Indeed, dan Glassdoor, diperbarui tiap hari. Cek kecocokannya dengan CV-mu, lalu buat CV khusus untuk tiap lowongan.',
+  },
+};
 
 const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'all', label: 'Semua' },
@@ -151,8 +173,10 @@ const btnGhostLight =
 export function JobList({
   syncConfigured,
   initialFeed,
+  variant = 'all',
 }: {
   syncConfigured: boolean;
+  variant?: JobListVariant;
   /** Feed yang sudah diambil server; null bila gagal, lalu browser mencoba sendiri. */
   initialFeed: HunterParseResult | null;
 }) {
@@ -180,10 +204,12 @@ export function JobList({
   const [typeFilter, setTypeFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
   const [sourceFilter, setSourceFilter] = useState('');
-  const [tab, setTab] = useState<Tab>('all');
+  const hero = HERO_COPY[variant];
+  const initialTab: Tab = variant === 'remote' ? 'remote' : 'all';
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [sort, setSort] = useState<Sort>('relevant');
   const [view, setView] = useState<View>('all');
-  const [limit, setLimit] = useState(6);
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   useEffect(() => {
     const docs = listDocuments();
@@ -201,9 +227,9 @@ export function JobList({
     setBaseDoc(baseId ? loadDocument(baseId) : null);
   }, [baseId]);
 
-  // Seperti mockup: ganti filter/tab/sort/view kembali menampilkan 6 pertama.
+  // Ganti filter/tab/sort/view kembali menampilkan halaman pertama.
   useEffect(() => {
-    setLimit(6);
+    setLimit(PAGE_SIZE);
   }, [query, locationFilter, typeFilter, experienceFilter, sourceFilter, tab, sort, view]);
 
   // Baris tab portal & chip tipe di-scroll horizontal di mobile: pastikan
@@ -291,10 +317,10 @@ export function JobList({
     setTypeFilter('');
     setExperienceFilter('');
     setSourceFilter('');
-    setTab('all');
+    setTab(initialTab);
     setSort('relevant');
     setView('all');
-    setLimit(6);
+    setLimit(PAGE_SIZE);
   };
 
   const filtersActive =
@@ -303,7 +329,7 @@ export function JobList({
     typeFilter !== '' ||
     experienceFilter !== '' ||
     sourceFilter !== '' ||
-    tab !== 'all' ||
+    tab !== initialTab ||
     sort !== 'relevant';
 
   /** Skor nyata per lowongan: deskripsi bila ada, judul bila tidak. */
@@ -449,15 +475,23 @@ export function JobList({
             <div>
               <p className="flex items-center gap-2.5 text-[13px] font-black uppercase tracking-[0.045em] text-primary">
                 <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
-                Portal Karier &amp; Peluang Kerja
+                {hero.eyebrow}
               </p>
               <h1 className={HERO_TITLE_DISPLAY}>
-                <span className="block">Temukan peluang kerja yang sesuai</span>
-                <span className={HERO_TITLE_BAR}>dengan profilmu.</span>
+                <span className="block">{hero.title}</span>
+                <span className={HERO_TITLE_BAR}>{hero.bar}</span>
               </h1>
-              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-foreground-soft">
-                Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk
-                langkah karier berikutnya.
+              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-foreground-soft">{hero.lead}</p>
+              <p className="mt-3 text-sm font-bold text-primary">
+                {variant === 'remote' ? (
+                  <Link href="/lowongan" className="underline-offset-4 hover:underline">
+                    ← Lihat semua lowongan
+                  </Link>
+                ) : (
+                  <Link href="/lowongan/remote" className="underline-offset-4 hover:underline">
+                    Lihat lowongan remote →
+                  </Link>
+                )}
               </p>
             </div>
             <HeroArt />
@@ -863,7 +897,7 @@ export function JobList({
                         <div className="mt-5 flex justify-center">
                           <button
                             type="button"
-                            onClick={() => setLimit((n) => n + 4)}
+                            onClick={() => setLimit((n) => n + PAGE_SIZE)}
                             className="rounded-[13px] bg-brand-accent px-5 py-2.5 text-sm font-extrabold text-primary transition hover:brightness-105"
                           >
                             Muat lebih banyak

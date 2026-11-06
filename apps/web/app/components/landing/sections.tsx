@@ -144,6 +144,8 @@ export function FinalCta() {
 }
 
 const FOOTER_LINKS = [
+  { href: '/lowongan', label: 'Lowongan' },
+  { href: '/lowongan/remote', label: 'Lowongan Remote' },
   { href: '/editor', label: 'Editor' },
   { href: '/templates', label: 'Template' },
   { href: '/artikel', label: 'Artikel' },

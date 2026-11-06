@@ -20,7 +20,7 @@ export const OPERATOR = 'Meowlabs';
 export const FEED_ALTERNATES = { types: { 'application/rss+xml': '/feed.xml' } } as const;
 
 /** Public pages listed in the sitemap; private workspace pages are never indexed. */
-export const PUBLIC_PATHS = ['/', '/lowongan', '/templates', '/artikel', '/privasi', '/syarat'] as const;
+export const PUBLIC_PATHS = ['/', '/lowongan', '/lowongan/remote', '/templates', '/artikel', '/privasi', '/syarat'] as const;
 
 /** The one-line promise, reused by the layout metadata and the structured data below. */
 export const SITE_DESCRIPTION =
