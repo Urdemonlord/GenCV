@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Bookmark, Briefcase, ChevronDown, FileText, Layers, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
+import { JobCard, isRemoteJob, normalizedType, siteName } from './job-card';
 import { HERO_TITLE_BAR, HERO_TITLE_DISPLAY } from '../components/landing/page-hero';
-import { buttonVariants } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/cn';
 import { authClient } from '@/lib/sync/auth-client';
 import { runSyncRound } from '@/lib/sync/client';
 import { emptyCV } from '@/lib/cv/model';
@@ -73,100 +71,6 @@ const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'internship', label: 'Magang' },
 ];
 
-const SITE_NAMES: Record<string, string> = {
-  linkedin: 'LinkedIn',
-  indeed: 'Indeed',
-  glassdoor: 'Glassdoor',
-  zip_recruiter: 'ZipRecruiter',
-  hellowork: 'HelloWork',
-  bdjobs: 'BDJobs',
-  naukri: 'Naukri',
-  bayt: 'Bayt',
-  google: 'Google',
-};
-
-/** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */
-const TILE_COLORS = [
-  'bg-brand-accent text-primary',
-  'bg-primary text-primary-foreground',
-  'bg-surface text-primary',
-];
-
-function tileFor(company: string) {
-  let hash = 0;
-  for (let i = 0; i < company.length; i += 1) hash = (hash + company.charCodeAt(i)) % 997;
-  return TILE_COLORS[hash % TILE_COLORS.length];
-}
-
-/**
- * Logo perusahaan bila feed membawanya, monogram bila tidak ada atau
- * logonya gagal dimuat. Logo dirender di kotak yang sama persis dengan
- * monogram (48px) supaya tata letak kartu tidak berubah.
- *
- * Diekspor untuk dipakai halaman /career-intelligence, yang menampilkan
- * kartu lowongan yang sama.
- */
-export function CompanyLogo({ job }: { job: HunterJob }) {
-  const [failed, setFailed] = useState(false);
-  const tile = tileFor(job.company);
-  if (!job.companyLogo || failed) {
-    return (
-      <span
-        aria-hidden="true"
-        className={`grid size-12 shrink-0 place-items-center rounded-[11px] font-display text-[24px] font-black ${tile}`}
-      >
-        {job.company.charAt(0).toUpperCase()}
-      </span>
-    );
-  }
-  return (
-    <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-[11px] bg-white">
-      {/* unoptimized: logo berasal dari banyak host (CDN LinkedIn, Glassdoor,
-          dsb.) yang tidak bisa di-whitelist di remotePatterns, dan optimasi
-          Next tidak diinginkan untuk logo pihak ketiga. */}
-      <Image
-        src={job.companyLogo}
-        alt=""
-        aria-hidden="true"
-        width={48}
-        height={48}
-        unoptimized
-        referrerPolicy="no-referrer"
-        className="size-12 object-contain p-1"
-        onError={() => setFailed(true)}
-      />
-    </span>
-  );
-}
-
-export function siteName(site: string) {
-  const key = site.toLowerCase();
-  if (SITE_NAMES[key]) return SITE_NAMES[key];
-  if (!site) return 'Lainnya';
-  // Site baru yang belum dipetakan: "zip_recruiter" -> "Zip Recruiter".
-  return site
-    .split(/[_-]+/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-/** jobType feed adalah teks bebas JobSpy ("fulltime", "parttime, contract", …). */
-function normalizedType(job: HunterJob): Tab | 'contract' | null {
-  const raw = job.jobType.toLowerCase();
-  if (raw.includes('full')) return 'full-time';
-  if (raw.includes('part')) return 'part-time';
-  if (raw.includes('intern')) return 'internship';
-  if (raw.includes('contract')) return 'contract';
-  return null;
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  'full-time': 'Full-time',
-  'part-time': 'Part-time',
-  contract: 'Contract',
-  internship: 'Magang',
-};
-
 type ExperienceBand = 'entry' | '1-3' | '2-5' | 'senior';
 
 const EXPERIENCE_OPTIONS: { id: ExperienceBand; label: string }[] = [
@@ -214,54 +118,6 @@ function experienceBand(job: HunterJob): ExperienceBand | null {
   return null;
 }
 
-/**
- * Pengalaman untuk ditampilkan di kartu — HANYA string literal dari teks
- * iklan (judul + deskripsi), bukan hasil perkiraan experienceBand: rentang
- * "X–Y tahun" tampil apa adanya, "X+ tahun" tetap "X+ tahun", "minimal X
- * tahun" jadi "X+ tahun", "senior" jadi "Senior", entry/junior/fresh
- * graduate jadi "Entry level". Null bila iklan tidak menyebutkannya.
- *
- * Diekspor untuk dipakai halaman /career-intelligence.
- */
-export function experienceText(job: HunterJob): string | null {
-  const text = `${job.title} ${job.description ?? ''}`;
-  const unit = (raw: string) => (/tahun/i.test(raw) ? 'tahun' : 'years');
-  const range = text.match(/(\d+)\s*[-–]\s*(\d+)\s*(tahun|years?)\b/i);
-  if (range) return `${range[1]}–${range[2]} ${unit(range[3])}`;
-  const plus = text.match(/(\d+)\s*\+\s*(tahun|years?)\b/i);
-  if (plus) return `${plus[1]}+ ${unit(plus[2])}`;
-  const min = text.match(/\b(minimal|minimum|at least)\s*(\d+)\s*(tahun|years?)\b/i);
-  if (min) return `${min[2]}+ ${unit(min[3])}`;
-  if (/\bsenior\b/i.test(text)) return 'Senior';
-  if (/\b(entry level|fresh graduate|junior)\b/i.test(text)) return 'Entry level';
-  return null;
-}
-
-/**
- * Waktu posting relatif dari ISO date vs sekarang ("X jam lalu" /
- * "X hari lalu" / "X minggu lalu"). Null bila tanggal kosong, tak terurai,
- * atau di masa depan — elemennya lalu disembunyikan, bukan menampilkan
- * tanggal mentah.
- *
- * Diekspor untuk dipakai halaman /career-intelligence.
- */
-export function relativePosted(datePosted: string): string | null {
-  const time = Date.parse(datePosted);
-  if (Number.isNaN(time)) return null;
-  const diffMs = Date.now() - time;
-  if (diffMs < 0) return null;
-  const hours = Math.floor(diffMs / 3_600_000);
-  if (hours < 1) return 'Baru saja';
-  if (hours < 24) return `${hours} jam lalu`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} hari lalu`;
-  return `${Math.floor(days / 7)} minggu lalu`;
-}
-
-function isRemoteJob(job: HunterJob): boolean {
-  return job.isRemote || /remote|jarak jauh/i.test(job.location ?? '');
-}
-
 function tabMatches(job: HunterJob, tab: Tab): boolean {
   if (tab === 'all') return true;
   if (tab === 'remote') return isRemoteJob(job);
@@ -286,9 +142,6 @@ function loadSaved(): Set<string> {
 
 const btnPrimary =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
-// Aksi kartu lowongan, sama dengan Button variant accent / brand-outline.
-const btnCardAccent = cn(buttonVariants({ variant: 'accent', size: null }), 'rounded-xl px-3 py-2.5 text-xs');
-const btnCardOutline = cn(buttonVariants({ variant: 'brand-outline', size: null }), 'rounded-xl px-3 py-2.5 text-xs');
 const btnWhite =
   'inline-flex items-center justify-center gap-2 rounded-[13px] bg-white px-4 py-2.5 text-sm font-extrabold text-primary transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:opacity-50';
 const btnGhostLight =
@@ -984,122 +837,15 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   ) : (
                     <>
                       <ul className="mt-4 grid gap-[11px]" aria-live="polite">
-                        {shownJobs.map((job) => {
-                          const type = normalizedType(job);
-                          const score = scores.get(job.jobUrl)?.score;
-                          const isSaved = saved.has(job.jobUrl);
-                          const exp = experienceText(job);
-                          const posted = relativePosted(job.datePosted);
-                          return (
-                            <li
+                        {shownJobs.map((job) => (
+                            <JobCard
                               key={job.jobUrl}
-                              className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-foreground shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
-                            >
-                              <CompanyLogo job={job} />
-                              <div className="min-w-0">
-                                <h2 className="text-[17px] font-black leading-[1.2] tracking-[-0.025em]">
-                                  <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                                    {job.title}
-                                  </a>
-                                </h2>
-                                <p className="mt-1 text-[13px] font-bold text-foreground-soft">{job.company}</p>
-                                <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-foreground-soft">
-                                  {job.location && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                      {job.location}
-                                    </span>
-                                  )}
-                                  {type && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <Briefcase className="size-[15px] text-primary" aria-hidden="true" />
-                                      {TYPE_LABEL[type]}
-                                    </span>
-                                  )}
-                                  {exp && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <BarChart3 className="size-[15px] text-primary" aria-hidden="true" />
-                                      {exp}
-                                    </span>
-                                  )}
-                                  {isRemoteJob(job) && !job.location && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                      Remote
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="mt-1.5 text-[10px] text-muted-foreground">
-                                  Sumber: {siteName(job.site)}
-                                  {posted ? ` · ${posted}` : ''}
-                                </p>
-                                {(job.flagDemoLike || !job.description) && (
-                                  <p className="mt-1 text-xs text-muted-foreground/80">
-                                    {[
-                                      job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
-                                      !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
-                                    ]
-                                      .filter(Boolean)
-                                      .join(' · ')}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-border pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
-                                {score === undefined ? (
-                                  <span className="whitespace-nowrap rounded-full bg-surface px-2.5 py-1.5 text-xs font-black text-primary">
-                                    Lengkapi profil untuk Job Match
-                                  </span>
-                                ) : score === null ? (
-                                  <span className="whitespace-nowrap rounded-full bg-surface px-2.5 py-1.5 text-xs font-black text-primary">
-                                    Belum ada kata kunci yang cocok
-                                  </span>
-                                ) : (
-                                  <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
-                                    ✦ {score}% cocok
-                                  </span>
-                                )}
-                                {posted && (
-                                  <span className="whitespace-nowrap text-[11px] font-semibold text-muted-foreground">
-                                    {posted}
-                                  </span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => toggleSaved(job.jobUrl)}
-                                  aria-pressed={isSaved}
-                                  aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
-                                  title={isSaved ? 'Tersimpan' : 'Simpan'}
-                                  className={`grid size-[38px] shrink-0 place-items-center rounded-[9px] text-primary transition hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
-                                    isSaved ? 'bg-surface' : ''
-                                  }`}
-                                >
-                                  <Bookmark
-                                    className="size-[21px]"
-                                    fill={isSaved ? 'currentColor' : 'none'}
-                                    aria-hidden="true"
-                                  />
-                                </button>
-                                <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                                  <button
-                                    type="button"
-                                    onClick={() => createCv(job)}
-                                    className={`${btnCardAccent} flex-1 lg:min-w-[145px] lg:flex-none`}
-                                  >
-                                    Buat CV &amp; Lamar ↗
-                                  </button>
-                                  <a
-                                    href={job.jobUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className={`${btnCardOutline} flex-1 lg:flex-none`}
-                                  >
-                                    Lihat Detail
-                                  </a>
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })}
+                              job={job}
+                              score={scores.get(job.jobUrl)?.score}
+                              onCreateCv={createCv}
+                              saved={{ isSaved: saved.has(job.jobUrl), onToggle: () => toggleSaved(job.jobUrl) }}
+                            />
+                        ))}
                       </ul>
                       {visibleJobs.length > shownJobs.length && (
                         <div className="mt-5 flex justify-center">

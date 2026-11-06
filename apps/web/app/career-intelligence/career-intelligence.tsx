@@ -3,10 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, MapPin } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
 import { HERO_TITLE_BAR, PageHero } from '../components/landing/page-hero';
-import { CompanyLogo, experienceText, relativePosted, siteName } from '../lowongan/job-list';
+import { JobCard, siteName } from '../lowongan/job-card';
 import { Button, Chip, Panel, ProgressBar, ScoreRing } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
 import { authClient } from '@/lib/sync/auth-client';
@@ -319,59 +318,9 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                 </div>
               ) : (
                 <ul className="mt-6 grid gap-[11px]" aria-live="polite">
-                  {topJobs.map(({ job, score }) => {
-                    const exp = experienceText(job);
-                    const posted = relativePosted(job.datePosted);
-                    return (
-                      <li
-                        key={job.jobUrl}
-                        className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-foreground shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
-                      >
-                        <CompanyLogo job={job} />
-                        <div className="min-w-0">
-                          <h3 className="text-[17px] font-black leading-[1.2] tracking-[-0.025em]">
-                            <a href={job.jobUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                              {job.title}
-                            </a>
-                          </h3>
-                          <p className="mt-1 text-[13px] font-bold text-foreground-soft">{job.company}</p>
-                          <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-foreground-soft">
-                            {job.location && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <MapPin className="size-[15px] text-primary" aria-hidden="true" />
-                                {job.location}
-                              </span>
-                            )}
-                            {exp && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <BarChart3 className="size-[15px] text-primary" aria-hidden="true" />
-                                {exp}
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-1.5 text-[10px] text-muted-foreground">
-                            Sumber: {siteName(job.site)}
-                            {posted ? ` · ${posted}` : ''}
-                          </p>
-                        </div>
-                        <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-border pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
-                          <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
-                            ✦ {score}% cocok
-                          </span>
-                          <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                            <Button variant="accent" size="sm" className="flex-1 lg:flex-none" onClick={() => createCv(job)}>
-                              Buat CV &amp; Lamar ↗
-                            </Button>
-                            <Button asChild variant="brand-outline" size="sm" className="flex-1 lg:flex-none">
-                              <a href={job.jobUrl} target="_blank" rel="noreferrer">
-                                Lihat Detail
-                              </a>
-                            </Button>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {topJobs.map(({ job, score }) => (
+                    <JobCard key={job.jobUrl} job={job} score={score} onCreateCv={createCv} headingLevel="h3" />
+                  ))}
                 </ul>
               )}
             </div>
