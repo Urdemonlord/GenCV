@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCvView, cvFileBaseName, formatDateRange, formatMonth, sortByRecency, splitDescription, toHref } from './format';
+import { buildCvView, contactLines, cvFileBaseName, formatDateRange, formatMonth, sortByRecency, splitDescription, toHref } from './format';
 import { normalizeCV } from './normalize';
 
 describe('formatMonth / formatDateRange', () => {
@@ -57,3 +57,30 @@ describe('links and file names', () => {
   });
 });
 
+
+describe('contactLines', () => {
+  const city = { text: 'Semarang' };
+  const phone = { text: '+62 812', href: 'tel:+62812' };
+  const email = { text: 'a@b.id', href: 'mailto:a@b.id' };
+  const linkedin = { text: 'linkedin.com/in/a', href: 'https://linkedin.com/in/a' };
+  const github = { text: 'github.com/a', href: 'https://github.com/a' };
+
+  it('keeps a short list on one line', () => {
+    expect(contactLines([city, email, linkedin])).toEqual([[city, email, linkedin]]);
+  });
+
+  it('puts personal details and web links on separate lines when there are many', () => {
+    expect(contactLines([city, phone, email, linkedin, github])).toEqual([
+      [city, phone, email],
+      [linkedin, github],
+    ]);
+  });
+
+  it('keeps one line when every contact is the same kind', () => {
+    expect(contactLines([city, phone, email, { text: 'x', href: 'mailto:x' }])).toHaveLength(1);
+  });
+
+  it('returns no lines for no contacts', () => {
+    expect(contactLines([])).toEqual([]);
+  });
+});

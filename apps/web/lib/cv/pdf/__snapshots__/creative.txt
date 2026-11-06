@@ -1,8 +1,8 @@
 --- page 1 ---
   47  42 | Arya Pratama
   65  42 | Software Engineer
-  86  42 | Semarang, Indonesia | +62 812 3456 7890 | arya.pratama@email.com | linkedin.com/in/aryapratama
-  99  48 | | github.com/aryapratama
+  86  42 | Semarang, Indonesia | +62 812 3456 7890 | arya.pratama@email.com
+  99  42 | linkedin.com/in/aryapratama | github.com/aryapratama
  151  51 | SUMMARY
  171  42 | Software engineer with 4 years of experience building web platforms in Go and TypeScript. Shipped payment
  185  42 | and logistics features used by thousands of merchants, with a focus on reliability and clean APIs.

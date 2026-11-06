@@ -1,7 +1,7 @@
 // Renamed: lint's alt-text rule targets next/image, but react-pdf's Image draws a PDF image and has no alt.
 import { Document, Image as PdfImage, Link, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { Fragment, type ReactNode } from 'react';
-import { orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from '../format';
+import { contactLines, orderSectionsForTemplate, type ContactItem, type CvView, type EntryView, type SectionView } from '../format';
 import type { TemplateId } from '../templates';
 
 interface Theme {
@@ -118,7 +118,18 @@ type Styles = ReturnType<typeof createStyles>;
 /**
  * Each contact is its own text block in a wrapping row, so a long line breaks between
  * items. As one paragraph, react-pdf could break inside it and insert a stray hyphen.
+ * Contacts are split into lines first (contactLines) so a line never starts with "|".
  */
+function ContactLines(props: { contacts: ContactItem[]; color: string; linkColor: string; centered?: boolean }) {
+  return (
+    <>
+      {contactLines(props.contacts).map((line, index) => (
+        <ContactLine key={index} {...props} contacts={line} />
+      ))}
+    </>
+  );
+}
+
 function ContactLine({
   contacts,
   color,
@@ -158,7 +169,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
         {view.headline ? <Text style={[s.headline, { color: '#dbe4ff' }]}>{view.headline}</Text> : null}
         {view.contacts.length > 0 ? (
           <View style={s.contacts}>
-            <ContactLine contacts={view.contacts} color="#eaf0ff" linkColor="#ffffff" />
+            <ContactLines contacts={view.contacts} color="#eaf0ff" linkColor="#ffffff" />
           </View>
         ) : null}
         </View>
@@ -181,7 +192,7 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
       ) : null}
       {view.contacts.length > 0 ? (
         <View style={[s.contacts, { alignItems: centered ? 'center' : 'flex-start' }]}>
-          <ContactLine contacts={view.contacts} color={theme.muted} linkColor={theme.muted} centered={centered} />
+          <ContactLines contacts={view.contacts} color={theme.muted} linkColor={theme.muted} centered={centered} />
         </View>
       ) : null}
       </View>
