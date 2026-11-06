@@ -1,16 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { BRAND } from './brand';
 
-/**
- * Gaya gambar OG, disamakan dengan token tema Ayo Kerja di globals.css:
- * latar kuning #F4E11B, teks ink #071A4A, muted #5E6B88, biru #0035AD.
- */
+/** Gaya gambar OG, dari warna merek di lib/brand.ts (= token globals.css). */
 export const OG = {
-  background: '#F4E11B',
-  text: '#071A4A',
-  muted: '#5E6B88',
-  primary: '#0035AD',
-  accent: '#0035AD',
+  background: BRAND.yellow,
+  text: BRAND.ink,
+  muted: BRAND.muted,
+  primary: BRAND.blue,
+  accent: BRAND.blue,
   font: 'Plus Jakarta Sans',
 } as const;
 

@@ -152,7 +152,7 @@ const FOOTER_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-[#002B91] py-5 text-xs text-[#dbe4ff]">
+    <footer className="bg-primary-strong py-5 text-xs text-primary-foreground/85">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-4 px-4">
         <div className="space-y-1">
           <p>

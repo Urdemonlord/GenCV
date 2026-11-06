@@ -5,7 +5,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Bookmark, Briefcase, ChevronDown, FileText, Layers, MapPin, Search, Sparkles, Upload } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
+import { HERO_TITLE_BAR, HERO_TITLE_DISPLAY } from '../components/landing/page-hero';
+import { buttonVariants } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/cn';
 import { authClient } from '@/lib/sync/auth-client';
 import { runSyncRound } from '@/lib/sync/client';
 import { emptyCV } from '@/lib/cv/model';
@@ -28,7 +31,7 @@ import {
 
 /**
  * Portal lowongan Ayo Kerja — dibuat semirip mungkin dengan mockup design.md /
- * index.html (kuning #F4E11B + biru royal #0035AD: hero kuning, seksi hasil
+ * index.html (token brand-accent kuning + primary biru royal: hero kuning, seksi hasil
  * biru, kartu putih, badge kuning, sidebar sumber, tab berjumlah).
  *
  * Yang tetap jujur dan TIDAK meniru angka mockup:
@@ -62,9 +65,6 @@ type View = 'all' | 'recommended' | 'saved' | 'applications';
 
 const SAVED_KEY = 'gencv:saved-jobs';
 
-const BLUE = 'hsl(var(--primary))';
-const YELLOW = 'hsl(var(--brand-accent))';
-
 const TAB_LABELS: { id: Tab; label: string }[] = [
   { id: 'all', label: 'Semua' },
   { id: 'remote', label: 'Remote' },
@@ -87,9 +87,9 @@ const SITE_NAMES: Record<string, string> = {
 
 /** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */
 const TILE_COLORS = [
-  { bg: YELLOW, fg: '#0035AD' },
-  { bg: BLUE, fg: '#FFFFFF' },
-  { bg: '#EAF0FF', fg: '#0035AD' },
+  'bg-brand-accent text-primary',
+  'bg-primary text-primary-foreground',
+  'bg-surface text-primary',
 ];
 
 function tileFor(company: string) {
@@ -113,8 +113,7 @@ export function CompanyLogo({ job }: { job: HunterJob }) {
     return (
       <span
         aria-hidden="true"
-        className="grid size-12 shrink-0 place-items-center rounded-[11px] text-[22px] font-black"
-        style={{ background: tile.bg, color: tile.fg }}
+        className={`grid size-12 shrink-0 place-items-center rounded-[11px] font-display text-[24px] font-black ${tile}`}
       >
         {job.company.charAt(0).toUpperCase()}
       </span>
@@ -285,10 +284,11 @@ function loadSaved(): Set<string> {
   }
 }
 
-const btnGreen =
+const btnPrimary =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
-const btnOutline =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold transition hover:border-muted-foreground/60 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 disabled:opacity-50';
+// Aksi kartu lowongan, sama dengan Button variant accent / brand-outline.
+const btnCardAccent = cn(buttonVariants({ variant: 'accent', size: null }), 'rounded-xl px-3 py-2.5 text-xs');
+const btnCardOutline = cn(buttonVariants({ variant: 'brand-outline', size: null }), 'rounded-xl px-3 py-2.5 text-xs');
 const btnWhite =
   'inline-flex items-center justify-center gap-2 rounded-[13px] bg-white px-4 py-2.5 text-sm font-extrabold text-primary transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:opacity-50';
 const btnGhostLight =
@@ -573,7 +573,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   const filterSelectClass =
-    'w-full appearance-none bg-transparent py-3 text-[13px] font-extrabold text-primary outline-none sm:py-3.5 sm:text-sm [&>option]:bg-white [&>option]:text-[#071A4A]';
+    'w-full appearance-none bg-transparent py-3 text-[13px] font-extrabold text-primary outline-none sm:py-3.5 sm:text-sm [&>option]:bg-white [&>option]:text-foreground';
 
   return (
     <>
@@ -586,11 +586,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 <span aria-hidden="true" className="inline-block size-2.5 rounded-[3px] bg-primary" />
                 Portal Karier &amp; Peluang Kerja
               </p>
-              <h1 className="mt-4 max-w-[760px] text-[clamp(2.5rem,4.5vw,4.35rem)] font-black uppercase leading-[0.98] tracking-[-0.06em]">
+              <h1 className={HERO_TITLE_DISPLAY}>
                 <span className="block">Temukan peluang kerja yang sesuai</span>
-                <span className="mt-1 inline-block bg-primary px-2.5 pb-1 text-brand-accent">dengan profilmu.</span>
+                <span className={HERO_TITLE_BAR}>dengan profilmu.</span>
               </h1>
-              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-[#10265A]">
+              <p className="mt-4 max-w-[620px] text-base font-medium leading-[1.55] text-foreground-soft">
                 Jelajahi lowongan dari berbagai sumber, dapatkan rekomendasi yang relevan, dan persiapkan CV untuk
                 langkah karier berikutnya.
               </p>
@@ -611,11 +611,11 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari posisi, perusahaan, atau skill..."
-                className="w-full min-w-0 bg-transparent px-1 py-3 text-sm text-foreground outline-none placeholder:text-[#62708D]"
+                className="w-full min-w-0 bg-transparent px-1 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
               <button
                 type="submit"
-                className="h-11 shrink-0 rounded-[13px] bg-primary px-5 text-sm font-extrabold text-white transition hover:bg-[#002B91]"
+                className="h-11 shrink-0 rounded-[13px] bg-primary px-5 text-sm font-extrabold text-white transition hover:bg-primary-strong"
               >
                 Cari
               </button>
@@ -845,7 +845,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value as Sort)}
-                    className="bg-transparent outline-none [&>option]:bg-white [&>option]:text-[#071A4A]"
+                    className="bg-transparent outline-none [&>option]:bg-white [&>option]:text-foreground"
                   >
                     <option value="relevant">Paling relevan</option>
                     <option value="newest">Terbaru</option>
@@ -897,12 +897,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </div>
                 )
               ) : view === 'applications' ? (
-                <div className="mt-6 rounded-2xl bg-white p-8 text-center text-[#5E6B88]">
-                  <h2 className="text-lg font-bold text-[#071A4A]">Lamaran Saya belum tersedia</h2>
+                <div className="mt-6 rounded-2xl bg-white p-8 text-center text-muted-foreground">
+                  <h2 className="text-lg font-bold text-foreground">Lamaran Saya belum tersedia</h2>
                   <p className="mx-auto mt-2 max-w-md text-sm">
                     Pelacakan lamaran belum termasuk dalam portal ini. Lowongan yang kamu simpan ada di Tersimpan.
                   </p>
-                  <button type="button" onClick={() => setView('saved')} className={`${btnGreen} mt-5`}>
+                  <button type="button" onClick={() => setView('saved')} className={`${btnPrimary} mt-5`}>
                     Lihat Tersimpan
                   </button>
                 </div>
@@ -934,7 +934,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                         <select
                           value={baseId ?? ''}
                           onChange={(e) => setBaseId(e.target.value)}
-                          className="min-w-0 flex-1 truncate rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white sm:flex-none sm:max-w-[300px] [&>option]:bg-white [&>option]:text-[#071A4A]"
+                          className="min-w-0 flex-1 truncate rounded-lg border border-white/40 bg-transparent px-2 py-1.5 text-white sm:flex-none sm:max-w-[300px] [&>option]:bg-white [&>option]:text-foreground"
                         >
                           <option value="">CV kosong</option>
                           {bases.map((doc) => (
@@ -948,8 +948,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                   </div>
 
                   {shownJobs.length === 0 ? (
-                    <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-[#5E6B88]">
-                      <h2 className="text-lg font-bold text-[#071A4A]">
+                    <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-muted-foreground">
+                      <h2 className="text-lg font-bold text-foreground">
                         {view === 'saved'
                           ? 'Belum ada lowongan tersimpan'
                           : view === 'recommended'
@@ -967,15 +967,15 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                       </p>
                       <div className="mt-5 flex justify-center">
                         {view === 'saved' ? (
-                          <button type="button" onClick={() => setView('all')} className={btnGreen}>
+                          <button type="button" onClick={() => setView('all')} className={btnPrimary}>
                             Jelajahi lowongan
                           </button>
                         ) : view === 'recommended' && !baseDoc ? (
-                          <a href="/editor?new=1" className={btnGreen}>
+                          <a href="/editor?new=1" className={btnPrimary}>
                             Buat CV
                           </a>
                         ) : (
-                          <button type="button" onClick={resetFilters} className={btnGreen}>
+                          <button type="button" onClick={resetFilters} className={btnPrimary}>
                             {view === 'recommended' ? 'Tampilkan semua lowongan' : 'Hapus filter'}
                           </button>
                         )}
@@ -993,7 +993,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                           return (
                             <li
                               key={job.jobUrl}
-                              className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-[#071A4A] shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
+                              className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-foreground shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
                             >
                               <CompanyLogo job={job} />
                               <div className="min-w-0">
@@ -1002,8 +1002,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     {job.title}
                                   </a>
                                 </h2>
-                                <p className="mt-1 text-[13px] font-bold text-[#34466E]">{job.company}</p>
-                                <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-[#263B6A]">
+                                <p className="mt-1 text-[13px] font-bold text-foreground-soft">{job.company}</p>
+                                <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-foreground-soft">
                                   {job.location && (
                                     <span className="inline-flex items-center gap-1.5">
                                       <MapPin className="size-[15px] text-primary" aria-hidden="true" />
@@ -1029,12 +1029,12 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-1.5 text-[10px] text-[#75809A]">
+                                <p className="mt-1.5 text-[10px] text-muted-foreground">
                                   Sumber: {siteName(job.site)}
                                   {posted ? ` · ${posted}` : ''}
                                 </p>
                                 {(job.flagDemoLike || !job.description) && (
-                                  <p className="mt-1 text-xs text-[#5E6B88]/80">
+                                  <p className="mt-1 text-xs text-muted-foreground/80">
                                     {[
                                       job.flagDemoLike ? 'Perlu dicek — mirip lowongan demo' : null,
                                       !job.description ? 'Deskripsi belum ada — tempel di editor' : null,
@@ -1044,13 +1044,13 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                   </p>
                                 )}
                               </div>
-                              <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-[#D9E1F2] pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
+                              <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-border pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
                                 {score === undefined ? (
-                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
+                                  <span className="whitespace-nowrap rounded-full bg-surface px-2.5 py-1.5 text-xs font-black text-primary">
                                     Lengkapi profil untuk Job Match
                                   </span>
                                 ) : score === null ? (
-                                  <span className="whitespace-nowrap rounded-full bg-[#EAF0FF] px-2.5 py-1.5 text-xs font-black text-primary">
+                                  <span className="whitespace-nowrap rounded-full bg-surface px-2.5 py-1.5 text-xs font-black text-primary">
                                     Belum ada kata kunci yang cocok
                                   </span>
                                 ) : (
@@ -1059,7 +1059,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                   </span>
                                 )}
                                 {posted && (
-                                  <span className="whitespace-nowrap text-[11px] font-semibold text-[#64718C]">
+                                  <span className="whitespace-nowrap text-[11px] font-semibold text-muted-foreground">
                                     {posted}
                                   </span>
                                 )}
@@ -1069,8 +1069,8 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                   aria-pressed={isSaved}
                                   aria-label={isSaved ? 'Hapus dari tersimpan' : 'Simpan lowongan'}
                                   title={isSaved ? 'Tersimpan' : 'Simpan'}
-                                  className={`grid size-[38px] shrink-0 place-items-center rounded-[9px] text-primary transition hover:bg-[#EAF0FF] focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
-                                    isSaved ? 'bg-[#EAF0FF]' : ''
+                                  className={`grid size-[38px] shrink-0 place-items-center rounded-[9px] text-primary transition hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
+                                    isSaved ? 'bg-surface' : ''
                                   }`}
                                 >
                                   <Bookmark
@@ -1083,7 +1083,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                   <button
                                     type="button"
                                     onClick={() => createCv(job)}
-                                    className={`${btnGreen} flex-1 px-3 py-2.5 text-xs lg:min-w-[145px] lg:flex-none`}
+                                    className={`${btnCardAccent} flex-1 lg:min-w-[145px] lg:flex-none`}
                                   >
                                     Buat CV &amp; Lamar ↗
                                   </button>
@@ -1091,7 +1091,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                                     href={job.jobUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className={`${btnOutline} flex-1 px-3 py-2.5 text-xs lg:flex-none`}
+                                    className={`${btnCardOutline} flex-1 lg:flex-none`}
                                   >
                                     Lihat Detail
                                   </a>

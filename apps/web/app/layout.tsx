@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Anton, Plus_Jakarta_Sans } from 'next/font/google';
+import { Archivo, Plus_Jakarta_Sans } from 'next/font/google';
+import { BRAND } from '@/lib/brand';
 import { FEED_ALTERNATES, SITE_DESCRIPTION, SITE_URL } from '@/lib/seo';
 import { Analytics } from './components/analytics';
 import { Toaster } from './components/ui/toaster';
@@ -12,11 +13,13 @@ const fontSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-// Condensed display face for the landing hero headline (mockup typography).
-const fontDisplay = Anton({
+// Heavy poster face for headlines and sticker labels (Ayo Kerja mockup). Variable
+// weight + width: wide black for the hero, condensed italic for stickers.
+const fontDisplay = Archivo({
   subsets: ['latin', 'latin-ext'],
-  weight: '400',
-  variable: '--font-anton',
+  style: ['normal', 'italic'],
+  axes: ['wdth'],
+  variable: '--font-archivo',
   display: 'swap',
 });
 
@@ -40,7 +43,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#F4E11B',
+  themeColor: BRAND.yellow,
 };
 
 export default function RootLayout({

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BarChart3, MapPin } from 'lucide-react';
 import { HeroArt } from '../components/landing/hero-art';
-import { PageHero } from '../components/landing/page-hero';
+import { HERO_TITLE_BAR, PageHero } from '../components/landing/page-hero';
 import { CompanyLogo, experienceText, relativePosted, siteName } from '../lowongan/job-list';
 import { Button, Chip, Panel, ProgressBar, ScoreRing } from '@/components/ds';
 import { useToast } from '@/hooks/use-toast';
@@ -184,7 +184,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
         title={
           <>
             <span className="block">Seberapa siap CV-mu</span>
-            <span className="mt-1 inline-block bg-primary px-2.5 pb-1 text-brand-accent">untuk melamar?</span>
+            <span className={HERO_TITLE_BAR}>untuk melamar?</span>
           </>
         }
         lead="Skor ATS, lowongan paling cocok, dan skill yang belum ada di CV — semuanya dihitung dari CV dan feed lowongan yang kamu punya, bukan dari angka demo."
@@ -307,8 +307,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                   </div>
                 </div>
               ) : topJobs.length === 0 ? (
-                <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-[#5E6B88]">
-                  <h3 className="text-lg font-bold text-[#071A4A]">Belum ada kata kunci yang cocok</h3>
+                <div className="mt-6 rounded-2xl bg-white p-[42px_18px] text-center text-muted-foreground">
+                  <h3 className="text-lg font-bold text-foreground">Belum ada kata kunci yang cocok</h3>
                   <p className="mx-auto mt-2 max-w-md text-sm">
                     Tidak ada kata kunci keahlian yang dikenali dari lowongan di feed saat ini bila dibandingkan
                     dengan CV dasarmu. Tempel deskripsi lengkap di editor untuk skor Job Match penuh.
@@ -325,7 +325,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                     return (
                       <li
                         key={job.jobUrl}
-                        className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-[#071A4A] shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
+                        className="grid grid-cols-[48px_minmax(0,1fr)] gap-[15px] rounded-2xl bg-white p-[15px_17px] text-foreground shadow-[0_3px_0_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)] lg:grid-cols-[48px_minmax(0,1fr)_auto]"
                       >
                         <CompanyLogo job={job} />
                         <div className="min-w-0">
@@ -334,8 +334,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                               {job.title}
                             </a>
                           </h3>
-                          <p className="mt-1 text-[13px] font-bold text-[#34466E]">{job.company}</p>
-                          <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-[#263B6A]">
+                          <p className="mt-1 text-[13px] font-bold text-foreground-soft">{job.company}</p>
+                          <div className="mt-2 flex flex-wrap gap-x-[15px] gap-y-1 text-xs font-semibold text-foreground-soft">
                             {job.location && (
                               <span className="inline-flex items-center gap-1.5">
                                 <MapPin className="size-[15px] text-primary" aria-hidden="true" />
@@ -349,20 +349,20 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                               </span>
                             )}
                           </div>
-                          <p className="mt-1.5 text-[10px] text-[#75809A]">
+                          <p className="mt-1.5 text-[10px] text-muted-foreground">
                             Sumber: {siteName(job.site)}
                             {posted ? ` · ${posted}` : ''}
                           </p>
                         </div>
-                        <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-[#D9E1F2] pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
+                        <div className="col-span-2 flex flex-wrap items-center gap-3.5 border-t border-border pt-2.5 lg:col-span-1 lg:border-0 lg:pt-0">
                           <span className="whitespace-nowrap rounded-full bg-brand-accent px-2.5 py-1.5 text-xs font-black text-primary">
                             ✦ {score}% cocok
                           </span>
                           <div className="flex w-full flex-wrap gap-2 lg:w-auto">
-                            <Button variant="primary" size="sm" className="flex-1 lg:flex-none" onClick={() => createCv(job)}>
+                            <Button variant="accent" size="sm" className="flex-1 lg:flex-none" onClick={() => createCv(job)}>
                               Buat CV &amp; Lamar ↗
                             </Button>
-                            <Button asChild variant="outline" size="sm" className="flex-1 lg:flex-none">
+                            <Button asChild variant="brand-outline" size="sm" className="flex-1 lg:flex-none">
                               <a href={job.jobUrl} target="_blank" rel="noreferrer">
                                 Lihat Detail
                               </a>
