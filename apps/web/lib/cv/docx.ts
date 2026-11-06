@@ -34,7 +34,7 @@ const THEMES: Record<TemplateId, DocxTheme> = {
   executive: { font: 'Georgia', accent: '111827', muted: '374151', centered: true },
   tech: { font: 'Calibri', accent: '0F766E', muted: '4B5563', centered: false },
   academic: { font: 'Georgia', accent: '1E3A8A', muted: '374151', centered: false },
-  creative: { font: 'Calibri', accent: '6D28D9', muted: '4B5563', centered: false },
+  creative: { font: 'Calibri', accent: '0035AD', muted: '4B5563', centered: false },
 };
 
 const link = (text: string, href: string) =>

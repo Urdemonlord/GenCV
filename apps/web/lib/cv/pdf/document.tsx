@@ -12,6 +12,8 @@ interface Theme {
   rule: string;
   header: 'left' | 'center' | 'band';
   heading: 'underline' | 'rule' | 'bar';
+  /** Warna penanda di kiri judul seksi (heading 'bar'); default accent. */
+  marker?: string;
 }
 
 // All templates are single-column with real text and standard headings so ATS parsers
@@ -22,7 +24,8 @@ const THEMES: Record<TemplateId, Theme> = {
   executive: { font: 'Source Serif 4', accent: '#111827', text: '#111827', muted: '#374151', rule: '#111827', header: 'center', heading: 'rule' },
   tech: { font: 'Inter', accent: '#0f766e', text: '#111827', muted: '#4b5563', rule: '#99f6e4', header: 'left', heading: 'bar' },
   academic: { font: 'Source Serif 4', accent: '#1e3a8a', text: '#111827', muted: '#374151', rule: '#1e3a8a', header: 'left', heading: 'rule' },
-  creative: { font: 'Inter', accent: '#6d28d9', text: '#1f2937', muted: '#4b5563', rule: '#ddd6fe', header: 'band', heading: 'bar' },
+  // Warna Ayo Kerja: pita biru royal, penanda judul kuning.
+  creative: { font: 'Inter', accent: '#0035AD', text: '#1f2937', muted: '#4b5563', rule: '#dbe4ff', header: 'band', heading: 'bar', marker: '#F4E11B' },
 };
 
 const PAGE_X = 42;
@@ -72,7 +75,7 @@ function createStyles(theme: Theme) {
       borderBottomColor: theme.rule,
     },
     sectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-    sectionTitleBar: { width: 3, height: 11, marginRight: 6, backgroundColor: theme.accent },
+    sectionTitleBar: { width: 3, height: 11, marginRight: 6, backgroundColor: theme.marker ?? theme.accent },
     sectionTitle: {
       fontSize: 10.5,
       fontWeight: 700,
@@ -152,10 +155,10 @@ function Header({ view, theme, s }: { view: CvView; theme: Theme; s: Styles }) {
       <View style={[s.band, s.headerRow]}>
         <View style={s.headerText}>
         {view.name ? <Text style={[s.name, { color: '#ffffff' }]}>{view.name}</Text> : null}
-        {view.headline ? <Text style={[s.headline, { color: '#ede9fe' }]}>{view.headline}</Text> : null}
+        {view.headline ? <Text style={[s.headline, { color: '#dbe4ff' }]}>{view.headline}</Text> : null}
         {view.contacts.length > 0 ? (
           <View style={s.contacts}>
-            <ContactLine contacts={view.contacts} color="#f5f3ff" linkColor="#ffffff" />
+            <ContactLine contacts={view.contacts} color="#eaf0ff" linkColor="#ffffff" />
           </View>
         ) : null}
         </View>

@@ -46,7 +46,7 @@ export const TEMPLATE_INFO: Record<TemplateId, TemplateInfo> = {
   },
   creative: {
     name: 'Creative',
-    description: 'Header berwarna, tetap satu kolom. Untuk desain, marketing, dan startup.',
+    description: 'Header biru, tetap satu kolom. Untuk desain, marketing, dan startup.',
     audiences: ['creative'],
   },
 };
