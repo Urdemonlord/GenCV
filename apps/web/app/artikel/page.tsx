@@ -37,12 +37,13 @@ export default function ArtikelPage() {
           title="Artikel & panduan CV"
           lead="Ditulis dari aturan yang benar-benar dipakai produk ini, bukan dari daftar tips umum."
         />
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        <div className="section-brand">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
           <ul className="grid gap-4 md:grid-cols-2">
             {posts.map((post) => (
               <li key={post.slug}>
-                <article className="rounded-xl border border-border bg-white p-6">
-                  <h2 className="text-xl font-semibold">
+                <article className="card-brand h-full p-6 transition hover:-translate-y-0.5">
+                  <h2 className="text-xl font-extrabold leading-snug tracking-[-0.02em]">
                     <Link href={`/artikel/${post.slug}`} className="hover:underline">
                       {post.title}
                     </Link>
@@ -57,6 +58,7 @@ export default function ArtikelPage() {
               </li>
             ))}
           </ul>
+        </div>
         </div>
       </main>
       <SiteFooter />

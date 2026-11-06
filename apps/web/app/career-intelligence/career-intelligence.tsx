@@ -192,7 +192,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
       />
 
       {!baseDoc ? (
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
           <Panel className="p-6 text-center sm:p-10">
             <h2 className="text-xl font-bold">Belum ada CV di perangkat ini</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -207,7 +207,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
       ) : (
         <>
           {/* CV dasar yang dipakai semua perhitungan di halaman ini. */}
-          <div className="mx-auto w-full max-w-6xl px-4 pt-10 sm:pt-14">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pt-10 sm:pt-14">
             <div className="flex flex-wrap items-center gap-3">
               <label htmlFor="ci-base-cv" className="text-sm font-semibold text-muted-foreground">
                 CV dasar
@@ -231,8 +231,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           </div>
 
           {/* Kesiapan ATS — dari analyzeCv, tidak butuh feed. */}
-          <section aria-label="Kesiapan ATS" className="mx-auto w-full max-w-6xl px-4 py-10">
-            <h2 className="text-2xl font-black tracking-tight">Kesiapan ATS</h2>
+          <section aria-label="Kesiapan ATS" className="mx-auto w-full max-w-[1440px] px-4 py-10">
+            <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Kesiapan ATS</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Estimasi dari aturan yang bisa dilihat — bukan ramalan apakah kamu lolos di perusahaan tertentu.
             </p>
@@ -248,7 +248,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                     <li key={component.id}>
                       <Panel className="p-5">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <h3 className="font-semibold">{component.label}</h3>
+                          <h3 className="font-extrabold">{component.label}</h3>
                           <span className="text-sm font-bold">{component.score}%</span>
                         </div>
                         <ProgressBar className="mt-3" value={component.score} label={`Skor ${component.label}`} />
@@ -273,7 +273,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           {/* Lowongan paling cocok — seksi biru seperti hasil /lowongan. */}
           <section aria-label="Lowongan paling cocok" className="bg-primary py-7 text-white lg:py-10">
             <div className="mx-auto max-w-[1440px] px-4">
-              <h2 className="text-2xl font-black tracking-tight">Lowongan paling cocok</h2>
+              <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Lowongan paling cocok</h2>
               <p className="mt-1 max-w-2xl text-sm text-white/80">
                 {topJobs.length > 0
                   ? `${topJobs.length} lowongan dengan skor tertinggi dari CV dasarmu. Skor dihitung dari deskripsi lowongan bila ada, judul bila tidak — sama seperti Job Match di /lowongan.`
@@ -291,7 +291,7 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
                 </div>
               ) : feedState === 'failed' ? (
                 <div className="mt-6 rounded-2xl border border-dashed border-white/40 p-10 text-center text-white">
-                  <h3 className="text-lg font-semibold">Feed lowongan tidak bisa dijangkau</h3>
+                  <h3 className="text-lg font-extrabold">Feed lowongan tidak bisa dijangkau</h3>
                   <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
                     Bagian kesiapan ATS di atas tetap tampil, karena tidak butuh feed. Coba muat ulang feed, atau
                     buka /lowongan untuk impor manual.
@@ -327,8 +327,8 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           </section>
 
           {/* Skill gap — dari teks lowongan teratas vs CV dasar. */}
-          <section aria-label="Skill yang belum ada di CV" className="mx-auto w-full max-w-6xl px-4 py-10">
-            <h2 className="text-2xl font-black tracking-tight">Skill yang belum ada di CV</h2>
+          <section aria-label="Skill yang belum ada di CV" className="mx-auto w-full max-w-[1440px] px-4 py-10">
+            <h2 className="font-display text-2xl font-black tracking-[-0.02em]">Skill yang belum ada di CV</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Keyword ini muncul di teks lowongan teratas, tapi belum disebut di CV dasarmu. Tambahkan hanya jika
               memang kamu kuasai.
@@ -363,9 +363,9 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
           </section>
 
           {/* Dari mana data ini — cakupan feed dan board hunter. */}
-          <section aria-label="Dari mana data ini" className="mx-auto w-full max-w-6xl px-4 pb-14">
+          <section aria-label="Dari mana data ini" className="mx-auto w-full max-w-[1440px] px-4 pb-14">
             <Panel className="p-5">
-              <h2 className="font-semibold">Dari mana data ini</h2>
+              <h2 className="font-extrabold">Dari mana data ini</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {jobs
                   ? `Feed saat ini berisi ${jobs.length} lowongan${sourceCounts.length ? ` dari ${sourceCounts.map(([name, count]) => `${name} (${count})`).join(', ')}` : ''} — dihitung dari feed yang dimuat halaman ini.`

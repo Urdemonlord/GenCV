@@ -8,16 +8,16 @@ export function Features() {
 
   return (
     <section id="fitur" className="scroll-mt-20 border-t border-border/60 py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        <p className="text-sm font-semibold uppercase tracking-wider text-primary-soft">Dibuat untuk diterima kerja</p>
-        <h2 className="mt-2 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
+      <div className="mx-auto max-w-[1440px] px-4">
+        <p className="text-sm font-semibold uppercase tracking-wider text-primary">Dibuat untuk diterima kerja</p>
+        <h2 className="mt-2 max-w-2xl font-display text-3xl font-black tracking-[-0.02em] sm:text-4xl">
           Bukan sekadar generator. Workspace untuk menyusun, menguji, dan menyesuaikan CV.
         </h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           <Panel className="p-6">
-            <LayoutPanelLeft className="size-6 text-primary-soft" aria-hidden="true" />
-            <h3 className="mt-4 text-lg font-semibold">Editor dengan pratinjau PDF asli</h3>
+            <LayoutPanelLeft className="size-6 text-primary" aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-extrabold">Editor dengan pratinjau PDF asli</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Isi per bagian, lihat hasilnya langsung. Yang tampil di pratinjau adalah file PDF yang sama persis dengan
               yang kamu unduh, termasuk jumlah halaman. Data tersimpan di perangkatmu.
@@ -25,8 +25,8 @@ export function Features() {
           </Panel>
 
           <Panel className="p-6">
-            <Gauge className="size-6 text-primary-soft" aria-hidden="true" />
-            <h3 className="mt-4 text-lg font-semibold">Analisis ATS yang bisa dijelaskan</h3>
+            <Gauge className="size-6 text-primary" aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-extrabold">Analisis ATS yang bisa dijelaskan</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Skor dihitung dari aturan yang terlihat: kelengkapan, format, keterbacaan, dan kualitas poin. Setiap
               temuan disertai saran perbaikan, misalnya:
@@ -41,8 +41,8 @@ export function Features() {
           </Panel>
 
           <Panel className="p-6">
-            <Target className="size-6 text-primary-soft" aria-hidden="true" />
-            <h3 className="mt-4 text-lg font-semibold">Job Match per lowongan</h3>
+            <Target className="size-6 text-primary" aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-extrabold">Job Match per lowongan</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Tempel deskripsi lowongan, lihat keyword keahlian yang sudah dan belum ada di CV. Satu CV bisa diduplikasi
               untuk tiap lowongan.
@@ -55,8 +55,8 @@ export function Features() {
           </Panel>
 
           <Panel className="p-6">
-            <Sparkles className="size-6 text-brand-accent-soft" aria-hidden="true" />
-            <h3 className="mt-4 text-lg font-semibold">Asisten AI yang tidak mengarang</h3>
+            <Sparkles className="size-6 text-primary" aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-extrabold">Asisten AI yang tidak mengarang</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               AI merapikan kalimat jadi poin pencapaian yang kuat. Kalau angka bisa memperkuat, AI memberi tempat kosong
               untuk kamu isi, bukan angka karangan.
@@ -68,8 +68,8 @@ export function Features() {
                 Developed a web application for internal use.
               </p>
               <ArrowRight className="mx-auto size-4 rotate-90 text-muted-foreground" aria-hidden="true" />
-              <p className="rounded-lg border border-brand-accent/30 bg-brand-accent/10 px-3 py-2 text-foreground">
-                <span className="text-xs font-semibold uppercase text-brand-accent-soft">Sesudah</span>
+              <p className="rounded-lg border-[1.5px] border-primary bg-brand-accent/25 px-3 py-2 text-foreground">
+                <span className="text-xs font-bold uppercase text-primary">Sesudah</span>
                 <br />
                 Built and deployed an internal web application used by <mark className="rounded bg-warning/20 px-1 text-warning">[jumlah]</mark>{' '}
                 employees, reducing <mark className="rounded bg-warning/20 px-1 text-warning">[proses]</mark> time by{' '}

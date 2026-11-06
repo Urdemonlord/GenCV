@@ -721,7 +721,7 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
                 ) : (
                   <div className="mt-6 rounded-2xl border border-dashed border-white/40 p-10 text-center text-white">
                     <FileText className="mx-auto size-10 text-white/70" aria-hidden="true" />
-                    <h2 className="mt-4 text-lg font-semibold">Feed otomatis hunter tidak bisa dijangkau</h2>
+                    <h2 className="mt-4 text-lg font-extrabold">Feed otomatis hunter tidak bisa dijangkau</h2>
                     <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
                       Sebagai fallback, impor file jobs.json hasil hunter secara manual. Daftar ini tidak dikirim ke
                       server mana pun.

@@ -36,7 +36,7 @@ export function ExportSuccess({
 
   useEffect(() => headingRef.current?.focus(), []);
 
-  const action = 'flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-accent [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-primary-soft';
+  const action = 'flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-accent [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-primary';
 
   return (
     <div

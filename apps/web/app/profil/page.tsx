@@ -28,13 +28,13 @@ export default function ProfilPage() {
           title="Profil"
           lead="Akun yang dipakai di perangkat ini, dan salinan CV yang tersimpan di server."
         />
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:py-14">
           <div>
             <ProfilAkun />
           </div>
           <SyncPanel configured={isSyncConfigured()} />
           <p className="mt-6 text-sm">
-            <Link href="/dashboard" className="text-primary-soft underline underline-offset-4">
+            <Link href="/dashboard" className="text-primary underline underline-offset-4">
               Lihat CV saya
             </Link>
           </p>

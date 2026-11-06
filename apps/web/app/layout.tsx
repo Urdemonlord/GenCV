@@ -53,7 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${fontSans.variable} ${fontDisplay.variable}`}>
-      <body className="min-h-screen font-sans">
+      <body className="flex min-h-screen flex-col font-sans *:[main]:flex-1">
         {children}
         <Toaster />
         <Analytics />

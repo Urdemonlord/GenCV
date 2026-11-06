@@ -14,7 +14,7 @@ export interface SectionProps {
 export function SectionIntro({ title, description }: { title: string; description: string }) {
   return (
     <header className="mb-5">
-      <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+      <h1 className="font-display text-xl font-extrabold tracking-[-0.02em] text-foreground">{title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
     </header>
   );
@@ -34,7 +34,7 @@ export function ItemPanel({
   return (
     <Panel className="p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="truncate text-sm font-semibold text-foreground">{title}</h2>
+        <h2 className="truncate text-sm font-bold text-foreground">{title}</h2>
         <Button variant="ghost" size="sm" aria-label={removeLabel} onClick={onRemove}>
           <Trash2 aria-hidden="true" />
         </Button>

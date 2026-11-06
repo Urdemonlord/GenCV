@@ -113,7 +113,7 @@ export default function TermsPage() {
       eyebrow="Dokumen legal"
       title="Syarat dan ketentuan"
       updated="6 Oktober 2026"
-      intro={<p>Dengan memakai Ayo Kerja, kamu menyetujui ketentuan berikut.</p>}
+      intro={<>Dengan memakai Ayo Kerja, kamu menyetujui ketentuan berikut.</>}
       sections={SECTIONS}
     />
   );

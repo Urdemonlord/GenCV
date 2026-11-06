@@ -79,7 +79,7 @@ export function SuggestionCard({
 }) {
   return (
     <li className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-      <p className="text-xs font-semibold text-primary-soft">{suggestion.label}</p>
+      <p className="text-xs font-semibold text-primary">{suggestion.label}</p>
       <dl className="mt-2 space-y-2">
         <div>
           <dt className="text-xs text-muted-foreground">Sebelum</dt>

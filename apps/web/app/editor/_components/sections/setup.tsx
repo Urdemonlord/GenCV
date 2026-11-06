@@ -48,7 +48,7 @@ export function SetupSection({ cv, update }: SectionProps) {
                   onChange={() => update((p) => ({ ...p, experienceLevel: value }))}
                   className="sr-only"
                 />
-                <Icon className="mt-0.5 size-5 shrink-0 text-primary-soft" aria-hidden="true" />
+                <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
                 <span>
                   <span className="block font-semibold text-foreground">{title}</span>
                   <span className="mt-1 block text-sm text-muted-foreground">{text}</span>

@@ -164,17 +164,18 @@ export function CvList() {
         </div>
       </PageHero>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+      <section className="section-brand">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pt-10 sm:pt-14">
         {items === null ? (
           <div className="grid gap-4 md:grid-cols-2" role="status">
             <span className="sr-only">Memuat CV…</span>
-            <Skeleton className="h-48 rounded-xl" />
-            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-48 rounded-2xl bg-white/15" />
+            <Skeleton className="h-48 rounded-2xl bg-white/15" />
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-10 text-center">
-            <FileText className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
-            <h2 className="mt-4 text-lg font-semibold">Belum ada CV di perangkat ini</h2>
+          <div className="card-brand p-10 text-center">
+            <FileText className="mx-auto size-10 text-primary" aria-hidden="true" />
+            <h2 className="mt-4 text-lg font-extrabold">Belum ada CV di perangkat ini</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Mulai dari nol, atau impor file JSON yang pernah kamu ekspor dari Ayo Kerja.
             </p>
@@ -189,7 +190,7 @@ export function CvList() {
               // The title falls back to the headline or name; don't repeat it underneath.
               const subtitle = [item.name, item.headline].filter((part) => part && part !== title).join(' · ');
               return (
-                <li key={item.id} className="flex min-w-0 flex-col rounded-xl border border-border bg-white p-5">
+                <li key={item.id} className="card-brand flex min-w-0 flex-col p-5">
                 {renaming === item.id ? (
                   <form
                     onSubmit={(e) => {
@@ -212,7 +213,7 @@ export function CvList() {
                     />
                   </form>
                 ) : (
-                  <h2 className="truncate text-lg font-semibold">
+                  <h2 className="truncate text-lg font-extrabold tracking-[-0.02em]">
                     <Link href={`/editor?id=${encodeURIComponent(item.id)}`} className="hover:underline">
                       {title}
                     </Link>
@@ -243,7 +244,7 @@ export function CvList() {
                   </div>
                 ) : (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
-                    <Button asChild variant="secondary" size="sm">
+                    <Button asChild variant="accent" size="sm">
                       <Link href={`/editor?id=${encodeURIComponent(item.id)}`}>Buka</Link>
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => duplicate(item.id)}>
@@ -265,6 +266,7 @@ export function CvList() {
         </ul>
       )}
       </div>
+      </section>
     </>
   );
 }

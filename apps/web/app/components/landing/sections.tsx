@@ -10,11 +10,11 @@ const FEATURED: TemplateId[] = ['professional', 'tech', 'creative'];
 export function TemplateCard({ id }: { id: TemplateId }) {
   return (
     <figure>
-      <div className="overflow-hidden rounded-lg ring-1 ring-white/10 transition-transform hover:-translate-y-1">
+      <div className="overflow-hidden rounded-lg ring-1 ring-border transition-transform hover:-translate-y-1">
         <Image src={`/previews/${id}.webp`} alt={`Contoh CV dengan template ${TEMPLATE_INFO[id].name}`} width={893} height={1263} sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className="h-auto w-full" />
       </div>
       <figcaption className="mt-3">
-        <span className="flex items-center gap-2 text-sm font-semibold">
+        <span className="flex items-center gap-2 text-base font-extrabold">
           {TEMPLATE_INFO[id].name}
           <Chip tone="success">Ramah ATS</Chip>
         </span>
@@ -26,22 +26,22 @@ export function TemplateCard({ id }: { id: TemplateId }) {
 
 export function TemplatesShowcase() {
   return (
-    <section id="template" className="scroll-mt-20 border-t border-border/60 py-20">
-      <div className="mx-auto max-w-6xl px-4">
+    <section id="template" className="section-brand scroll-mt-20 py-20">
+      <div className="mx-auto max-w-[1440px] px-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Template yang tetap terbaca ATS</h2>
-            <p className="mt-2 max-w-xl text-muted-foreground">
+            <h2 className="font-display text-3xl font-black tracking-[-0.02em] sm:text-4xl">Template yang tetap terbaca ATS</h2>
+            <p className="mt-2 max-w-xl text-primary-foreground/85">
               Semua satu kolom dengan teks asli dan judul section standar. Gambar di bawah adalah hasil ekspor sungguhan.
             </p>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="accent">
             <Link href="/templates">Semua {TEMPLATE_IDS.length} template</Link>
           </Button>
         </div>
         <ul className="mt-10 grid gap-6 sm:grid-cols-3">
           {FEATURED.map((id) => (
-            <li key={id}>
+            <li key={id} className="card-brand p-4">
               <TemplateCard id={id} />
             </li>
           ))}
@@ -60,13 +60,15 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section className="border-t border-border/60 py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Cara kerjanya</h2>
+      <div className="mx-auto max-w-[1440px] px-4">
+        <h2 className="font-display text-3xl font-black tracking-[-0.02em] sm:text-4xl">Cara kerjanya</h2>
         <ol className="mt-10 grid gap-6 md:grid-cols-3">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="rounded-xl border border-border bg-surface p-6">
-              <span className="text-sm font-semibold text-primary-soft">0{index + 1}</span>
-              <h3 className="mt-2 text-lg font-semibold">{step.title}</h3>
+            <li key={step.title} className="rounded-2xl border border-border bg-white p-6 shadow-[0_3px_0_hsl(var(--primary)/0.08)]">
+              <span className="inline-grid size-10 place-items-center rounded-[10px] bg-brand-accent font-display text-lg font-black text-primary">
+                0{index + 1}
+              </span>
+              <h3 className="mt-4 text-lg font-extrabold">{step.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{step.text}</p>
             </li>
           ))}
@@ -103,7 +105,7 @@ export function Faq() {
   return (
     <section id="faq" className="scroll-mt-20 border-t border-border/60 py-20">
       <div className="mx-auto max-w-3xl px-4">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Pertanyaan umum</h2>
+        <h2 className="font-display text-3xl font-black tracking-[-0.02em] sm:text-4xl">Pertanyaan umum</h2>
         <div className="mt-8 divide-y divide-border rounded-xl border border-border bg-surface">
           {FAQS.map((item) => (
             <details key={item.q} className="group p-5">
@@ -127,10 +129,10 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="border-t border-border/60 py-20">
-      <div className="mx-auto max-w-4xl rounded-2xl border border-border bg-surface px-6 py-14 text-center text-foreground">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Siap melamar dengan CV yang lebih kuat?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Mulai gratis, tanpa daftar akun. Draf tersimpan otomatis di perangkatmu.</p>
-        <Button asChild variant="primary" size="lg" className="mt-8">
+      <div className="section-brand mx-auto max-w-4xl rounded-2xl px-6 py-14 text-center">
+        <h2 className="font-display text-3xl font-black tracking-[-0.02em] sm:text-4xl">Siap melamar dengan CV yang lebih kuat?</h2>
+        <p className="mx-auto mt-3 max-w-xl text-primary-foreground/85">Mulai gratis, tanpa daftar akun. Draf tersimpan otomatis di perangkatmu.</p>
+        <Button asChild variant="accent" size="lg" className="mt-8">
           <Link href="/editor">
             Buat CV sekarang
             <ArrowRight aria-hidden="true" />
@@ -152,7 +154,7 @@ const FOOTER_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-primary-strong py-5 text-xs text-primary-foreground/85">
+    <footer className="mt-auto bg-primary-strong py-5 text-xs text-primary-foreground/85">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-start justify-between gap-4 px-4">
         <div className="space-y-1">
           <p>

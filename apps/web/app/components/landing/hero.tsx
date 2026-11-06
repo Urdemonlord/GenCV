@@ -11,24 +11,18 @@ const CARDS = [
   {
     href: '/editor',
     icon: FileText,
-    iconClass: 'text-primary',
-    borderClass: 'border-t-brand-accent',
     title: 'CV Workspace',
     description: 'Susun, edit, dan optimalkan CV-mu dengan bantuan AI.',
   },
   {
     href: '/lowongan',
     icon: Briefcase,
-    iconClass: 'text-primary',
-    borderClass: 'border-t-primary',
     title: 'Job Portal',
     description: 'Temukan lowongan terbaru dari berbagai sumber, sesuai profilmu.',
   },
   {
     href: '/career-intelligence',
     icon: BarChart3,
-    iconClass: 'text-primary',
-    borderClass: 'border-t-brand-accent',
     title: 'Career Intelligence',
     description: 'Analisis kecocokan, skill gap, dan rencana pengembangan karier.',
   },
@@ -91,7 +85,7 @@ export function Hero() {
       {/* Konten hero lama — dipindah ke bawah hero, bukan dihapus: showcase CV
           contoh + panel ATS/Job Match + kartu navigasi. Headline, CTA, dan
           daftar cek lama diganti hero mockup di atas. */}
-      <section className="mx-auto max-w-6xl px-4 py-16 lg:py-20">
+      <section className="mx-auto max-w-[1440px] px-4 py-16 lg:py-20">
         <div className="relative mx-auto w-full max-w-[520px]" aria-label="Contoh hasil Ayo Kerja" role="group">
           {/* Backing card kuning, miring seperti mockup. */}
           <div aria-hidden="true" className="absolute inset-x-6 bottom-0 top-8 rotate-[4deg] rounded-2xl bg-brand-accent" />
@@ -145,7 +139,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="absolute -right-2 top-2 hidden w-52 rounded-xl border border-border bg-surface/95 p-4 shadow-xl backdrop-blur sm:block">
+          <div className="absolute -right-2 top-2 hidden w-52 rounded-xl border-2 border-primary bg-white p-4 shadow-[4px_4px_0_var(--color-primary)] sm:block">
             <p className="text-xs font-semibold text-muted-foreground">Skor ATS · contoh</p>
             <div className="mt-2 flex items-center gap-3">
               <ScoreRing value={analysis.overall} size={64} label="Skor kesiapan ATS contoh" />
@@ -161,7 +155,7 @@ export function Hero() {
             </ul>
           </div>
 
-          <div className="absolute -bottom-4 -right-2 hidden w-56 rounded-xl border border-border bg-surface/95 p-4 shadow-xl backdrop-blur sm:block">
+          <div className="absolute -bottom-4 -right-2 hidden w-56 rounded-xl border-2 border-primary bg-white p-4 shadow-[4px_4px_0_var(--color-primary)] sm:block">
             <p className="text-xs font-semibold text-muted-foreground">Job Match · contoh</p>
             <p className="mt-1 text-lg font-bold text-foreground">{match.score ?? 0}% cocok</p>
             <ProgressBar className="mt-2" value={match.score ?? 0} label="Kecocokan keyword contoh" tone="success" />
@@ -181,19 +175,21 @@ export function Hero() {
         </div>
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
-          {CARDS.map(({ href, icon: Icon, iconClass, borderClass, title, description }) => (
+          {CARDS.map(({ href, icon: Icon, title, description }) => (
             <Link
               key={href}
               href={href}
-              className={`rounded-2xl border border-border border-t-2 bg-surface p-5 transition-colors hover:border-primary/60 ${borderClass}`}
+              className="group rounded-2xl border-2 border-primary bg-white p-5 shadow-[4px_4px_0_var(--color-primary)] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0_var(--color-primary)]"
             >
-              <span className="flex items-center gap-2">
-                <Icon className={`size-5 ${iconClass}`} aria-hidden="true" />
-                <span className="text-lg font-bold">{title}</span>
+              <span className="flex items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-brand-accent text-primary">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span className="text-lg font-extrabold">{title}</span>
               </span>
-              <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">{description}</span>
-              <span className="mt-4 flex justify-end text-muted-foreground">
-                <ArrowRight className="size-4" aria-hidden="true" />
+              <span className="mt-3 block text-sm leading-relaxed text-foreground-soft">{description}</span>
+              <span className="mt-4 flex justify-end text-primary">
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
               </span>
             </Link>
           ))}

@@ -107,7 +107,7 @@ export function AiAssistantSection({ cv, update }: SectionProps) {
       </Panel>
 
       <Panel className="space-y-3 p-4">
-        <h2 className="text-sm font-semibold">Keyword dari lowongan</h2>
+        <h2 className="text-sm font-bold">Keyword dari lowongan</h2>
         {!cv.jobDescription.trim() ? (
           <p className="text-sm text-muted-foreground">Tempel deskripsi lowongan di Job Match supaya AI tahu keyword yang dicari.</p>
         ) : confirmable.length === 0 ? (

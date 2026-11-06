@@ -20,8 +20,8 @@ import { syncStatusLabel } from '@/lib/sync/messages';
 export function SyncPanel({ configured }: { configured: boolean }) {
   return (
     <Panel className="mt-8 p-5">
-      <h2 className="flex items-center gap-2 font-semibold">
-        <RefreshCw className="size-4 text-primary-soft" aria-hidden="true" />
+      <h2 className="flex items-center gap-2 font-extrabold">
+        <RefreshCw className="size-4 text-primary" aria-hidden="true" />
         Sinkronisasi cloud
       </h2>
       <p className="mt-1 max-w-xl text-sm text-muted-foreground">

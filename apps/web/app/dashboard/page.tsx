@@ -25,8 +25,10 @@ export default function DashboardPage() {
         <CvList />
         {/* Read on the server: whether sync exists is a property of this deployment, not of the
             user's browser, and the panel should not flash "belum masuk" while it finds out. */}
-        <div className="mx-auto w-full max-w-6xl px-4 pb-14">
-          <SyncPanel configured={isSyncConfigured()} />
+        <div className="section-brand flow-root">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pb-14">
+            <SyncPanel configured={isSyncConfigured()} />
+          </div>
         </div>
       </main>
       <SiteFooter />

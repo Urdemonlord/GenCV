@@ -17,8 +17,8 @@ export function ProfilAkun() {
 
   return (
     <Panel className="p-5">
-      <h2 className="flex items-center gap-2 font-semibold">
-        <User className="size-4 text-primary-soft" aria-hidden="true" />
+      <h2 className="flex items-center gap-2 font-extrabold">
+        <User className="size-4 text-primary" aria-hidden="true" />
         Akun
       </h2>
 
