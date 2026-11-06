@@ -1,5 +1,5 @@
 /**
- * Hunter feed import (client-side, no server call).
+ * Hunter feed parsing (dipakai server untuk render /lowongan dan browser untuk impor manual).
  *
  * The VPS hunter writes `jobs.json`: an array of job postings found by JobSpy
  * (LinkedIn / Indeed / Glassdoor). This module only validates and de-duplicates

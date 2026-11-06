@@ -222,7 +222,8 @@ export function JobCard({
             </span>
           )}
         </div>
-        <p className="mt-1.5 text-[10px] text-muted-foreground">
+        {/* Waktu relatif dihitung dari jam server lalu jam browser; boleh beda sedikit. */}
+        <p className="mt-1.5 text-[10px] text-muted-foreground" suppressHydrationWarning>
           Sumber: {siteName(job.site)}
           {posted ? ` · ${posted}` : ''}
         </p>
@@ -236,7 +237,11 @@ export function JobCard({
         ) : (
           <span className={cn(PILL, 'bg-brand-accent')}>✦ {score}% cocok</span>
         )}
-        {posted && <span className="whitespace-nowrap text-[11px] font-semibold text-muted-foreground">{posted}</span>}
+        {posted && (
+          <span className="whitespace-nowrap text-[11px] font-semibold text-muted-foreground" suppressHydrationWarning>
+            {posted}
+          </span>
+        )}
         {saved && (
           <button
             type="button"

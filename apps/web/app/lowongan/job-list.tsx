@@ -25,6 +25,7 @@ import {
   cvTitleForJob,
   parseHunterJobs,
   type HunterJob,
+  type HunterParseResult,
 } from '@/lib/cv/hunter';
 
 /**
@@ -147,14 +148,21 @@ const btnWhite =
 const btnGhostLight =
   'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2';
 
-export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
+export function JobList({
+  syncConfigured,
+  initialFeed,
+}: {
+  syncConfigured: boolean;
+  /** Feed yang sudah diambil server; null bila gagal, lalu browser mencoba sendiri. */
+  initialFeed: HunterParseResult | null;
+}) {
   const router = useRouter();
   const { toast } = useToast();
   const { data: session, isPending: sessionPending, error: sessionError } = authClient.useSession();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [jobs, setJobs] = useState<HunterJob[] | null>(null);
-  const [skipped, setSkipped] = useState(0);
-  const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>('loading');
+  const [jobs, setJobs] = useState<HunterJob[] | null>(initialFeed?.jobs ?? null);
+  const [skipped, setSkipped] = useState(initialFeed?.skipped ?? 0);
+  const [feedState, setFeedState] = useState<'loading' | 'loaded' | 'failed'>(initialFeed ? 'loaded' : 'loading');
   const [feedSource, setFeedSource] = useState<'otomatis' | 'manual'>('otomatis');
   // null = belum dipilih: begitu daftar CV terbaca, default-nya adalah CV
   // terbaru (yang terakhir diisi/diubah user), bukan CV kosong — supaya
@@ -228,9 +236,13 @@ export function JobList({ syncConfigured }: { syncConfigured: boolean }) {
   };
 
   // Feed otomatis: hunter harian mempublikasikan jobs.json ke repo data
-  // publik, dan halaman ini memuatnya langsung. Impor manual hanya jadi
-  // fallback kalau feed tidak bisa dijangkau.
-  useEffect(loadFeed, []);
+  // publik. Server sudah memuatnya (initialFeed); browser hanya mengambil
+  // sendiri bila server gagal. Impor manual jadi fallback terakhir.
+  useEffect(() => {
+    if (!initialFeed) loadFeed();
+    // Sekali saat mount: initialFeed tidak berubah selama halaman terbuka.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const importFile = (file: File | undefined) => {
     if (!file) return;

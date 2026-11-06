@@ -20,7 +20,7 @@ export const OPERATOR = 'Meowlabs';
 export const FEED_ALTERNATES = { types: { 'application/rss+xml': '/feed.xml' } } as const;
 
 /** Public pages listed in the sitemap; private workspace pages are never indexed. */
-export const PUBLIC_PATHS = ['/', '/templates', '/artikel', '/privasi', '/syarat'] as const;
+export const PUBLIC_PATHS = ['/', '/lowongan', '/templates', '/artikel', '/privasi', '/syarat'] as const;
 
 /** The one-line promise, reused by the layout metadata and the structured data below. */
 export const SITE_DESCRIPTION =
@@ -51,8 +51,15 @@ export function landingStructuredData() {
     '@id': `${SITE_URL}/#organization`,
     name: 'Ayo Kerja',
     url: SITE_URL,
+    logo: `${SITE_URL}/icon-512.png`,
     parentOrganization: { '@type': 'Organization', name: OPERATOR, url: 'https://www.meowlabs.id' },
     email: CONTACT_EMAIL,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: CONTACT_EMAIL,
+      availableLanguage: ['id', 'en'],
+    },
   };
 
   const application = {
