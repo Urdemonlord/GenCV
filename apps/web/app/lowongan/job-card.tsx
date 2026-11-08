@@ -23,6 +23,8 @@ const SITE_NAMES: Record<string, string> = {
   naukri: 'Naukri',
   bayt: 'Bayt',
   google: 'Google',
+  jobstreet: 'JobStreet',
+  glints: 'Glints',
 };
 
 /** Tile monogram perusahaan ala mockup: kuning, biru, atau biru-muda. */

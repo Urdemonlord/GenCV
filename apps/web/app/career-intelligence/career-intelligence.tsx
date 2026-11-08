@@ -374,14 +374,15 @@ export function CareerIntelligence({ syncConfigured }: { syncConfigured: boolean
               <div className="mt-4 flex flex-wrap gap-2">
                 {HUNTER_PORTALS.map((portal) => (
                   <Chip key={portal.name} tone={portal.status === 'aktif' ? 'primary' : 'neutral'} title={portal.note}>
-                    {portal.name} · {portal.status === 'aktif' ? 'dicari hunter harian' : 'belum dicari'}
+                    {portal.name} · {portal.status === 'aktif' ? 'dicari hunter harian' : 'dikumpulkan manual harian'}
                   </Chip>
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
                 Hunter harian mencari 9 board, tapi tidak semua board selalu mengembalikan lowongan — isi feed yang
-                tampil di atas adalah yang benar-benar ada. JobStreet dan Glints belum bisa dicari otomatis: tidak ada
-                API publik / board JobSpy, jadi cari manual dan tempel deskripsinya di editor.
+                tampil di atas adalah yang benar-benar ada. JobStreet dan Glints belum bisa dicari hunter otomatis:
+                tidak ada API publik / board JobSpy, tapi dikumpulkan manual setiap hari lewat koleksi harian, jadi
+                deskripsinya sudah ada di feed.
               </p>
             </Panel>
           </section>

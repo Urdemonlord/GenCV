@@ -103,8 +103,8 @@ export function cvTitleForJob(job: HunterJob): string {
  * `didukung` boards are ones JobSpy can search but the daily cron does not
  * run yet, so they must not be presented as covered. `belum` boards are the
  * ones users keep asking about (JobStreet, Glints): no public search API and
- * no JobSpy board, so the only honest route there is a manual search plus
- * pasting the ad into the editor.
+ * no JobSpy board, so the hunter cannot search them — they are collected
+ * manually by the daily collection cron instead.
  */
 export type HunterPortalStatus = 'aktif' | 'didukung' | 'belum';
 
@@ -124,6 +124,6 @@ export const HUNTER_PORTALS: HunterPortal[] = [
   { name: 'BDJobs', status: 'aktif', note: 'Dicari hunter harian.' },
   { name: 'HelloWork', status: 'aktif', note: 'Dicari hunter harian.' },
   { name: 'Google Jobs', status: 'aktif', note: 'Dicari hunter harian.' },
-  { name: 'JobStreet', status: 'belum', note: 'Tidak ada API publik / board JobSpy — cari manual, tempel deskripsi di editor.' },
-  { name: 'Glints', status: 'belum', note: 'Tidak ada API publik / board JobSpy — cari manual, tempel deskripsi di editor.' },
+  { name: 'JobStreet', status: 'belum', note: 'Tidak ada API publik / board JobSpy — dikumpulkan manual lewat koleksi harian.' },
+  { name: 'Glints', status: 'belum', note: 'Tidak ada API publik / board JobSpy — dikumpulkan manual lewat koleksi harian.' },
 ];
